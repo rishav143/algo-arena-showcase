@@ -10,7 +10,7 @@ const Navigation = () => {
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center space-x-3">
-            <div className="p-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl">
+            <div className="p-2 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-xl">
               <Code className="w-6 h-6 text-white" />
             </div>
             <span className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
@@ -19,19 +19,19 @@ const Navigation = () => {
           </div>
 
           <div className="hidden md:flex items-center space-x-8">
-            <a href="#topics" className="text-gray-700 hover:text-blue-600 font-medium transition-all duration-300 hover:scale-105">
+            <a href="#topics" className="text-gray-700 hover:text-cyan-600 font-medium transition-all duration-300 hover:scale-105">
               Topics
             </a>
-            <a href="#problems" className="text-gray-700 hover:text-blue-600 font-medium transition-all duration-300 hover:scale-105">
+            <a href="#problems" className="text-gray-700 hover:text-cyan-600 font-medium transition-all duration-300 hover:scale-105">
               Problems
             </a>
-            <a href="#practice" className="text-gray-700 hover:text-blue-600 font-medium transition-all duration-300 hover:scale-105">
+            <a href="#practice" className="text-gray-700 hover:text-cyan-600 font-medium transition-all duration-300 hover:scale-105">
               Practice
             </a>
-            <a href="#about" className="text-gray-700 hover:text-blue-600 font-medium transition-all duration-300 hover:scale-105">
+            <a href="#about" className="text-gray-700 hover:text-cyan-600 font-medium transition-all duration-300 hover:scale-105">
               About
             </a>
-            <button className="group relative px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full hover:from-blue-600 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 flex items-center gap-2">
+            <button className="group relative px-6 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-full hover:from-cyan-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 flex items-center gap-2">
               <Sparkles className="w-4 h-4 group-hover:rotate-12 transition-transform" />
               Get Started
             </button>
@@ -61,7 +61,7 @@ const Navigation = () => {
                 About
               </a>
               <div className="px-4 pt-2">
-                <button className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 rounded-full hover:from-blue-600 hover:to-purple-700 transition-all duration-300 flex items-center justify-center gap-2">
+                <button className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white py-3 rounded-full hover:from-cyan-600 hover:to-blue-700 transition-all duration-300 flex items-center justify-center gap-2">
                   <Sparkles className="w-4 h-4" />
                   Get Started
                 </button>
