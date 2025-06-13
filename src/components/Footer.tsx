@@ -1,51 +1,78 @@
 
 import React from 'react';
-import { Code, Github, Twitter, Mail } from 'lucide-react';
+import { Code, Github, Twitter, Mail, Heart } from 'lucide-react';
 
 const Footer = () => {
   return (
-    <footer className="bg-gray-900 text-white py-16">
-      <div className="max-w-6xl mx-auto px-4">
-        <div className="grid md:grid-cols-4 gap-8">
+    <footer className="bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 text-white py-20 relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute top-10 left-10 w-40 h-40 bg-blue-500 rounded-full filter blur-2xl"></div>
+        <div className="absolute bottom-10 right-10 w-40 h-40 bg-purple-500 rounded-full filter blur-2xl"></div>
+      </div>
+
+      <div className="max-w-6xl mx-auto px-4 relative z-10">
+        <div className="grid md:grid-cols-4 gap-12">
           <div className="col-span-2">
-            <div className="flex items-center space-x-2 mb-4">
-              <Code className="w-8 h-8 text-blue-400" />
+            <div className="flex items-center space-x-3 mb-6">
+              <div className="p-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl">
+                <Code className="w-6 h-6 text-white" />
+              </div>
               <span className="text-2xl font-bold">DSA Master</span>
             </div>
-            <p className="text-gray-400 mb-6 max-w-md">
-              Master Data Structures and Algorithms with structured content, 
-              detailed approaches, and clean code implementations.
+            <p className="text-gray-400 mb-8 max-w-md leading-relaxed">
+              Master Data Structures and Algorithms with our comprehensive platform 
+              featuring structured content, detailed approaches, and clean implementations.
             </p>
             <div className="flex space-x-4">
-              <Github className="w-6 h-6 text-gray-400 hover:text-white cursor-pointer transition-colors" />
-              <Twitter className="w-6 h-6 text-gray-400 hover:text-white cursor-pointer transition-colors" />
-              <Mail className="w-6 h-6 text-gray-400 hover:text-white cursor-pointer transition-colors" />
+              <a href="#" className="p-3 bg-white/10 hover:bg-white/20 rounded-xl transition-all duration-300 hover:scale-110">
+                <Github className="w-5 h-5 text-gray-400 hover:text-white transition-colors" />
+              </a>
+              <a href="#" className="p-3 bg-white/10 hover:bg-white/20 rounded-xl transition-all duration-300 hover:scale-110">
+                <Twitter className="w-5 h-5 text-gray-400 hover:text-white transition-colors" />
+              </a>
+              <a href="#" className="p-3 bg-white/10 hover:bg-white/20 rounded-xl transition-all duration-300 hover:scale-110">
+                <Mail className="w-5 h-5 text-gray-400 hover:text-white transition-colors" />
+              </a>
             </div>
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold mb-4">Topics</h3>
-            <ul className="space-y-2 text-gray-400">
-              <li className="hover:text-white cursor-pointer transition-colors">Arrays & Strings</li>
-              <li className="hover:text-white cursor-pointer transition-colors">Linked Lists</li>
-              <li className="hover:text-white cursor-pointer transition-colors">Trees & Graphs</li>
-              <li className="hover:text-white cursor-pointer transition-colors">Dynamic Programming</li>
+            <h3 className="text-lg font-semibold mb-6 text-white">Learning Topics</h3>
+            <ul className="space-y-3 text-gray-400">
+              <li className="hover:text-white cursor-pointer transition-colors hover:translate-x-1 duration-300">Arrays & Strings</li>
+              <li className="hover:text-white cursor-pointer transition-colors hover:translate-x-1 duration-300">Linked Lists</li>
+              <li className="hover:text-white cursor-pointer transition-colors hover:translate-x-1 duration-300">Trees & Graphs</li>
+              <li className="hover:text-white cursor-pointer transition-colors hover:translate-x-1 duration-300">Dynamic Programming</li>
+              <li className="hover:text-white cursor-pointer transition-colors hover:translate-x-1 duration-300">Sorting & Searching</li>
             </ul>
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold mb-4">Resources</h3>
-            <ul className="space-y-2 text-gray-400">
-              <li className="hover:text-white cursor-pointer transition-colors">Problem Sets</li>
-              <li className="hover:text-white cursor-pointer transition-colors">Code Examples</li>
-              <li className="hover:text-white cursor-pointer transition-colors">Study Guide</li>
-              <li className="hover:text-white cursor-pointer transition-colors">Interview Prep</li>
+            <h3 className="text-lg font-semibold mb-6 text-white">Resources</h3>
+            <ul className="space-y-3 text-gray-400">
+              <li className="hover:text-white cursor-pointer transition-colors hover:translate-x-1 duration-300">Problem Sets</li>
+              <li className="hover:text-white cursor-pointer transition-colors hover:translate-x-1 duration-300">Code Examples</li>
+              <li className="hover:text-white cursor-pointer transition-colors hover:translate-x-1 duration-300">Study Guide</li>
+              <li className="hover:text-white cursor-pointer transition-colors hover:translate-x-1 duration-300">Interview Prep</li>
+              <li className="hover:text-white cursor-pointer transition-colors hover:translate-x-1 duration-300">Practice Tests</li>
             </ul>
           </div>
         </div>
 
-        <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
-          <p>&copy; 2024 DSA Master. Built with passion for learning.</p>
+        <div className="border-t border-gray-800 mt-16 pt-8">
+          <div className="flex flex-col md:flex-row items-center justify-between">
+            <p className="text-gray-400 flex items-center gap-2">
+              &copy; 2024 DSA Master. Built with 
+              <Heart className="w-4 h-4 text-red-500 animate-pulse" />
+              for learning.
+            </p>
+            <div className="flex items-center gap-6 mt-4 md:mt-0 text-sm text-gray-400">
+              <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
+              <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
+              <a href="#" className="hover:text-white transition-colors">Contact Us</a>
+            </div>
+          </div>
         </div>
       </div>
     </footer>
