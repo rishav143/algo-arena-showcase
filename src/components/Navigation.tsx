@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { Code, Menu, X, Sparkles } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -9,19 +10,19 @@ const Navigation = () => {
     <nav className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md border-b border-gray-200/50 z-50 shadow-lg">
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          <div className="flex items-center space-x-3">
+          <Link to="/" className="flex items-center space-x-3">
             <div className="p-2 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-xl">
               <Code className="w-6 h-6 text-white" />
             </div>
             <span className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
               DSA Master
             </span>
-          </div>
+          </Link>
 
           <div className="hidden md:flex items-center space-x-8">
-            <a href="#topics" className="text-gray-700 hover:text-cyan-600 font-medium transition-all duration-300 hover:scale-105">
+            <Link to="/topics" className="text-gray-700 hover:text-cyan-600 font-medium transition-all duration-300 hover:scale-105">
               Topics
-            </a>
+            </Link>
             <a href="#problems" className="text-gray-700 hover:text-cyan-600 font-medium transition-all duration-300 hover:scale-105">
               Problems
             </a>
@@ -48,9 +49,9 @@ const Navigation = () => {
         {isMenuOpen && (
           <div className="md:hidden bg-white/90 backdrop-blur-md border-t border-gray-200 rounded-b-xl">
             <div className="py-4 space-y-1">
-              <a href="#topics" className="block px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
+              <Link to="/topics" className="block px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
                 Topics
-              </a>
+              </Link>
               <a href="#problems" className="block px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
                 Problems
               </a>
