@@ -20,6 +20,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/topics" element={<Topics />} />
+          <Route path="/practice" element={<Practice />} />
           <Route path="/arrays-strings" element={<Topics />} />
           <Route path="/linked-lists" element={<Topics />} />
           <Route path="/stacks-queues" element={<Topics />} />
