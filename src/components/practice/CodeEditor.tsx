@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useProjectContext } from '@/contexts/ProjectContext';
@@ -12,11 +11,15 @@ import { getLanguageTemplate } from '@/utils/editorStateManager';
 interface CodeEditorProps {
   onRunCode?: () => void;
   onExecutionError?: (error: string) => void;
+  theme: string;
+  onThemeChange: (theme: string) => void;
 }
 
 export const CodeEditor: React.FC<CodeEditorProps> = ({ 
   onRunCode,
-  onExecutionError
+  onExecutionError,
+  theme,
+  onThemeChange
 }) => {
   const { toast } = useToast();
   const { selectedFile, updateFileContent, selectedProject, setSelectedFile } = useProjectContext();
@@ -28,7 +31,6 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   });
 
   const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
-  const [theme, setTheme] = useState('light');
   const saveManagerRef = useRef<HTMLDivElement>(null);
 
   // Keyboard shortcuts
@@ -151,15 +153,32 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
     return editorState.content.trim().length > 0;
   };
 
+  const getThemeStyles = (theme: string) => {
+    switch (theme) {
+      case 'dark':
+        return 'bg-gray-900 border-gray-700';
+      case 'monokai':
+        return 'bg-gray-800 border-gray-600';
+      case 'dracula':
+        return 'bg-purple-900 border-purple-700';
+      case 'github':
+        return 'bg-white border-gray-300';
+      case 'vscode':
+        return 'bg-gray-800 border-gray-600';
+      default:
+        return 'bg-white border-gray-300';
+    }
+  };
+
   return (
-    <div className="flex flex-col h-full">
+    <div className={`flex flex-col h-full ${getThemeStyles(theme)}`}>
       <EditorHeader
         currentFileName={getCurrentFileName()}
         hasUnsavedChanges={editorStateManager.editorState.hasUnsavedChanges}
         language={editorStateManager.editorState.language}
         theme={theme}
         onLanguageChange={handleLanguageChange}
-        onThemeChange={setTheme}
+        onThemeChange={onThemeChange}
         onRun={handleRun}
         onSave={handleSave}
         onCopy={handleCopy}
@@ -170,6 +189,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
         content={editorStateManager.editorState.content}
         onChange={editorStateManager.updateContent}
         theme={theme}
+        showLineNumbers={true}
       />
 
       <SaveDialogs

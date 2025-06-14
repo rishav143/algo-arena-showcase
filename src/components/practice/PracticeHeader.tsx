@@ -1,162 +1,130 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Search, Play, Video, Home, ChevronRight, PanelLeft } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
-import { Link } from 'react-router-dom';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { 
+  Play, 
+  Send, 
+  Video, 
+  PanelLeftOpen,
+  Palette
+} from 'lucide-react';
 
 interface PracticeHeaderProps {
-  onVideoSelect: (video: any) => void;
-  onRunCode: () => void;
-  onSubmitCode: () => void;
+  onVideoSelect?: (video: any) => void;
+  onRunCode?: () => void;
+  onSubmitCode?: () => void;
   onToggleSidebar?: () => void;
+  theme: string;
+  onThemeChange: (theme: string) => void;
 }
 
-export const PracticeHeader: React.FC<PracticeHeaderProps> = ({ 
-  onVideoSelect, 
-  onRunCode, 
+const themes = [
+  { value: 'light', label: 'Light' },
+  { value: 'dark', label: 'Dark' },
+  { value: 'monokai', label: 'Monokai' },
+  { value: 'dracula', label: 'Dracula' },
+  { value: 'github', label: 'GitHub' },
+  { value: 'vscode', label: 'VS Code' },
+];
+
+export const PracticeHeader: React.FC<PracticeHeaderProps> = ({
+  onVideoSelect,
+  onRunCode,
   onSubmitCode,
-  onToggleSidebar 
+  onToggleSidebar,
+  theme,
+  onThemeChange,
 }) => {
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-
-  const mockVideos = [
-    {
-      id: '1',
-      title: 'Two Sum Problem - Complete Solution',
-      channel: 'Rishav Engineering',
-      duration: '15:30',
-      isMyVideo: true,
-      videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ'
-    },
-    {
-      id: '2', 
-      title: 'Array Problems Explained',
-      channel: 'CodeWithMosh',
-      duration: '22:15',
-      isMyVideo: false,
-      videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ'
-    },
-    {
-      id: '3',
-      title: 'Binary Search Implementation',
-      channel: 'Rishav Engineering', 
-      duration: '18:45',
-      isMyVideo: true,
-      videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ'
+  const getThemeStyles = (theme: string) => {
+    switch (theme) {
+      case 'dark':
+        return 'bg-gray-900 border-gray-700 text-gray-100';
+      case 'monokai':
+        return 'bg-gray-800 border-gray-600 text-green-400';
+      case 'dracula':
+        return 'bg-purple-900 border-purple-700 text-purple-100';
+      case 'github':
+        return 'bg-white border-gray-300 text-gray-900';
+      case 'vscode':
+        return 'bg-gray-800 border-gray-600 text-blue-200';
+      default:
+        return 'bg-white border-gray-300 text-gray-900';
     }
-  ];
-
-  const handleVideoSelect = (video: any) => {
-    console.log('Selected video:', video);
-    onVideoSelect(video);
-    setSearchOpen(false);
   };
 
   return (
-    <div className="border-b bg-background p-3">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            {onToggleSidebar && (
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={onToggleSidebar}>
-                <PanelLeft className="w-4 h-4" />
-              </Button>
-            )}
-            <div className="flex flex-col">
-              <h1 className="text-lg font-semibold">CodeRoom Practice</h1>
-              <nav className="flex items-center space-x-1 text-xs text-muted-foreground">
-                <Link to="/" className="flex items-center hover:text-foreground">
-                  <Home className="w-3 h-3 mr-1" />
-                  Home
-                </Link>
-                <ChevronRight className="w-3 h-3" />
-                <span className="font-medium">Practice</span>
-              </nav>
-            </div>
-          </div>
-          
-          <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline" size="sm" className="flex items-center gap-2">
-                <Search className="w-4 h-4" />
-                Search Problems & Videos
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl">
-              <DialogHeader>
-                <DialogTitle>Search Problems & Video Tutorials</DialogTitle>
-              </DialogHeader>
-              <Command>
-                <CommandInput 
-                  placeholder="Search for coding problems..."
-                  value={searchQuery}
-                  onValueChange={setSearchQuery}
-                />
-                <CommandList>
-                  <CommandEmpty>No results found.</CommandEmpty>
-                  <CommandGroup heading="Recommended Videos">
-                    {mockVideos
-                      .filter(video => video.isMyVideo)
-                      .map((video) => (
-                        <CommandItem
-                          key={video.id}
-                          onSelect={() => handleVideoSelect(video)}
-                          className="flex items-center gap-3 p-3 cursor-pointer"
-                        >
-                          <div className="p-2 bg-red-100 rounded">
-                            <Video className="w-4 h-4 text-red-600" />
-                          </div>
-                          <div className="flex-1">
-                            <div className="font-medium">{video.title}</div>
-                            <div className="text-sm text-muted-foreground">
-                              {video.channel} • {video.duration}
-                            </div>
-                          </div>
-                          <Button size="sm" variant="ghost">
-                            <Play className="w-4 h-4" />
-                          </Button>
-                        </CommandItem>
-                      ))}
-                  </CommandGroup>
-                  <CommandGroup heading="Other Videos">
-                    {mockVideos
-                      .filter(video => !video.isMyVideo)
-                      .map((video) => (
-                        <CommandItem
-                          key={video.id}
-                          onSelect={() => handleVideoSelect(video)}
-                          className="flex items-center gap-3 p-3 cursor-pointer"
-                        >
-                          <div className="p-2 bg-gray-100 rounded">
-                            <Video className="w-4 h-4 text-gray-600" />
-                          </div>
-                          <div className="flex-1">
-                            <div className="font-medium">{video.title}</div>
-                            <div className="text-sm text-muted-foreground">
-                              {video.channel} • {video.duration}
-                            </div>
-                          </div>
-                        </CommandItem>
-                      ))}
-                  </CommandGroup>
-                </CommandList>
-              </Command>
-            </DialogContent>
-          </Dialog>
-        </div>
+    <div className={`border-b p-4 flex items-center justify-between ${getThemeStyles(theme)}`}>
+      <div className="flex items-center gap-4">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onToggleSidebar}
+          className="flex items-center gap-2"
+        >
+          <PanelLeftOpen className="w-4 h-4" />
+          Sidebar
+        </Button>
         
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={onRunCode}>
-            Run Code
-          </Button>
-          <Button size="sm" onClick={onSubmitCode}>
-            Submit
-          </Button>
-        </div>
+        <h1 className="text-xl font-bold">CodeRoom Practice</h1>
+      </div>
+      
+      <div className="flex items-center gap-2">
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="ghost" size="sm">
+              <Palette className="w-4 h-4" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-40" align="end">
+            <div className="space-y-2">
+              <h4 className="font-medium text-sm">Theme</h4>
+              <div className="grid gap-1">
+                {themes.map((themeOption) => (
+                  <Button
+                    key={themeOption.value}
+                    variant={theme === themeOption.value ? "default" : "ghost"}
+                    size="sm"
+                    className="w-full justify-start"
+                    onClick={() => onThemeChange(themeOption.value)}
+                  >
+                    {themeOption.label}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
+
+        <Button 
+          variant="outline" 
+          size="sm"
+          onClick={() => onVideoSelect?.({ title: 'Sample Video', url: 'https://example.com' })}
+          className="flex items-center gap-2"
+        >
+          <Video className="w-4 h-4" />
+          Watch Tutorial
+        </Button>
+        
+        <Button 
+          variant="outline" 
+          size="sm"
+          onClick={onRunCode}
+          className="flex items-center gap-2"
+        >
+          <Play className="w-4 h-4" />
+          Run Code
+        </Button>
+        
+        <Button 
+          size="sm"
+          onClick={onSubmitCode}
+          className="flex items-center gap-2"
+        >
+          <Send className="w-4 h-4" />
+          Submit
+        </Button>
       </div>
     </div>
   );
