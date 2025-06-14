@@ -304,9 +304,9 @@ const Practice = () => {
               </div>
 
               {/* Editor and Output Grid */}
-              <div className="flex-1 flex min-h-0">
+              <div className="flex-1 flex min-h-0 gap-4 p-4">
                 {/* Code Editor - Left Side */}
-                <div className="flex-1 p-4 pr-2">
+                <div className="flex-1 min-w-0">
                   <div className="bg-white rounded-lg shadow-sm border border-gray-200 h-full flex flex-col overflow-hidden">
                     <div className="bg-gray-800 text-gray-300 p-3 text-sm font-medium border-b flex items-center justify-between flex-shrink-0">
                       <div className="flex items-center gap-2">
@@ -330,7 +330,7 @@ const Practice = () => {
                 </div>
 
                 {/* Output and AI Panel - Right Side */}
-                <div className="w-80 lg:w-96 p-4 pl-2">
+                <div className="w-96 flex-shrink-0">
                   <div className="bg-white rounded-lg shadow-sm border border-gray-200 h-full flex flex-col overflow-hidden">
                     <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
                       <TabsList className="grid w-full grid-cols-2 bg-gray-50 m-0 rounded-none rounded-t-lg flex-shrink-0">
