@@ -72,54 +72,14 @@ export const useProjectManager = () => {
     
     toast({
       title: "Project Deleted",
-      description: "Project and all its files have been removed successfully.",
+      description: "Project has been removed successfully.",
     });
   }, [toast]);
-
-  const renameFile = useCallback((fileId: string, newName: string) => {
-    setProjects(prev => prev.map(project => ({
-      ...project,
-      files: project.files.map(file => 
-        file.id === fileId 
-          ? { ...file, name: newName }
-          : file
-      ),
-      updatedAt: new Date()
-    })));
-
-    toast({
-      title: "File Renamed",
-      description: `File has been renamed to ${newName}.`,
-    });
-  }, [toast]);
-
-  const updateFileContent = useCallback((fileId: string, content: string) => {
-    setProjects(prev => prev.map(project => ({
-      ...project,
-      files: project.files.map(file => 
-        file.id === fileId 
-          ? { ...file, content }
-          : file
-      ),
-      updatedAt: new Date()
-    })));
-  }, []);
-
-  const getFileById = useCallback((fileId: string): File | null => {
-    for (const project of projects) {
-      const file = project.files.find(f => f.id === fileId);
-      if (file) return file;
-    }
-    return null;
-  }, [projects]);
 
   return {
     projects,
     createProject,
     createFile,
     deleteProject,
-    renameFile,
-    updateFileContent,
-    getFileById,
   };
 };

@@ -6,7 +6,6 @@ import { OutputPanel } from './OutputPanel';
 import { PracticeHeader } from './PracticeHeader';
 import { useAIAssistant } from '@/hooks/useAIAssistant';
 import { useVideoManager } from '@/hooks/useVideoManager';
-import { useProjectManager } from '@/hooks/useProjectManager';
 
 export const PracticeWorkspace = () => {
   const [activeFile, setActiveFile] = useState<string | null>(null);
@@ -14,7 +13,6 @@ export const PracticeWorkspace = () => {
   
   const aiAssistant = useAIAssistant();
   const videoManager = useVideoManager();
-  const projectManager = useProjectManager();
 
   const handleCodeError = (error: string | null) => {
     if (error && aiAssistant.isEnabled) {
@@ -22,51 +20,39 @@ export const PracticeWorkspace = () => {
     }
   };
 
-  const handleFileSelect = (fileId: string) => {
-    setActiveFile(fileId);
-    const file = projectManager.getFileById(fileId);
-    if (file) {
-      setCode(file.content);
-    }
-  };
-
-  const handleCodeChange = (newCode: string) => {
-    setCode(newCode);
-    if (activeFile) {
-      projectManager.updateFileContent(activeFile, newCode);
-    }
-  };
-
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full min-h-0">
       <PracticeHeader 
         onVideoSelect={videoManager.selectVideo}
         onVideoSearch={videoManager.searchVideos}
         searchResults={videoManager.searchResults}
       />
       
-      <div className="flex-1">
+      <div className="flex-1 min-h-0">
         <ResizablePanelGroup direction="horizontal" className="h-full">
           {/* Code Editor Panel */}
           <ResizablePanel defaultSize={60} minSize={30}>
-            <CodeEditor 
-              code={code}
-              onChange={handleCodeChange}
-              language="javascript"
-              onError={handleCodeError}
-              activeFile={activeFile}
-            />
+            <div className="h-full">
+              <CodeEditor 
+                code={code}
+                onChange={setCode}
+                language="javascript"
+                onError={handleCodeError}
+              />
+            </div>
           </ResizablePanel>
           
           <ResizableHandle withHandle />
           
           {/* Output/AI Assistant Panel */}
           <ResizablePanel defaultSize={40} minSize={25}>
-            <OutputPanel 
-              code={code} 
-              aiAssistant={aiAssistant}
-              videoManager={videoManager}
-            />
+            <div className="h-full">
+              <OutputPanel 
+                code={code} 
+                aiAssistant={aiAssistant}
+                videoManager={videoManager}
+              />
+            </div>
           </ResizablePanel>
         </ResizablePanelGroup>
       </div>

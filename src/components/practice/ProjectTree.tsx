@@ -12,18 +12,15 @@ import { useProjectManager } from '@/hooks/useProjectManager';
 
 interface ProjectTreeProps {
   projects: Project[];
-  onFileSelect?: (fileId: string) => void;
 }
 
-export const ProjectTree: React.FC<ProjectTreeProps> = ({ projects, onFileSelect }) => {
-  const { createFile, deleteProject, renameFile } = useProjectManager();
+export const ProjectTree: React.FC<ProjectTreeProps> = ({ projects }) => {
+  const { createFile, deleteProject } = useProjectManager();
   const [expandedProjects, setExpandedProjects] = useState<Set<string>>(new Set());
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const [isCreateFileDialogOpen, setIsCreateFileDialogOpen] = useState(false);
   const [selectedProjectForFile, setSelectedProjectForFile] = useState<string>('');
   const [newFileName, setNewFileName] = useState('');
-  const [editingFile, setEditingFile] = useState<string | null>(null);
-  const [editingFileName, setEditingFileName] = useState('');
 
   const toggleProject = (projectId: string) => {
     const newExpanded = new Set(expandedProjects);
@@ -37,7 +34,7 @@ export const ProjectTree: React.FC<ProjectTreeProps> = ({ projects, onFileSelect
 
   const handleFileSelect = (fileId: string) => {
     setSelectedFile(fileId);
-    onFileSelect?.(fileId);
+    // TODO: Load file content in editor
   };
 
   const handleCreateFile = () => {
@@ -52,29 +49,6 @@ export const ProjectTree: React.FC<ProjectTreeProps> = ({ projects, onFileSelect
   const openCreateFileDialog = (projectId: string) => {
     setSelectedProjectForFile(projectId);
     setIsCreateFileDialogOpen(true);
-  };
-
-  const handleFileDoubleClick = (file: File) => {
-    setEditingFile(file.id);
-    setEditingFileName(file.name);
-  };
-
-  const handleFileRename = (fileId: string) => {
-    if (editingFileName.trim()) {
-      renameFile(fileId, editingFileName.trim());
-    }
-    setEditingFile(null);
-    setEditingFileName('');
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent, action: () => void) => {
-    if (e.key === 'Enter') {
-      action();
-    }
-    if (e.key === 'Escape') {
-      setEditingFile(null);
-      setEditingFileName('');
-    }
   };
 
   return (
@@ -136,7 +110,7 @@ export const ProjectTree: React.FC<ProjectTreeProps> = ({ projects, onFileSelect
                         <AlertDialogHeader>
                           <AlertDialogTitle>Delete Project</AlertDialogTitle>
                           <AlertDialogDescription>
-                            Are you sure you want to delete "{project.name}" and all its files? This action cannot be undone.
+                            Are you sure you want to delete "{project.name}"? This action cannot be undone.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
@@ -165,21 +139,9 @@ export const ProjectTree: React.FC<ProjectTreeProps> = ({ projects, onFileSelect
                       selectedFile === file.id && "bg-accent"
                     )}
                     onClick={() => handleFileSelect(file.id)}
-                    onDoubleClick={() => handleFileDoubleClick(file)}
                   >
                     <FileText className="w-4 h-4 text-gray-500" />
-                    {editingFile === file.id ? (
-                      <Input
-                        value={editingFileName}
-                        onChange={(e) => setEditingFileName(e.target.value)}
-                        onBlur={() => handleFileRename(file.id)}
-                        onKeyDown={(e) => handleKeyDown(e, () => handleFileRename(file.id))}
-                        className="h-6 text-sm"
-                        autoFocus
-                      />
-                    ) : (
-                      <span className="text-sm">{file.name}</span>
-                    )}
+                    <span className="text-sm">{file.name}</span>
                   </div>
                 ))}
               </div>
