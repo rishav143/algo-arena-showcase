@@ -48,7 +48,7 @@ const PracticeWorkspace = () => {
   };
 
   return (
-    <div className="flex flex-col flex-1 min-h-0">
+    <div className="h-full flex flex-col">
       <PracticeHeader
         selectedLanguage={selectedLanguage}
         languages={languages}
@@ -58,7 +58,7 @@ const PracticeWorkspace = () => {
         onCopyCode={handleCopyCode}
       />
 
-      <div className="flex-1 p-4 min-h-0">
+      <div className="flex-1 p-4">
         <ResizablePanelGroup direction="horizontal" className="h-full rounded-lg border">
           <ResizablePanel defaultSize={50} minSize={25}>
             <CodeEditor
