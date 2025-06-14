@@ -1,7 +1,8 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { 
   Sidebar, 
   SidebarContent, 
@@ -13,7 +14,7 @@ import {
   SidebarMenuItem,
   SidebarMenuButton
 } from '@/components/ui/sidebar';
-import { FolderOpen, Save, Trash2, Eye, EyeOff } from 'lucide-react';
+import { FolderOpen, Save, Trash2, Eye, EyeOff, ChevronDown, ChevronUp } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface SavedProject {
@@ -45,6 +46,8 @@ const ProjectSidebar: React.FC<ProjectSidebarProps> = ({
   onLoadProject,
   onDeleteProject
 }) => {
+  const [savedProjectsVisible, setSavedProjectsVisible] = useState(true);
+
   return (
     <Sidebar className="w-64">
       <SidebarHeader className="border-b border-gray-200 p-4">
@@ -53,7 +56,7 @@ const ProjectSidebar: React.FC<ProjectSidebarProps> = ({
           Projects
         </h2>
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className="flex flex-col h-full">
         <SidebarGroup>
           <SidebarGroupLabel>Current Project</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -95,40 +98,54 @@ const ProjectSidebar: React.FC<ProjectSidebarProps> = ({
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarGroup>
-          <SidebarGroupLabel>Saved Projects ({savedProjects.length})</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {savedProjects.length > 0 ? (
-                savedProjects.map((project) => (
-                  <SidebarMenuItem key={project.id} className="flex items-center justify-between">
-                    <SidebarMenuButton
-                      onClick={() => onLoadProject(project)}
-                      className="flex-1 justify-start text-left"
-                    >
-                      <div className="flex-1 min-w-0">
-                        <div className="font-medium truncate">{project.name}</div>
-                        <div className="text-xs text-gray-500">{project.language}</div>
-                        <div className="text-xs text-gray-400">{project.lastModified.toLocaleDateString()}</div>
-                      </div>
-                    </SidebarMenuButton>
-                    <Button 
-                      size="sm" 
-                      variant="ghost"
-                      onClick={() => onDeleteProject(project.id)}
-                      className="h-8 w-8 p-0 text-red-600 hover:bg-red-50"
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </Button>
-                  </SidebarMenuItem>
-                ))
-              ) : (
-                <div className="p-3 text-center text-gray-500 text-sm">
-                  No saved projects yet
-                </div>
-              )}
-            </SidebarMenu>
-          </SidebarGroupContent>
+        <SidebarGroup className="flex-1 min-h-0">
+          <div className="flex items-center justify-between px-2">
+            <SidebarGroupLabel>Saved Projects ({savedProjects.length})</SidebarGroupLabel>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setSavedProjectsVisible(!savedProjectsVisible)}
+              className="h-6 w-6 p-0"
+            >
+              {savedProjectsVisible ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </Button>
+          </div>
+          {savedProjectsVisible && (
+            <SidebarGroupContent className="flex-1 min-h-0">
+              <ScrollArea className="h-full px-2">
+                <SidebarMenu>
+                  {savedProjects.length > 0 ? (
+                    savedProjects.map((project) => (
+                      <SidebarMenuItem key={project.id} className="flex items-center justify-between mb-2">
+                        <SidebarMenuButton
+                          onClick={() => onLoadProject(project)}
+                          className="flex-1 justify-start text-left"
+                        >
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium truncate">{project.name}</div>
+                            <div className="text-xs text-gray-500">{project.language}</div>
+                            <div className="text-xs text-gray-400">{project.lastModified.toLocaleDateString()}</div>
+                          </div>
+                        </SidebarMenuButton>
+                        <Button 
+                          size="sm" 
+                          variant="ghost"
+                          onClick={() => onDeleteProject(project.id)}
+                          className="h-8 w-8 p-0 text-red-600 hover:bg-red-50 ml-2"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
+                      </SidebarMenuItem>
+                    ))
+                  ) : (
+                    <div className="p-3 text-center text-gray-500 text-sm">
+                      No saved projects yet
+                    </div>
+                  )}
+                </SidebarMenu>
+              </ScrollArea>
+            </SidebarGroupContent>
+          )}
         </SidebarGroup>
       </SidebarContent>
     </Sidebar>
