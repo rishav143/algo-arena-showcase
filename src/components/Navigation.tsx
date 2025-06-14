@@ -28,28 +28,16 @@ const Navigation = () => {
             {[
               { name: 'Topics', href: '#topics' },
               { name: 'Problems', href: '#problems' },
-              { name: 'Practice', href: '/practice' },
               { name: 'About', href: '#about' }
             ].map((item) => (
-              item.href.startsWith('/') ? (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  className="px-3 py-2 text-gray-700 hover:text-indigo-600 font-medium text-sm rounded-lg hover:bg-gray-50 transition-all duration-200 relative group"
-                >
-                  {item.name}
-                  <div className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-indigo-600 group-hover:w-6 group-hover:left-1/2 group-hover:-translate-x-1/2 transition-all duration-300"></div>
-                </Link>
-              ) : (
-                <a
-                  key={item.name}
-                  href={item.href}
-                  className="px-3 py-2 text-gray-700 hover:text-indigo-600 font-medium text-sm rounded-lg hover:bg-gray-50 transition-all duration-200 relative group"
-                >
-                  {item.name}
-                  <div className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-indigo-600 group-hover:w-6 group-hover:left-1/2 group-hover:-translate-x-1/2 transition-all duration-300"></div>
-                </a>
-              )
+              <a
+                key={item.name}
+                href={item.href}
+                className="px-3 py-2 text-gray-700 hover:text-indigo-600 font-medium text-sm rounded-lg hover:bg-gray-50 transition-all duration-200 relative group"
+              >
+                {item.name}
+                <div className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-indigo-600 group-hover:w-6 group-hover:left-1/2 group-hover:-translate-x-1/2 transition-all duration-300"></div>
+              </a>
             ))}
             
             <div className="ml-4 pl-4 border-l border-gray-200">
@@ -77,28 +65,16 @@ const Navigation = () => {
             {[
               { name: 'Topics', href: '#topics' },
               { name: 'Problems', href: '#problems' },
-              { name: 'Practice', href: '/practice' },
               { name: 'About', href: '#about' }
             ].map((item) => (
-              item.href.startsWith('/') ? (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  onClick={() => setIsMenuOpen(false)}
-                  className="block px-3 py-2.5 text-gray-700 hover:text-indigo-600 hover:bg-gray-50 rounded-lg font-medium text-sm transition-all duration-200"
-                >
-                  {item.name}
-                </Link>
-              ) : (
-                <a
-                  key={item.name}
-                  href={item.href}
-                  onClick={() => setIsMenuOpen(false)}
-                  className="block px-3 py-2.5 text-gray-700 hover:text-indigo-600 hover:bg-gray-50 rounded-lg font-medium text-sm transition-all duration-200"
-                >
-                  {item.name}
-                </a>
-              )
+              <a
+                key={item.name}
+                href={item.href}
+                onClick={() => setIsMenuOpen(false)}
+                className="block px-3 py-2.5 text-gray-700 hover:text-indigo-600 hover:bg-gray-50 rounded-lg font-medium text-sm transition-all duration-200"
+              >
+                {item.name}
+              </a>
             ))}
             
             <div className="pt-3 px-3">
