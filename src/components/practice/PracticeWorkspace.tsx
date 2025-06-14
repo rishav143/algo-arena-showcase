@@ -5,7 +5,11 @@ import { CodeEditor } from './CodeEditor';
 import { OutputPanel } from './OutputPanel';
 import { PracticeHeader } from './PracticeHeader';
 
-export const PracticeWorkspace = () => {
+interface PracticeWorkspaceProps {
+  onToggleSidebar?: () => void;
+}
+
+export const PracticeWorkspace: React.FC<PracticeWorkspaceProps> = ({ onToggleSidebar }) => {
   const [selectedVideo, setSelectedVideo] = useState<any>(null);
   const [aiAssistantEnabled, setAiAssistantEnabled] = useState(true);
   const [activeTab, setActiveTab] = useState('output');
@@ -38,6 +42,7 @@ export const PracticeWorkspace = () => {
         onVideoSelect={handleVideoSelect}
         onRunCode={handleRunCode}
         onSubmitCode={handleSubmitCode}
+        onToggleSidebar={onToggleSidebar}
       />
       
       <div className="flex-1">

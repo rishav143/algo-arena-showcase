@@ -5,7 +5,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 interface SaveDialogsProps {
   showUnsavedDialog: boolean;
   onUnsavedDialogChange: (open: boolean) => void;
-  onUnsavedDialogAction: (action: 'save' | 'discard') => void;
+  onUnsavedDialogAction: (action: 'discard') => void;
 }
 
 export const SaveDialogs: React.FC<SaveDialogsProps> = ({
@@ -19,15 +19,15 @@ export const SaveDialogs: React.FC<SaveDialogsProps> = ({
         <AlertDialogHeader>
           <AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
           <AlertDialogDescription>
-            You have unsaved changes. What would you like to do?
+            You have unsaved changes. Do you want to discard them?
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={() => onUnsavedDialogAction('discard')}>
-            Discard Changes
+          <AlertDialogCancel onClick={() => onUnsavedDialogChange(false)}>
+            Cancel
           </AlertDialogCancel>
-          <AlertDialogAction onClick={() => onUnsavedDialogAction('save')}>
-            Save Changes
+          <AlertDialogAction onClick={() => onUnsavedDialogAction('discard')}>
+            Discard Changes
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

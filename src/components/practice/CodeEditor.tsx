@@ -28,6 +28,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   });
 
   const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
+  const [theme, setTheme] = useState('light');
   const saveManagerRef = useRef<HTMLDivElement>(null);
 
   // Keyboard shortcuts
@@ -120,11 +121,10 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
     }
   };
 
-  const handleUnsavedDialogAction = (action: 'save' | 'discard') => {
-    if (action === 'save') {
-      handleSave();
+  const handleUnsavedDialogAction = (action: 'discard') => {
+    if (action === 'discard') {
+      editorStateManager.executePendingAction();
     }
-    editorStateManager.executePendingAction();
     setShowUnsavedDialog(false);
   };
 
@@ -157,7 +157,9 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
         currentFileName={getCurrentFileName()}
         hasUnsavedChanges={editorStateManager.editorState.hasUnsavedChanges}
         language={editorStateManager.editorState.language}
+        theme={theme}
         onLanguageChange={handleLanguageChange}
+        onThemeChange={setTheme}
         onRun={handleRun}
         onSave={handleSave}
         onCopy={handleCopy}
@@ -167,6 +169,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
       <EditorContent
         content={editorStateManager.editorState.content}
         onChange={editorStateManager.updateContent}
+        theme={theme}
       />
 
       <SaveDialogs

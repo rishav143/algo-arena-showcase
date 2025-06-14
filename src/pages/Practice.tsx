@@ -6,16 +6,23 @@ import { ProjectProvider } from '@/contexts/ProjectContext';
 
 const Practice = () => {
   const [aiAssistantEnabled, setAiAssistantEnabled] = useState(true);
+  const [sidebarVisible, setSidebarVisible] = useState(true);
+
+  const toggleSidebar = () => {
+    setSidebarVisible(!sidebarVisible);
+  };
 
   return (
     <ProjectProvider>
       <div className="h-screen flex w-full">
-        <PracticeSidebar 
-          aiAssistantEnabled={aiAssistantEnabled}
-          onAiAssistantToggle={setAiAssistantEnabled}
-        />
+        {sidebarVisible && (
+          <PracticeSidebar 
+            aiAssistantEnabled={aiAssistantEnabled}
+            onAiAssistantToggle={setAiAssistantEnabled}
+          />
+        )}
         <main className="flex-1 flex flex-col">
-          <PracticeWorkspace />
+          <PracticeWorkspace onToggleSidebar={toggleSidebar} />
         </main>
       </div>
     </ProjectProvider>
