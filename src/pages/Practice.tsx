@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -231,14 +232,14 @@ const Practice = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex flex-col">
       <Navigation />
       
-      <div className="flex-1 pt-20">
+      <div className="flex-1 pt-20 pb-4">
         <SidebarProvider>
-          <div className="flex h-[calc(100vh-5rem)]">
+          <div className="flex h-[calc(100vh-6rem)]">
             <ProjectSidebar />
             
-            <div className="flex-1 flex flex-col">
+            <div className="flex-1 flex flex-col min-w-0">
               {/* Header */}
-              <div className="bg-white border-b border-gray-200 p-4">
+              <div className="bg-white border-b border-gray-200 p-4 flex-shrink-0">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-4">
                     <SidebarTrigger />
@@ -300,12 +301,12 @@ const Practice = () => {
                 </div>
               </div>
 
-              {/* Main Content */}
-              <div className="flex-1 flex p-4 gap-4">
-                {/* Code Editor */}
-                <div className="flex-1">
-                  <Card className="h-full">
-                    <CardHeader className="bg-gray-800 text-gray-300 p-3 rounded-t-lg">
+              {/* Main Content - Equal Split */}
+              <div className="flex-1 flex gap-4 p-4 min-h-0">
+                {/* Code Editor - 50% */}
+                <div className="flex-1 min-w-0">
+                  <Card className="h-full flex flex-col">
+                    <CardHeader className="bg-gray-800 text-gray-300 p-3 rounded-t-lg flex-shrink-0">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <Code2 className="w-4 h-4" />
@@ -318,11 +319,11 @@ const Practice = () => {
                         </div>
                       </div>
                     </CardHeader>
-                    <CardContent className="p-0 h-full">
+                    <CardContent className="p-0 flex-1 min-h-0">
                       <Textarea
                         value={code}
                         onChange={(e) => setCode(e.target.value)}
-                        className="h-[calc(100vh-300px)] w-full border-0 resize-none font-mono text-sm focus-visible:ring-0 rounded-none bg-gray-900 text-green-400 leading-relaxed"
+                        className="h-full w-full border-0 resize-none font-mono text-sm focus-visible:ring-0 rounded-none bg-gray-900 text-green-400 leading-relaxed"
                         placeholder="Write your code here..."
                         spellCheck={false}
                       />
@@ -330,11 +331,11 @@ const Practice = () => {
                   </Card>
                 </div>
 
-                {/* Output Panel */}
-                <div className="w-80">
-                  <Card className="h-full">
+                {/* Output Panel - 50% */}
+                <div className="flex-1 min-w-0">
+                  <Card className="h-full flex flex-col">
                     <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-                      <TabsList className="grid w-full grid-cols-2 bg-gray-50 m-0 rounded-none rounded-t-lg">
+                      <TabsList className="grid w-full grid-cols-2 bg-gray-50 m-0 rounded-none rounded-t-lg flex-shrink-0">
                         <TabsTrigger value="output" className="flex items-center gap-2">
                           <Zap className="w-4 h-4" />
                           Output
@@ -347,13 +348,13 @@ const Practice = () => {
                         </TabsTrigger>
                       </TabsList>
                       
-                      <TabsContent value="output" className="flex-1 p-4">
+                      <TabsContent value="output" className="flex-1 p-4 min-h-0">
                         <div className="bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm h-full whitespace-pre-wrap overflow-auto border-l-4 border-green-500">
                           {output || '🚀 Ready to run your code!\n\nClick "Run Code" to see the magic happen...\n\n💡 Tips:\n• Write your code in the editor\n• Use console.log() for debugging\n• Check syntax before running'}
                         </div>
                       </TabsContent>
                       
-                      <TabsContent value="ai-help" className="flex-1 p-4">
+                      <TabsContent value="ai-help" className="flex-1 p-4 min-h-0">
                         <div className="h-full flex flex-col">
                           {!aiAssistantEnabled ? (
                             <div className="flex-1 flex flex-col items-center justify-center text-center">
@@ -369,7 +370,7 @@ const Practice = () => {
                               </Button>
                             </div>
                           ) : aiSuggestion ? (
-                            <div className="flex-1 flex flex-col">
+                            <div className="flex-1 flex flex-col min-h-0">
                               <div className="bg-gradient-to-br from-purple-50 to-blue-50 p-4 rounded-lg border border-purple-200 flex-1 overflow-auto">
                                 <div className="text-sm text-gray-700 whitespace-pre-wrap">
                                   {aiSuggestion}
@@ -378,7 +379,7 @@ const Practice = () => {
                               <Button 
                                 size="sm" 
                                 variant="outline" 
-                                className="mt-4"
+                                className="mt-4 flex-shrink-0"
                                 onClick={() => setAiSuggestion('')}
                               >
                                 <X className="w-4 h-4 mr-2" />
