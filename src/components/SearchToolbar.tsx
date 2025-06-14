@@ -92,8 +92,20 @@ const SearchToolbar: React.FC<SearchToolbarProps> = React.memo(({
   }, [selectedDifficulty]);
 
   const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
-    setIsSearchOpen(true);
+    const value = e.target.value;
+    setSearchQuery(value);
+    setIsSearchOpen(value.length >= 2);
+  }, []);
+
+  const handleSearchFocus = useCallback(() => {
+    if (searchQuery.length >= 2) {
+      setIsSearchOpen(true);
+    }
+  }, [searchQuery]);
+
+  const handleSearchBlur = useCallback(() => {
+    // Delay closing to allow suggestion clicks
+    setTimeout(() => setIsSearchOpen(false), 200);
   }, []);
 
   const handleTopicClick = useCallback((topicName: string) => {
@@ -133,47 +145,44 @@ const SearchToolbar: React.FC<SearchToolbarProps> = React.memo(({
         <div className="flex flex-col space-y-4 lg:space-y-0 lg:flex-row lg:gap-6 lg:items-center">
           {/* Enhanced Search Input with Suggestions */}
           <div className="relative flex-1 w-full">
-            <Popover open={isSearchOpen && searchSuggestions.length > 0} onOpenChange={setIsSearchOpen}>
-              <PopoverTrigger asChild>
-                <div className="relative group">
-                  <Search className="absolute left-3 lg:left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 lg:w-5 lg:h-5 group-focus-within:text-blue-500 transition-colors duration-200" />
-                  <Input
-                    type="text"
-                    placeholder="Search problems by title or company..."
-                    value={searchQuery}
-                    onChange={handleSearchChange}
-                    onFocus={() => setIsSearchOpen(true)}
-                    className="pl-10 lg:pl-12 pr-4 py-2.5 lg:py-3 w-full bg-white border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 rounded-xl lg:rounded-2xl text-sm lg:text-base shadow-inner transition-all duration-200 hover:border-gray-300"
-                  />
-                  {searchQuery && (
-                    <ChevronDown className="absolute right-3 lg:right-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                  )}
+            <div className="relative group">
+              <Search className="absolute left-3 lg:left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 lg:w-5 lg:h-5 group-focus-within:text-blue-500 transition-colors duration-200 z-10" />
+              <Input
+                type="text"
+                placeholder="Search problems by title or company..."
+                value={searchQuery}
+                onChange={handleSearchChange}
+                onFocus={handleSearchFocus}
+                onBlur={handleSearchBlur}
+                className="pl-10 lg:pl-12 pr-4 py-2.5 lg:py-3 w-full bg-white border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 rounded-xl lg:rounded-2xl text-sm lg:text-base shadow-inner transition-all duration-200 hover:border-gray-300"
+              />
+              {searchQuery && searchSuggestions.length > 0 && (
+                <ChevronDown className="absolute right-3 lg:right-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              )}
+            </div>
+            
+            {/* Search Suggestions Dropdown */}
+            {isSearchOpen && searchSuggestions.length > 0 && (
+              <div className="absolute top-full left-0 right-0 mt-2 bg-white border-2 border-gray-200 rounded-xl lg:rounded-2xl shadow-xl z-50">
+                <div className="p-2">
+                  <div className="text-xs text-gray-500 px-3 py-2 font-medium">Suggested Problems</div>
+                  {searchSuggestions.map((suggestion) => (
+                    <div
+                      key={suggestion.id}
+                      onClick={() => handleSuggestionSelect(suggestion)}
+                      className="cursor-pointer hover:bg-blue-50 rounded-lg p-3 transition-colors"
+                    >
+                      <div className="flex flex-col gap-1">
+                        <span className="font-medium text-gray-900 text-sm lg:text-base">{suggestion.title}</span>
+                        <span className="text-xs text-gray-500">
+                          {suggestion.companies.join(', ')} • {suggestion.difficulty}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              </PopoverTrigger>
-              <PopoverContent className="w-full p-0 rounded-xl lg:rounded-2xl border-2 shadow-xl" align="start">
-                <Command>
-                  <CommandList className="max-h-64">
-                    <CommandEmpty>No problems found.</CommandEmpty>
-                    <CommandGroup heading="Suggested Problems">
-                      {searchSuggestions.map((suggestion) => (
-                        <CommandItem
-                          key={suggestion.id}
-                          onSelect={() => handleSuggestionSelect(suggestion)}
-                          className="cursor-pointer hover:bg-blue-50 rounded-lg m-1 p-2 lg:p-3"
-                        >
-                          <div className="flex flex-col gap-1">
-                            <span className="font-medium text-gray-900 text-sm lg:text-base">{suggestion.title}</span>
-                            <span className="text-xs text-gray-500">
-                              {suggestion.companies.join(', ')} • {suggestion.difficulty}
-                            </span>
-                          </div>
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
+              </div>
+            )}
           </div>
 
           {/* Enhanced Difficulty Filter - Better Mobile Layout */}
