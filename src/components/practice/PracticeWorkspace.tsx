@@ -21,38 +21,34 @@ export const PracticeWorkspace = () => {
   };
 
   return (
-    <div className="flex flex-col h-full min-h-0">
+    <div className="flex flex-col h-full">
       <PracticeHeader 
         onVideoSelect={videoManager.selectVideo}
         onVideoSearch={videoManager.searchVideos}
         searchResults={videoManager.searchResults}
       />
       
-      <div className="flex-1 min-h-0">
+      <div className="flex-1">
         <ResizablePanelGroup direction="horizontal" className="h-full">
           {/* Code Editor Panel */}
           <ResizablePanel defaultSize={60} minSize={30}>
-            <div className="h-full">
-              <CodeEditor 
-                code={code}
-                onChange={setCode}
-                language="javascript"
-                onError={handleCodeError}
-              />
-            </div>
+            <CodeEditor 
+              code={code}
+              onChange={setCode}
+              language="javascript"
+              onError={handleCodeError}
+            />
           </ResizablePanel>
           
           <ResizableHandle withHandle />
           
           {/* Output/AI Assistant Panel */}
           <ResizablePanel defaultSize={40} minSize={25}>
-            <div className="h-full">
-              <OutputPanel 
-                code={code} 
-                aiAssistant={aiAssistant}
-                videoManager={videoManager}
-              />
-            </div>
+            <OutputPanel 
+              code={code} 
+              aiAssistant={aiAssistant}
+              videoManager={videoManager}
+            />
           </ResizablePanel>
         </ResizablePanelGroup>
       </div>
