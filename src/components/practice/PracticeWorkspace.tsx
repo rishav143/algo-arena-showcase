@@ -21,14 +21,14 @@ export const PracticeWorkspace = () => {
   };
 
   return (
-    <div className="flex flex-col h-full min-h-0">
+    <div className="flex flex-col h-full">
       <PracticeHeader 
         onVideoSelect={videoManager.selectVideo}
         onVideoSearch={videoManager.searchVideos}
         searchResults={videoManager.searchResults}
       />
       
-      <div className="flex-1 min-h-0">
+      <div className="flex-1">
         <ResizablePanelGroup direction="horizontal" className="h-full">
           {/* Code Editor Panel */}
           <ResizablePanel defaultSize={60} minSize={30}>
