@@ -3,12 +3,16 @@ import React, { useRef } from 'react';
 
 interface EditorContentProps {
   content: string;
+  language: string;
   onChange: (content: string) => void;
+  aiAssistantEnabled: boolean;
 }
 
 export const EditorContent: React.FC<EditorContentProps> = ({
   content,
+  language,
   onChange,
+  aiAssistantEnabled,
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
