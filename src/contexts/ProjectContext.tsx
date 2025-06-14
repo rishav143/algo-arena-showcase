@@ -191,6 +191,7 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({ children }) =>
     projects,
     selectedProject,
     selectedFile,
+    setSelectedFile,
     createProject,
     deleteProject,
     renameProject,

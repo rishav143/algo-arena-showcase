@@ -19,7 +19,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   onExecutionError
 }) => {
   const { toast } = useToast();
-  const { selectedFile, updateFileContent, selectedProject } = useProjectContext();
+  const { selectedFile, updateFileContent, selectedProject, setSelectedFile } = useProjectContext();
   
   const editorStateManager = useEditorStateManager({
     selectedFile,
@@ -52,6 +52,11 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
 
   const handleLanguageChange = (newLanguage: string) => {
     const template = getLanguageTemplate(newLanguage);
+    
+    // Clear file selection when switching to language template
+    if (selectedFile) {
+      setSelectedFile(null);
+    }
     
     if (editorStateManager.editorState.hasUnsavedChanges) {
       setTimeout(() => {
@@ -157,7 +162,6 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
         onSave={handleSave}
         onCopy={handleCopy}
         canSave={canSave()}
-        isFileMode={editorStateManager.editorState.activeState.mode === 'file'}
       />
       
       <EditorContent

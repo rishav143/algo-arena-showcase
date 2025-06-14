@@ -13,7 +13,6 @@ interface EditorHeaderProps {
   onSave: () => void;
   onCopy: () => void;
   canSave: boolean;
-  isFileMode: boolean;
 }
 
 export const EditorHeader: React.FC<EditorHeaderProps> = ({
@@ -25,7 +24,6 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
   onSave,
   onCopy,
   canSave,
-  isFileMode,
 }) => {
   return (
     <div className="border-b bg-muted/50 p-2 flex items-center justify-between">
@@ -44,7 +42,6 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
         <Select 
           value={language} 
           onValueChange={onLanguageChange}
-          disabled={isFileMode}
         >
           <SelectTrigger className="w-32 h-8">
             <SelectValue />

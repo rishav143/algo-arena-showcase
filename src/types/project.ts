@@ -20,6 +20,7 @@ export interface ProjectContextType {
   projects: Project[];
   selectedProject: Project | null;
   selectedFile: ProjectFile | null;
+  setSelectedFile: (file: ProjectFile | null) => void;
   createProject: (name: string) => Promise<void>;
   deleteProject: (projectId: string) => Promise<void>;
   renameProject: (projectId: string, newName: string) => Promise<void>;
