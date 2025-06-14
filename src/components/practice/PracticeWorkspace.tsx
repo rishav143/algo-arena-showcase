@@ -48,7 +48,7 @@ const PracticeWorkspace = () => {
   };
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full w-full flex flex-col">
       <PracticeHeader
         selectedLanguage={selectedLanguage}
         languages={languages}
