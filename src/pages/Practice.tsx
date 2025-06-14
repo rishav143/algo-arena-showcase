@@ -1,7 +1,7 @@
 
 import React, { useState, useCallback, useMemo } from 'react';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
-import { SidebarProvider } from '@/components/ui/sidebar';
+import { SidebarProvider, useSidebar } from '@/components/ui/sidebar';
 import Navigation from '../components/Navigation';
 import Footer from '../components/Footer';
 import ProjectSidebar from '../components/practice/ProjectSidebar';
@@ -18,8 +18,9 @@ interface SavedProject {
   lastModified: Date;
 }
 
-const Practice = () => {
+const PracticeContent = () => {
   const { toast } = useToast();
+  const { open: sidebarOpen } = useSidebar();
   const [selectedLanguage, setSelectedLanguage] = useState('javascript');
   const [code, setCode] = useState('// Write your code here\nconsole.log("Hello, World!");');
   const [output, setOutput] = useState('');
@@ -130,66 +131,79 @@ const Practice = () => {
       <Navigation />
       
       <div className="flex-1 pt-20">
-        <SidebarProvider defaultOpen={true}>
-          <div className="flex h-[calc(100vh-5rem)] w-full">
-            <ProjectSidebar
-              projectName={projectName}
-              setProjectName={setProjectName}
-              aiAssistantEnabled={aiAssistantEnabled}
-              setAiAssistantEnabled={setAiAssistantEnabled}
-              savedProjects={savedProjects}
-              onSaveProject={handleSaveProject}
-              onLoadProject={handleLoadProject}
-              onDeleteProject={handleDeleteProject}
+        <div className="flex h-[calc(100vh-5rem)] w-full">
+          <ProjectSidebar
+            projectName={projectName}
+            setProjectName={setProjectName}
+            aiAssistantEnabled={aiAssistantEnabled}
+            setAiAssistantEnabled={setAiAssistantEnabled}
+            savedProjects={savedProjects}
+            onSaveProject={handleSaveProject}
+            onLoadProject={handleLoadProject}
+            onDeleteProject={handleDeleteProject}
+          />
+          
+          <div className="flex-1 flex flex-col min-w-0">
+            <PracticeHeader
+              selectedLanguage={selectedLanguage}
+              languages={languages}
+              isRunning={isRunning}
+              onLanguageChange={handleLanguageChange}
+              onRunCode={handleRunCode}
+              onCopyCode={handleCopyCode}
             />
-            
-            <div className="flex-1 flex flex-col min-w-0">
-              <PracticeHeader
-                selectedLanguage={selectedLanguage}
-                languages={languages}
-                isRunning={isRunning}
-                onLanguageChange={handleLanguageChange}
-                onRunCode={handleRunCode}
-                onCopyCode={handleCopyCode}
-              />
 
-              {/* Main Content - Full Height Resizable Panels */}
-              <div className="flex-1 p-4 min-h-0">
-                <ResizablePanelGroup direction="horizontal" className="h-full">
-                  {/* Code Editor Panel */}
-                  <ResizablePanel defaultSize={50} minSize={30} className="min-h-0">
-                    <CodeEditor
-                      code={code}
-                      setCode={setCode}
-                      selectedLanguage={selectedLanguage}
-                      languages={languages}
-                    />
-                  </ResizablePanel>
+            {/* Main Content - Full Height Resizable Panels */}
+            <div className="flex-1 p-4 min-h-0">
+              <ResizablePanelGroup direction="horizontal" className="h-full">
+                {/* Code Editor Panel */}
+                <ResizablePanel defaultSize={50} minSize={30} className="min-h-0">
+                  <CodeEditor
+                    code={code}
+                    setCode={setCode}
+                    selectedLanguage={selectedLanguage}
+                    languages={languages}
+                  />
+                </ResizablePanel>
 
-                  <ResizableHandle withHandle />
+                <ResizableHandle withHandle />
 
-                  {/* Output Panel */}
-                  <ResizablePanel defaultSize={50} minSize={30} className="min-h-0">
-                    <OutputPanel
-                      activeTab={activeTab}
-                      setActiveTab={setActiveTab}
-                      output={output}
-                      hasError={hasError}
-                      aiAssistantEnabled={aiAssistantEnabled}
-                      setAiAssistantEnabled={setAiAssistantEnabled}
-                      aiSuggestion={aiSuggestion}
-                      setAiSuggestion={setAiSuggestion}
-                    />
-                  </ResizablePanel>
-                </ResizablePanelGroup>
-              </div>
+                {/* Output Panel */}
+                <ResizablePanel defaultSize={50} minSize={30} className="min-h-0">
+                  <OutputPanel
+                    activeTab={activeTab}
+                    setActiveTab={setActiveTab}
+                    output={output}
+                    hasError={hasError}
+                    aiAssistantEnabled={aiAssistantEnabled}
+                    setAiAssistantEnabled={setAiAssistantEnabled}
+                    aiSuggestion={aiSuggestion}
+                    setAiSuggestion={setAiSuggestion}
+                  />
+                </ResizablePanel>
+              </ResizablePanelGroup>
             </div>
           </div>
-        </SidebarProvider>
+        </div>
       </div>
       
-      <Footer />
+      {/* Footer with proper alignment */}
+      <div 
+        className={`transition-all duration-200 ease-linear ${
+          sidebarOpen ? 'ml-64' : 'ml-0'
+        }`}
+      >
+        <Footer />
+      </div>
     </div>
+  );
+};
+
+const Practice = () => {
+  return (
+    <SidebarProvider defaultOpen={true}>
+      <PracticeContent />
+    </SidebarProvider>
   );
 };
 
