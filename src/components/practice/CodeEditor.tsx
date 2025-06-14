@@ -25,24 +25,24 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
 }) => {
   return (
     <Card className="h-full flex flex-col">
-      <CardHeader className="bg-gray-800 text-gray-300 p-2 sm:p-3 rounded-t-lg flex-shrink-0">
+      <CardHeader className="bg-gray-800 text-gray-300 p-3 rounded-t-lg flex-shrink-0">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Code2 className="w-4 h-4" />
-            <span className="text-xs sm:text-sm font-medium">
+            <span className="text-sm font-medium">
               Code Editor - {languages.find(l => l.value === selectedLanguage)?.label}
             </span>
           </div>
-          <div className="text-xs text-gray-400 hidden sm:block">
+          <div className="text-xs text-gray-400">
             Lines: {code.split('\n').length}
           </div>
         </div>
       </CardHeader>
-      <CardContent className="p-0 flex-1 min-h-0">
+      <CardContent className="p-0 flex-1">
         <Textarea
           value={code}
           onChange={(e) => setCode(e.target.value)}
-          className="h-full w-full border-0 resize-none font-mono text-xs sm:text-sm focus-visible:ring-0 rounded-none bg-gray-900 text-green-400 leading-relaxed"
+          className="h-full w-full border-0 resize-none font-mono text-sm focus-visible:ring-0 rounded-none bg-gray-900 text-green-400 leading-relaxed"
           placeholder="Write your code here..."
           spellCheck={false}
         />

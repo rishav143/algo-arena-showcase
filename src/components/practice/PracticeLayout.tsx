@@ -10,13 +10,13 @@ const PracticeLayout = () => {
   const { state } = useSidebar();
 
   return (
-    <div className="h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex flex-col overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex flex-col">
       <Navigation />
       
-      <div className="flex flex-1 pt-20 min-h-0">
+      <div className="flex flex-1 pt-20">
         <ProjectSidebar />
         
-        <div className="flex-1 min-w-0 h-full">
+        <div className="flex-1 min-w-0">
           <PracticeWorkspace />
         </div>
       </div>
