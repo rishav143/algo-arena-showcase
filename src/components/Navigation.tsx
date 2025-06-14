@@ -7,16 +7,6 @@ const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
 
-  const handleTopicsClick = () => {
-    if (location.pathname === '/') {
-      // If on homepage, scroll to topics section
-      const topicsElement = document.getElementById('topics');
-      if (topicsElement) {
-        topicsElement.scrollIntoView({ behavior: 'smooth' });
-      }
-    }
-  };
-
   return (
     <nav className="fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-md border-b border-gray-200/50 z-50 shadow-lg">
       <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
@@ -33,7 +23,6 @@ const Navigation = () => {
           <div className="hidden md:flex items-center space-x-4 lg:space-x-6">
             <Link 
               to="/#topics"
-              onClick={handleTopicsClick}
               className="flex items-center space-x-1 text-gray-700 hover:text-cyan-600 font-medium transition-all duration-300 hover:scale-105 px-2 py-1 rounded-lg hover:bg-cyan-50"
             >
               <BookOpen className="w-4 h-4" />
@@ -58,7 +47,6 @@ const Navigation = () => {
           <div className="hidden sm:flex md:hidden items-center space-x-2">
             <Link 
               to="/#topics"
-              onClick={handleTopicsClick}
               className="flex items-center space-x-1 text-gray-700 hover:text-cyan-600 font-medium transition-all duration-300 px-2 py-1 rounded-lg hover:bg-cyan-50"
             >
               <BookOpen className="w-4 h-4" />
@@ -84,10 +72,7 @@ const Navigation = () => {
             <div className="py-2 space-y-1">
               <Link 
                 to="/#topics"
-                onClick={() => {
-                  handleTopicsClick();
-                  setIsMenuOpen(false);
-                }}
+                onClick={() => setIsMenuOpen(false)}
                 className="flex items-center space-x-2 px-3 py-2.5 text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 rounded-lg transition-colors mx-2"
               >
                 <BookOpen className="w-4 h-4" />
