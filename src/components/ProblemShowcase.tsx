@@ -66,90 +66,92 @@ const ProblemShowcase = () => {
   };
 
   return (
-    <section className="py-24 bg-gradient-to-b from-slate-900 to-gray-900 relative overflow-hidden">
+    <section className="py-16 sm:py-20 lg:py-24 bg-gradient-to-b from-slate-900 to-gray-900 relative overflow-hidden">
       {/* Background effects */}
       <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-20 right-20 w-72 h-72 bg-blue-500 rounded-full filter blur-3xl"></div>
-        <div className="absolute bottom-20 left-20 w-72 h-72 bg-purple-500 rounded-full filter blur-3xl"></div>
+        <div className="absolute top-10 sm:top-20 right-10 sm:right-20 w-40 sm:w-72 h-40 sm:h-72 bg-blue-500 rounded-full filter blur-3xl"></div>
+        <div className="absolute bottom-10 sm:bottom-20 left-10 sm:left-20 w-40 sm:w-72 h-40 sm:h-72 bg-purple-500 rounded-full filter blur-3xl"></div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 relative z-10">
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center px-4 py-2 bg-blue-500/20 text-blue-400 rounded-full text-sm font-medium mb-6">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="text-center mb-12 sm:mb-16">
+          <div className="inline-flex items-center px-3 sm:px-4 py-2 bg-blue-500/20 text-blue-400 rounded-full text-sm font-medium mb-4 sm:mb-6">
             <Lightbulb className="w-4 h-4 mr-2" />
             Problem Solving Approach
           </div>
-          <h2 className="text-5xl font-bold text-white mb-6">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4 sm:mb-6 px-4">
             Learn Through <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Examples</span>
           </h2>
-          <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-lg sm:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed px-4">
             See how we break down complex problems into manageable solutions 
             with multiple approaches and optimized implementations.
           </p>
         </div>
 
-        <div className="bg-white/5 backdrop-blur-lg rounded-3xl border border-white/10 overflow-hidden shadow-2xl">
-          <div className="p-8 border-b border-white/10">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-3xl font-bold text-white">{problem.title}</h3>
-              <span className="px-4 py-2 bg-emerald-500/20 text-emerald-400 rounded-full text-sm font-medium border border-emerald-500/30">
+        <div className="bg-white/5 backdrop-blur-lg rounded-2xl sm:rounded-3xl border border-white/10 overflow-hidden shadow-2xl">
+          <div className="p-6 sm:p-8 border-b border-white/10">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 gap-4">
+              <h3 className="text-2xl sm:text-3xl font-bold text-white">{problem.title}</h3>
+              <span className="self-start sm:self-auto px-3 sm:px-4 py-2 bg-emerald-500/20 text-emerald-400 rounded-full text-sm font-medium border border-emerald-500/30">
                 {problem.difficulty}
               </span>
             </div>
-            <p className="text-gray-300 leading-relaxed text-lg">{problem.description}</p>
+            <p className="text-gray-300 leading-relaxed text-base sm:text-lg">{problem.description}</p>
           </div>
 
           <div className="border-b border-white/10">
-            <div className="flex">
+            <div className="flex overflow-x-auto">
               <button
                 onClick={() => setActiveTab('approach')}
-                className={`px-8 py-4 font-semibold border-b-2 transition-all duration-300 ${
+                className={`flex-shrink-0 px-6 sm:px-8 py-4 font-semibold border-b-2 transition-all duration-300 ${
                   activeTab === 'approach'
                     ? 'border-blue-400 text-blue-400 bg-blue-500/10'
                     : 'border-transparent text-gray-400 hover:text-gray-200'
                 }`}
               >
                 <Lightbulb className="w-4 h-4 inline mr-2" />
-                Approach
+                <span className="hidden sm:inline">Approach</span>
+                <span className="sm:hidden">Method</span>
               </button>
               <button
                 onClick={() => setActiveTab('code')}
-                className={`px-8 py-4 font-semibold border-b-2 transition-all duration-300 ${
+                className={`flex-shrink-0 px-6 sm:px-8 py-4 font-semibold border-b-2 transition-all duration-300 ${
                   activeTab === 'code'
                     ? 'border-purple-400 text-purple-400 bg-purple-500/10'
                     : 'border-transparent text-gray-400 hover:text-gray-200'
                 }`}
               >
                 <Code2 className="w-4 h-4 inline mr-2" />
-                Implementation
+                <span className="hidden sm:inline">Implementation</span>
+                <span className="sm:hidden">Code</span>
               </button>
             </div>
           </div>
 
-          <div className="p-8">
+          <div className="p-6 sm:p-8">
             {activeTab === 'approach' && (
-              <div className="space-y-8">
+              <div className="space-y-6 sm:space-y-8">
                 <div className="prose max-w-none">
-                  <pre className="whitespace-pre-wrap text-gray-300 leading-relaxed font-sans text-lg">
+                  <pre className="whitespace-pre-wrap text-gray-300 leading-relaxed font-sans text-sm sm:text-base lg:text-lg overflow-x-auto">
                     {problem.approach}
                   </pre>
                 </div>
                 
-                <div className="grid md:grid-cols-3 gap-6">
-                  <div className="bg-blue-500/10 border border-blue-500/30 p-6 rounded-xl">
-                    <Clock className="w-6 h-6 text-blue-400 mb-3" />
-                    <div className="text-sm text-gray-400 mb-1">Time Complexity</div>
-                    <div className="font-bold text-blue-400 text-xl">{problem.complexity.time}</div>
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                  <div className="bg-blue-500/10 border border-blue-500/30 p-4 sm:p-6 rounded-xl">
+                    <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-blue-400 mb-3" />
+                    <div className="text-xs sm:text-sm text-gray-400 mb-1">Time Complexity</div>
+                    <div className="font-bold text-blue-400 text-lg sm:text-xl">{problem.complexity.time}</div>
                   </div>
-                  <div className="bg-purple-500/10 border border-purple-500/30 p-6 rounded-xl">
-                    <TrendingUp className="w-6 h-6 text-purple-400 mb-3" />
-                    <div className="text-sm text-gray-400 mb-1">Space Complexity</div>
-                    <div className="font-bold text-purple-400 text-xl">{problem.complexity.space}</div>
+                  <div className="bg-purple-500/10 border border-purple-500/30 p-4 sm:p-6 rounded-xl">
+                    <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-purple-400 mb-3" />
+                    <div className="text-xs sm:text-sm text-gray-400 mb-1">Space Complexity</div>
+                    <div className="font-bold text-purple-400 text-lg sm:text-xl">{problem.complexity.space}</div>
                   </div>
-                  <div className="bg-emerald-500/10 border border-emerald-500/30 p-6 rounded-xl">
-                    <CheckCircle className="w-6 h-6 text-emerald-400 mb-3" />
-                    <div className="text-sm text-gray-400 mb-1">Optimal Solution</div>
-                    <div className="font-bold text-emerald-400 text-xl">
+                  <div className="bg-emerald-500/10 border border-emerald-500/30 p-4 sm:p-6 rounded-xl sm:col-span-2 lg:col-span-1">
+                    <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-400 mb-3" />
+                    <div className="text-xs sm:text-sm text-gray-400 mb-1">Optimal Solution</div>
+                    <div className="font-bold text-emerald-400 text-lg sm:text-xl">
                       {problem.complexity.optimal ? 'Yes' : 'No'}
                     </div>
                   </div>
@@ -159,18 +161,18 @@ const ProblemShowcase = () => {
 
             {activeTab === 'code' && (
               <div className="relative">
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
                   <span className="text-gray-400 text-sm">Python Implementation</span>
                   <button
                     onClick={copyCode}
-                    className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors"
+                    className="self-start sm:self-auto flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors text-sm"
                   >
                     <Copy className="w-4 h-4" />
                     {copied ? 'Copied!' : 'Copy'}
                   </button>
                 </div>
-                <div className="bg-gray-900 rounded-xl p-6 overflow-x-auto border border-gray-700">
-                  <pre className="text-gray-300 text-sm leading-relaxed">
+                <div className="bg-gray-900 rounded-lg sm:rounded-xl p-4 sm:p-6 overflow-x-auto border border-gray-700">
+                  <pre className="text-gray-300 text-xs sm:text-sm leading-relaxed">
                     <code>{problem.code}</code>
                   </pre>
                 </div>
