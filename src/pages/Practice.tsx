@@ -8,9 +8,9 @@ import { ChevronRight, Home } from 'lucide-react';
 
 const Practice = () => {
   return (
-    <div className="h-screen flex flex-col">
+    <div className="h-screen flex flex-col w-full">
       {/* Navigation Breadcrumb */}
-      <div className="border-b bg-background px-4 py-2 flex-shrink-0">
+      <div className="border-b bg-background px-4 py-2">
         <nav className="flex items-center space-x-2 text-sm">
           <Link to="/" className="flex items-center text-muted-foreground hover:text-foreground">
             <Home className="w-4 h-4 mr-1" />
@@ -22,10 +22,10 @@ const Practice = () => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex min-h-0">
+      <div className="flex-1 flex w-full">
         <SidebarProvider defaultOpen={true}>
           <PracticeSidebar />
-          <main className="flex-1 flex flex-col min-w-0">
+          <main className="flex-1 flex flex-col">
             <PracticeWorkspace />
           </main>
         </SidebarProvider>
