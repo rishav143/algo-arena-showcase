@@ -3,20 +3,62 @@ import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Terminal, Bot, Zap, MessageSquare, Video, Play } from 'lucide-react';
+import { Terminal, Bot, Zap, MessageSquare, Video, Play, AlertTriangle } from 'lucide-react';
 
 interface OutputPanelProps {
   code: string;
+  selectedVideo?: any;
+  aiAssistantEnabled: boolean;
+  activeTab?: string;
+  onActiveTabChange?: (tab: string) => void;
+  executionError?: string;
 }
 
-export const OutputPanel: React.FC<OutputPanelProps> = ({ code }) => {
+export const OutputPanel: React.FC<OutputPanelProps> = ({ 
+  code, 
+  selectedVideo, 
+  aiAssistantEnabled,
+  activeTab = 'output',
+  onActiveTabChange,
+  executionError
+}) => {
   const [output, setOutput] = useState('// Output will appear here when you run your code');
   const [aiMessages, setAiMessages] = useState<Array<{ type: 'user' | 'ai', content: string }>>([]);
-  const [selectedVideo, setSelectedVideo] = useState<any>(null);
+  const [aiInput, setAiInput] = useState('');
+
+  // Auto-switch to AI tab when there's an execution error
+  React.useEffect(() => {
+    if (executionError && aiAssistantEnabled && onActiveTabChange) {
+      onActiveTabChange('ai');
+      // Add error message to AI chat
+      setAiMessages(prev => [...prev, {
+        type: 'ai',
+        content: `I detected an error in your code: ${executionError}. Let me help you fix it!`
+      }]);
+    }
+  }, [executionError, aiAssistantEnabled, onActiveTabChange]);
+
+  // Auto-switch to video tab when video is selected
+  React.useEffect(() => {
+    if (selectedVideo && onActiveTabChange) {
+      onActiveTabChange('video');
+    }
+  }, [selectedVideo, onActiveTabChange]);
+
+  const handleAiSubmit = () => {
+    if (aiInput.trim()) {
+      setAiMessages(prev => [
+        ...prev,
+        { type: 'user', content: aiInput },
+        { type: 'ai', content: 'I understand your question. Let me analyze your code and provide assistance...' }
+      ]);
+      setAiInput('');
+    }
+  };
 
   return (
     <div className="flex flex-col h-full">
-      <Tabs defaultValue="output" className="flex flex-col h-full">
+      <Tabs value={activeTab} onValueChange={onActiveTabChange} className="flex flex-col h-full">
         <div className="border-b bg-muted/50 p-2">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="output" className="flex items-center gap-2">
@@ -26,10 +68,12 @@ export const OutputPanel: React.FC<OutputPanelProps> = ({ code }) => {
             <TabsTrigger value="video" className="flex items-center gap-2">
               <Video className="w-4 h-4" />
               Video
+              {selectedVideo && <div className="w-2 h-2 bg-red-500 rounded-full" />}
             </TabsTrigger>
-            <TabsTrigger value="ai" className="flex items-center gap-2">
+            <TabsTrigger value="ai" className="flex items-center gap-2" disabled={!aiAssistantEnabled}>
               <Bot className="w-4 h-4" />
               AI Assistant
+              {executionError && <AlertTriangle className="w-3 h-3 text-red-500" />}
             </TabsTrigger>
           </TabsList>
         </div>
@@ -39,7 +83,7 @@ export const OutputPanel: React.FC<OutputPanelProps> = ({ code }) => {
             <div className="p-2 border-b bg-muted/30">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium">Console Output</span>
-                <Button variant="ghost" size="sm">
+                <Button variant="ghost" size="sm" onClick={() => setOutput('// Output cleared')}>
                   Clear
                 </Button>
               </div>
@@ -58,24 +102,32 @@ export const OutputPanel: React.FC<OutputPanelProps> = ({ code }) => {
             <div className="p-2 border-b bg-muted/30">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium">Video Tutorial</span>
-                <Button variant="ghost" size="sm">
-                  <Play className="w-4 h-4" />
-                </Button>
+                {selectedVideo && (
+                  <Button variant="ghost" size="sm">
+                    <Play className="w-4 h-4" />
+                  </Button>
+                )}
               </div>
             </div>
             
             <div className="flex-1 p-4">
               {selectedVideo ? (
                 <div className="space-y-4">
-                  <div className="aspect-video bg-gray-900 rounded-lg flex items-center justify-center">
-                    <div className="text-center text-white">
-                      <Video className="w-12 h-12 mx-auto mb-2" />
-                      <p className="text-lg font-medium">{selectedVideo.title}</p>
-                      <p className="text-sm opacity-75">{selectedVideo.channel}</p>
-                    </div>
+                  <div className="aspect-video bg-gray-900 rounded-lg overflow-hidden">
+                    <iframe
+                      src={selectedVideo.videoUrl}
+                      title={selectedVideo.title}
+                      className="w-full h-full"
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
                   </div>
-                  <div className="text-sm text-muted-foreground">
-                    Duration: {selectedVideo.duration}
+                  <div className="space-y-2">
+                    <h3 className="font-medium">{selectedVideo.title}</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {selectedVideo.channel} • {selectedVideo.duration}
+                    </p>
                   </div>
                 </div>
               ) : (
@@ -129,8 +181,15 @@ export const OutputPanel: React.FC<OutputPanelProps> = ({ code }) => {
                   type="text"
                   placeholder="Ask AI about your code..."
                   className="flex-1 px-3 py-2 text-sm border rounded-md"
+                  value={aiInput}
+                  onChange={(e) => setAiInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      handleAiSubmit();
+                    }
+                  }}
                 />
-                <Button size="sm">
+                <Button size="sm" onClick={handleAiSubmit}>
                   <MessageSquare className="w-4 h-4" />
                 </Button>
               </div>

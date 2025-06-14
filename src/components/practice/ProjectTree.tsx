@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { ChevronRight, ChevronDown, Folder, FileText, MoreHorizontal, Trash, FilePlus } from 'lucide-react';
+import { ChevronRight, ChevronDown, Folder, FileText, MoreHorizontal, Trash, FilePlus, Edit2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -9,6 +9,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { cn } from '@/lib/utils';
 import { Project, File } from '@/types/practice';
 import { useProjectManager } from '@/hooks/useProjectManager';
+import { useToast } from '@/hooks/use-toast';
 
 interface ProjectTreeProps {
   projects: Project[];
@@ -16,11 +17,44 @@ interface ProjectTreeProps {
 
 export const ProjectTree: React.FC<ProjectTreeProps> = ({ projects }) => {
   const { createFile, deleteProject } = useProjectManager();
+  const { toast } = useToast();
   const [expandedProjects, setExpandedProjects] = useState<Set<string>>(new Set());
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const [isCreateFileDialogOpen, setIsCreateFileDialogOpen] = useState(false);
   const [selectedProjectForFile, setSelectedProjectForFile] = useState<string>('');
   const [newFileName, setNewFileName] = useState('');
+  const [renamingFile, setRenamingFile] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState('');
+
+  const languageExtensions = {
+    javascript: ['.js', '.jsx'],
+    typescript: ['.ts', '.tsx'],
+    python: ['.py'],
+    java: ['.java'],
+    cpp: ['.cpp', '.cxx', '.cc'],
+    c: ['.c'],
+    go: ['.go'],
+    rust: ['.rs']
+  };
+
+  const getAllowedExtensions = () => {
+    return Object.values(languageExtensions).flat();
+  };
+
+  const validateFileName = (fileName: string) => {
+    if (!fileName.trim()) {
+      return 'File name cannot be empty';
+    }
+    
+    const allowedExtensions = getAllowedExtensions();
+    const hasValidExtension = allowedExtensions.some(ext => fileName.toLowerCase().endsWith(ext));
+    
+    if (!hasValidExtension) {
+      return `File must have one of these extensions: ${allowedExtensions.join(', ')}`;
+    }
+    
+    return null;
+  };
 
   const toggleProject = (projectId: string) => {
     const newExpanded = new Set(expandedProjects);
@@ -34,10 +68,19 @@ export const ProjectTree: React.FC<ProjectTreeProps> = ({ projects }) => {
 
   const handleFileSelect = (fileId: string) => {
     setSelectedFile(fileId);
-    // TODO: Load file content in editor
   };
 
   const handleCreateFile = () => {
+    const validation = validateFileName(newFileName);
+    if (validation) {
+      toast({
+        title: "Invalid File Name",
+        description: validation,
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (newFileName.trim() && selectedProjectForFile) {
       createFile(selectedProjectForFile, newFileName.trim());
       setNewFileName('');
@@ -49,6 +92,38 @@ export const ProjectTree: React.FC<ProjectTreeProps> = ({ projects }) => {
   const openCreateFileDialog = (projectId: string) => {
     setSelectedProjectForFile(projectId);
     setIsCreateFileDialogOpen(true);
+  };
+
+  const handleFileDoubleClick = (file: File) => {
+    setRenamingFile(file.id);
+    setRenameValue(file.name);
+  };
+
+  const handleRenameSubmit = (fileId: string) => {
+    const validation = validateFileName(renameValue);
+    if (validation) {
+      toast({
+        title: "Invalid File Name",
+        description: validation,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Here you would implement the actual rename functionality
+    console.log('Renaming file', fileId, 'to', renameValue);
+    toast({
+      title: "File Renamed",
+      description: `File renamed to ${renameValue}`,
+    });
+    
+    setRenamingFile(null);
+    setRenameValue('');
+  };
+
+  const handleRenameCancel = () => {
+    setRenamingFile(null);
+    setRenameValue('');
   };
 
   return (
@@ -139,9 +214,27 @@ export const ProjectTree: React.FC<ProjectTreeProps> = ({ projects }) => {
                       selectedFile === file.id && "bg-accent"
                     )}
                     onClick={() => handleFileSelect(file.id)}
+                    onDoubleClick={() => handleFileDoubleClick(file)}
                   >
                     <FileText className="w-4 h-4 text-gray-500" />
-                    <span className="text-sm">{file.name}</span>
+                    {renamingFile === file.id ? (
+                      <Input
+                        value={renameValue}
+                        onChange={(e) => setRenameValue(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            handleRenameSubmit(file.id);
+                          } else if (e.key === 'Escape') {
+                            handleRenameCancel();
+                          }
+                        }}
+                        onBlur={() => handleRenameCancel()}
+                        className="h-6 text-sm"
+                        autoFocus
+                      />
+                    ) : (
+                      <span className="text-sm">{file.name}</span>
+                    )}
                   </div>
                 ))}
               </div>
@@ -160,7 +253,7 @@ export const ProjectTree: React.FC<ProjectTreeProps> = ({ projects }) => {
             <div>
               <label className="text-sm font-medium">File Name</label>
               <Input
-                placeholder="Enter file name (e.g., main.js)"
+                placeholder="Enter file name (e.g., main.js, app.py)"
                 value={newFileName}
                 onChange={(e) => setNewFileName(e.target.value)}
                 onKeyDown={(e) => {
@@ -169,6 +262,9 @@ export const ProjectTree: React.FC<ProjectTreeProps> = ({ projects }) => {
                   }
                 }}
               />
+              <p className="text-xs text-muted-foreground mt-1">
+                Supported extensions: {getAllowedExtensions().join(', ')}
+              </p>
             </div>
             <div className="flex gap-2 justify-end">
               <Button

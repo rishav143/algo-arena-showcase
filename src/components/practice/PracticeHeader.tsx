@@ -8,7 +8,13 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { Link } from 'react-router-dom';
 
-export const PracticeHeader = () => {
+interface PracticeHeaderProps {
+  onVideoSelect: (video: any) => void;
+  onRunCode: () => void;
+  onSubmitCode: () => void;
+}
+
+export const PracticeHeader: React.FC<PracticeHeaderProps> = ({ onVideoSelect, onRunCode, onSubmitCode }) => {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -18,26 +24,30 @@ export const PracticeHeader = () => {
       title: 'Two Sum Problem - Complete Solution',
       channel: 'Rishav Engineering',
       duration: '15:30',
-      isMyVideo: true
+      isMyVideo: true,
+      videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ'
     },
     {
       id: '2', 
       title: 'Array Problems Explained',
       channel: 'CodeWithMosh',
       duration: '22:15',
-      isMyVideo: false
+      isMyVideo: false,
+      videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ'
     },
     {
       id: '3',
       title: 'Binary Search Implementation',
       channel: 'Rishav Engineering', 
       duration: '18:45',
-      isMyVideo: true
+      isMyVideo: true,
+      videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ'
     }
   ];
 
   const handleVideoSelect = (video: any) => {
     console.log('Selected video:', video);
+    onVideoSelect(video);
     setSearchOpen(false);
   };
 
@@ -130,10 +140,10 @@ export const PracticeHeader = () => {
         </div>
         
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={onRunCode}>
             Run Code
           </Button>
-          <Button size="sm">
+          <Button size="sm" onClick={onSubmitCode}>
             Submit
           </Button>
         </div>

@@ -8,10 +8,39 @@ import { PracticeHeader } from './PracticeHeader';
 export const PracticeWorkspace = () => {
   const [activeFile, setActiveFile] = useState<string | null>(null);
   const [code, setCode] = useState('// Welcome to CodeRoom Practice\n// Start coding here...');
+  const [selectedVideo, setSelectedVideo] = useState<any>(null);
+  const [aiAssistantEnabled, setAiAssistantEnabled] = useState(true);
+  const [activeTab, setActiveTab] = useState('output');
+  const [executionError, setExecutionError] = useState<string>('');
+
+  const handleVideoSelect = (video: any) => {
+    setSelectedVideo(video);
+    setActiveTab('video');
+  };
+
+  const handleRunCode = () => {
+    console.log('Running code:', code);
+    setExecutionError(''); // Clear previous errors
+  };
+
+  const handleSubmitCode = () => {
+    console.log('Submitting code:', code);
+  };
+
+  const handleExecutionError = (error: string) => {
+    setExecutionError(error);
+    if (aiAssistantEnabled) {
+      setActiveTab('ai');
+    }
+  };
 
   return (
     <div className="flex flex-col h-full">
-      <PracticeHeader />
+      <PracticeHeader 
+        onVideoSelect={handleVideoSelect}
+        onRunCode={handleRunCode}
+        onSubmitCode={handleSubmitCode}
+      />
       
       <div className="flex-1">
         <ResizablePanelGroup direction="horizontal" className="h-full">
@@ -21,6 +50,8 @@ export const PracticeWorkspace = () => {
               code={code}
               onChange={setCode}
               language="javascript"
+              onRunCode={handleRunCode}
+              onExecutionError={handleExecutionError}
             />
           </ResizablePanel>
           
@@ -28,7 +59,14 @@ export const PracticeWorkspace = () => {
           
           {/* Output/AI Assistant Panel */}
           <ResizablePanel defaultSize={40} minSize={25}>
-            <OutputPanel code={code} />
+            <OutputPanel 
+              code={code} 
+              selectedVideo={selectedVideo}
+              aiAssistantEnabled={aiAssistantEnabled}
+              activeTab={activeTab}
+              onActiveTabChange={setActiveTab}
+              executionError={executionError}
+            />
           </ResizablePanel>
         </ResizablePanelGroup>
       </div>

@@ -9,12 +9,29 @@ interface CodeEditorProps {
   code: string;
   onChange: (code: string) => void;
   language: string;
+  onLanguageChange?: (language: string) => void;
+  onRunCode?: () => void;
+  onExecutionError?: (error: string) => void;
 }
 
-export const CodeEditor: React.FC<CodeEditorProps> = ({ code, onChange, language }) => {
+export const CodeEditor: React.FC<CodeEditorProps> = ({ 
+  code, 
+  onChange, 
+  language,
+  onLanguageChange,
+  onRunCode,
+  onExecutionError
+}) => {
   const { toast } = useToast();
   const [selectedLanguage, setSelectedLanguage] = useState(language);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const handleLanguageChange = (newLanguage: string) => {
+    setSelectedLanguage(newLanguage);
+    if (onLanguageChange) {
+      onLanguageChange(newLanguage);
+    }
+  };
 
   const handleCopy = () => {
     navigator.clipboard.writeText(code);
@@ -25,10 +42,29 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({ code, onChange, language
   };
 
   const handleRun = () => {
-    toast({
-      title: "Running Code",
-      description: "Executing your code...",
-    });
+    try {
+      // Simulate code execution and potential errors
+      if (code.includes('error') || code.includes('Error')) {
+        const error = 'Syntax Error: Unexpected token on line 5';
+        if (onExecutionError) {
+          onExecutionError(error);
+        }
+        return;
+      }
+      
+      if (onRunCode) {
+        onRunCode();
+      }
+      
+      toast({
+        title: "Running Code",
+        description: "Executing your code...",
+      });
+    } catch (error) {
+      if (onExecutionError) {
+        onExecutionError(error instanceof Error ? error.message : 'Unknown error occurred');
+      }
+    }
   };
 
   const lines = code.split('\n');
@@ -44,15 +80,19 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({ code, onChange, language
         </div>
         
         <div className="flex items-center gap-2">
-          <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
+          <Select value={selectedLanguage} onValueChange={handleLanguageChange}>
             <SelectTrigger className="w-32 h-8">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="javascript">JavaScript</SelectItem>
+              <SelectItem value="typescript">TypeScript</SelectItem>
               <SelectItem value="python">Python</SelectItem>
               <SelectItem value="java">Java</SelectItem>
               <SelectItem value="cpp">C++</SelectItem>
+              <SelectItem value="c">C</SelectItem>
+              <SelectItem value="go">Go</SelectItem>
+              <SelectItem value="rust">Rust</SelectItem>
             </SelectContent>
           </Select>
           

@@ -13,10 +13,19 @@ import { ProjectTree } from './ProjectTree';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { FolderPlus } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { FolderPlus, Bot } from 'lucide-react';
 import { useProjectManager } from '@/hooks/useProjectManager';
 
-export const PracticeSidebar = () => {
+interface PracticeSidebarProps {
+  aiAssistantEnabled: boolean;
+  onAiAssistantToggle: (enabled: boolean) => void;
+}
+
+export const PracticeSidebar: React.FC<PracticeSidebarProps> = ({ 
+  aiAssistantEnabled, 
+  onAiAssistantToggle 
+}) => {
   const { projects, createProject, createFile } = useProjectManager();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [newProjectName, setNewProjectName] = useState('');
@@ -87,6 +96,22 @@ export const PracticeSidebar = () => {
           <SidebarGroupLabel>Your Projects</SidebarGroupLabel>
           <SidebarGroupContent>
             <ProjectTree projects={projects} />
+          </SidebarGroupContent>
+        </SidebarGroup>
+        
+        <SidebarGroup>
+          <SidebarGroupLabel>Settings</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <div className="flex items-center justify-between p-2">
+              <div className="flex items-center gap-2">
+                <Bot className="w-4 h-4" />
+                <span className="text-sm">AI Assistant</span>
+              </div>
+              <Switch
+                checked={aiAssistantEnabled}
+                onCheckedChange={onAiAssistantToggle}
+              />
+            </div>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
