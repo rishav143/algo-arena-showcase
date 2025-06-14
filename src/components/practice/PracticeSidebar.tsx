@@ -18,12 +18,21 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Plus, FolderPlus, Settings, Bot } from 'lucide-react';
 import { useProjectManager } from '@/hooks/useProjectManager';
 
-export const PracticeSidebar = () => {
-  const { projects, createProject, createFile } = useProjectManager();
+interface PracticeSidebarProps {
+  onFileSelect?: (fileId: string) => void;
+  aiAssistantEnabled?: boolean;
+  onAIAssistantToggle?: (enabled: boolean) => void;
+}
+
+export const PracticeSidebar: React.FC<PracticeSidebarProps> = ({ 
+  onFileSelect, 
+  aiAssistantEnabled = true, 
+  onAIAssistantToggle 
+}) => {
+  const { projects, createProject } = useProjectManager();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState(false);
   const [newProjectName, setNewProjectName] = useState('');
-  const [aiAssistantEnabled, setAiAssistantEnabled] = useState(true);
 
   const handleCreateProject = () => {
     if (newProjectName.trim()) {
@@ -108,7 +117,7 @@ export const PracticeSidebar = () => {
                   </div>
                   <Switch
                     checked={aiAssistantEnabled}
-                    onCheckedChange={setAiAssistantEnabled}
+                    onCheckedChange={onAIAssistantToggle}
                   />
                 </div>
                 
@@ -131,7 +140,7 @@ export const PracticeSidebar = () => {
         <SidebarGroup>
           <SidebarGroupLabel>Your Projects</SidebarGroupLabel>
           <SidebarGroupContent>
-            <ProjectTree projects={projects} />
+            <ProjectTree projects={projects} onFileSelect={onFileSelect} />
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
