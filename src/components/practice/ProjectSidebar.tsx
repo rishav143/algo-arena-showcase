@@ -12,10 +12,9 @@ import {
   SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuItem,
-  SidebarMenuButton,
-  useSidebar // import this
+  SidebarMenuButton
 } from '@/components/ui/sidebar';
-import { FolderOpen, Save, Trash2, Eye, EyeOff, ChevronDown, ChevronUp, X } from 'lucide-react';
+import { FolderOpen, Save, Trash2, Eye, EyeOff, ChevronDown, ChevronUp } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface SavedProject {
@@ -37,9 +36,6 @@ interface ProjectSidebarProps {
   onDeleteProject: (projectId: string) => void;
 }
 
-const SIDEBAR_HEADER_HEIGHT = 64; // px, estimate for header
-const SIDEBAR_FOOTER_HEIGHT = 56; // px, estimate or set to your actual footer height
-
 const ProjectSidebar: React.FC<ProjectSidebarProps> = ({
   projectName,
   setProjectName,
@@ -51,27 +47,14 @@ const ProjectSidebar: React.FC<ProjectSidebarProps> = ({
   onDeleteProject
 }) => {
   const [savedProjectsVisible, setSavedProjectsVisible] = useState(true);
-  const { setOpen } = useSidebar();
 
   return (
-    <Sidebar 
-      className="w-64 max-h-[calc(100vh-56px)] h-[calc(100vh-56px)]" // constrain to viewport minus footer
-      style={{ maxHeight: 'calc(100vh - 56px)', height: 'calc(100vh - 56px)' }} // 56px is the footer height
-    >
-      <SidebarHeader className="border-b border-gray-200 p-4 flex items-center justify-between">
-        <span className="flex items-center gap-2 text-lg font-semibold text-gray-900">
+    <Sidebar className="w-64">
+      <SidebarHeader className="border-b border-gray-200 p-4">
+        <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
           <FolderOpen className="w-5 h-5" />
           Projects
-        </span>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="ml-2"
-          aria-label="Hide Sidebar"
-          onClick={() => setOpen(false)}
-        >
-          <X className="w-5 h-5" />
-        </Button>
+        </h2>
       </SidebarHeader>
       <SidebarContent className="flex flex-col h-full">
         <SidebarGroup>
@@ -123,14 +106,13 @@ const ProjectSidebar: React.FC<ProjectSidebarProps> = ({
               size="sm"
               onClick={() => setSavedProjectsVisible(!savedProjectsVisible)}
               className="h-6 w-6 p-0"
-              aria-label={savedProjectsVisible ? "Hide Saved Projects" : "Show Saved Projects"}
             >
               {savedProjectsVisible ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
             </Button>
           </div>
           {savedProjectsVisible && (
             <SidebarGroupContent className="flex-1 min-h-0">
-              <ScrollArea className="h-full max-h-[240px] px-2">
+              <ScrollArea className="h-full px-2">
                 <SidebarMenu>
                   {savedProjects.length > 0 ? (
                     savedProjects.map((project) => (
@@ -150,7 +132,6 @@ const ProjectSidebar: React.FC<ProjectSidebarProps> = ({
                           variant="ghost"
                           onClick={() => onDeleteProject(project.id)}
                           className="h-8 w-8 p-0 text-red-600 hover:bg-red-50 ml-2"
-                          aria-label="Delete Project"
                         >
                           <Trash2 className="w-3 h-3" />
                         </Button>
