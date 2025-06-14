@@ -13,10 +13,10 @@ export const PracticeWorkspace = () => {
     <div className="flex flex-col h-full">
       <PracticeHeader />
       
-      <div className="flex-1">
+      <div className="flex-1 min-h-0">
         <ResizablePanelGroup direction="horizontal" className="h-full">
           {/* Code Editor Panel */}
-          <ResizablePanel defaultSize={60} minSize={30}>
+          <ResizablePanel defaultSize={70} minSize={40}>
             <CodeEditor 
               code={code}
               onChange={setCode}
@@ -27,7 +27,7 @@ export const PracticeWorkspace = () => {
           <ResizableHandle withHandle />
           
           {/* Output/AI Assistant Panel */}
-          <ResizablePanel defaultSize={40} minSize={25}>
+          <ResizablePanel defaultSize={30} minSize={20}>
             <OutputPanel code={code} />
           </ResizablePanel>
         </ResizablePanelGroup>
