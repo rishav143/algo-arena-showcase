@@ -130,7 +130,7 @@ const PracticeContent = () => {
       <Navigation />
       
       <div className="flex-1 pt-20">
-        <div className="flex h-[calc(100vh-5rem)] w-full">
+        <div className="flex h-[calc(100vh-5rem)] w-full max-w-full">
           <ProjectSidebar
             projectName={projectName}
             setProjectName={setProjectName}
@@ -142,7 +142,7 @@ const PracticeContent = () => {
             onDeleteProject={handleDeleteProject}
           />
           
-          <div className="flex-1 flex flex-col min-w-0">
+          <div className="flex-1 flex flex-col min-w-0 w-full">
             <PracticeHeader
               selectedLanguage={selectedLanguage}
               languages={languages}
@@ -152,9 +152,9 @@ const PracticeContent = () => {
               onCopyCode={handleCopyCode}
             />
 
-            {/* Main Content - Full Height Resizable Panels */}
-            <div className="flex-1 p-4 min-h-0">
-              <ResizablePanelGroup direction="horizontal" className="h-full">
+            {/* Main Content - Full Width Resizable Panels */}
+            <div className="flex-1 p-4 min-h-0 w-full">
+              <ResizablePanelGroup direction="horizontal" className="h-full w-full">
                 {/* Code Editor Panel */}
                 <ResizablePanel defaultSize={50} minSize={30} className="min-h-0">
                   <CodeEditor
@@ -186,9 +186,9 @@ const PracticeContent = () => {
         </div>
       </div>
       
-      {/* Footer with sidebar-aware positioning */}
+      {/* Footer with sidebar-aware positioning - full width */}
       <div 
-        className={`transition-all duration-200 ease-linear ${
+        className={`transition-all duration-200 ease-linear w-full ${
           state === 'expanded' ? 'ml-64' : 'ml-0'
         }`}
       >
