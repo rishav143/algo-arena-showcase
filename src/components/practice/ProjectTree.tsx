@@ -83,6 +83,11 @@ export const ProjectTree: React.FC<ProjectTreeProps> = ({ projects }) => {
 
     if (newFileName.trim() && selectedProjectForFile) {
       createFile(selectedProjectForFile, newFileName.trim());
+      
+      // Automatically expand the project to show the new file
+      setExpandedProjects(prev => new Set([...prev, selectedProjectForFile]));
+      
+      // Close dialog and reset form
       setNewFileName('');
       setIsCreateFileDialogOpen(false);
       setSelectedProjectForFile('');
@@ -92,6 +97,26 @@ export const ProjectTree: React.FC<ProjectTreeProps> = ({ projects }) => {
   const openCreateFileDialog = (projectId: string) => {
     setSelectedProjectForFile(projectId);
     setIsCreateFileDialogOpen(true);
+  };
+
+  const handleDeleteProject = (projectId: string) => {
+    deleteProject(projectId);
+    
+    // Remove from expanded projects if it was expanded
+    setExpandedProjects(prev => {
+      const newExpanded = new Set(prev);
+      newExpanded.delete(projectId);
+      return newExpanded;
+    });
+    
+    // Clear selected file if it belonged to the deleted project
+    const deletedProject = projects.find(p => p.id === projectId);
+    if (deletedProject && selectedFile) {
+      const fileInProject = deletedProject.files.some(f => f.id === selectedFile);
+      if (fileInProject) {
+        setSelectedFile(null);
+      }
+    }
   };
 
   const handleFileDoubleClick = (file: File) => {
@@ -191,7 +216,7 @@ export const ProjectTree: React.FC<ProjectTreeProps> = ({ projects }) => {
                         <AlertDialogFooter>
                           <AlertDialogCancel>Cancel</AlertDialogCancel>
                           <AlertDialogAction
-                            onClick={() => deleteProject(project.id)}
+                            onClick={() => handleDeleteProject(project.id)}
                             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                           >
                             Delete
