@@ -7,15 +7,9 @@ import { PracticeHeader } from './PracticeHeader';
 
 interface PracticeWorkspaceProps {
   onToggleSidebar?: () => void;
-  theme: string;
-  onThemeChange: (theme: string) => void;
 }
 
-export const PracticeWorkspace: React.FC<PracticeWorkspaceProps> = ({ 
-  onToggleSidebar,
-  theme,
-  onThemeChange
-}) => {
+export const PracticeWorkspace: React.FC<PracticeWorkspaceProps> = ({ onToggleSidebar }) => {
   const [selectedVideo, setSelectedVideo] = useState<any>(null);
   const [aiAssistantEnabled, setAiAssistantEnabled] = useState(true);
   const [activeTab, setActiveTab] = useState('output');
@@ -42,23 +36,6 @@ export const PracticeWorkspace: React.FC<PracticeWorkspaceProps> = ({
     }
   };
 
-  const getThemeStyles = (theme: string) => {
-    switch (theme) {
-      case 'dark':
-        return 'bg-gray-900 border-gray-700';
-      case 'monokai':
-        return 'bg-gray-800 border-gray-600';
-      case 'dracula':
-        return 'bg-purple-900 border-purple-700';
-      case 'github':
-        return 'bg-white border-gray-300';
-      case 'vscode':
-        return 'bg-gray-800 border-gray-600';
-      default:
-        return 'bg-white border-gray-300';
-    }
-  };
-
   return (
     <div className="flex flex-col h-full">
       <PracticeHeader 
@@ -66,8 +43,6 @@ export const PracticeWorkspace: React.FC<PracticeWorkspaceProps> = ({
         onRunCode={handleRunCode}
         onSubmitCode={handleSubmitCode}
         onToggleSidebar={onToggleSidebar}
-        theme={theme}
-        onThemeChange={onThemeChange}
       />
       
       <div className="flex-1">
@@ -77,12 +52,10 @@ export const PracticeWorkspace: React.FC<PracticeWorkspaceProps> = ({
             <CodeEditor 
               onRunCode={handleRunCode}
               onExecutionError={handleExecutionError}
-              theme={theme}
-              onThemeChange={onThemeChange}
             />
           </ResizablePanel>
           
-          <ResizableHandle withHandle className={getThemeStyles(theme)} />
+          <ResizableHandle withHandle />
           
           {/* Output/AI Assistant Panel */}
           <ResizablePanel defaultSize={40} minSize={25}>
@@ -93,7 +66,6 @@ export const PracticeWorkspace: React.FC<PracticeWorkspaceProps> = ({
               activeTab={activeTab}
               onActiveTabChange={setActiveTab}
               executionError={executionError}
-              theme={theme}
             />
           </ResizablePanel>
         </ResizablePanelGroup>
