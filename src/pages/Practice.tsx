@@ -129,67 +129,67 @@ const PracticeContent = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex flex-col">
       <Navigation />
 
-      <SidebarProvider defaultOpen={true}>
-        <div className="flex flex-1 min-h-0 w-full pt-20">
-          {/* Sidebar */}
-          <ProjectSidebar
-            projectName={projectName}
-            setProjectName={setProjectName}
-            aiAssistantEnabled={aiAssistantEnabled}
-            setAiAssistantEnabled={setAiAssistantEnabled}
-            savedProjects={savedProjects}
-            onSaveProject={handleSaveProject}
-            onLoadProject={handleLoadProject}
-            onDeleteProject={handleDeleteProject}
+      <div className="flex flex-1 min-h-0 w-full pt-20">
+        {/* Sidebar */}
+        <ProjectSidebar
+          projectName={projectName}
+          setProjectName={setProjectName}
+          aiAssistantEnabled={aiAssistantEnabled}
+          setAiAssistantEnabled={setAiAssistantEnabled}
+          savedProjects={savedProjects}
+          onSaveProject={handleSaveProject}
+          onLoadProject={handleLoadProject}
+          onDeleteProject={handleDeleteProject}
+        />
+
+        {/* Main playground content */}
+        <div className="flex flex-col flex-1 min-w-0">
+          <PracticeHeader
+            selectedLanguage={selectedLanguage}
+            languages={languages}
+            isRunning={isRunning}
+            onLanguageChange={handleLanguageChange}
+            onRunCode={handleRunCode}
+            onCopyCode={handleCopyCode}
           />
 
-          {/* Main playground content */}
-          <div className="flex flex-col flex-1 min-w-0">
-            <PracticeHeader
-              selectedLanguage={selectedLanguage}
-              languages={languages}
-              isRunning={isRunning}
-              onLanguageChange={handleLanguageChange}
-              onRunCode={handleRunCode}
-              onCopyCode={handleCopyCode}
-            />
-
-            {/* Main Content - Full Height Resizable Panels */}
-            <div className="flex-1 p-4 min-h-0">
-              <ResizablePanelGroup direction="horizontal" className="h-full">
-                <ResizablePanel defaultSize={50} minSize={30} className="min-h-0">
-                  <CodeEditor
-                    code={code}
-                    setCode={setCode}
-                    selectedLanguage={selectedLanguage}
-                    languages={languages}
-                  />
-                </ResizablePanel>
-                <ResizableHandle withHandle />
-                <ResizablePanel defaultSize={50} minSize={30} className="min-h-0">
-                  <OutputPanel
-                    activeTab={activeTab}
-                    setActiveTab={setActiveTab}
-                    output={output}
-                    hasError={hasError}
-                    aiAssistantEnabled={aiAssistantEnabled}
-                    setAiAssistantEnabled={setAiAssistantEnabled}
-                    aiSuggestion={aiSuggestion}
-                    setAiSuggestion={setAiSuggestion}
-                  />
-                </ResizablePanel>
-              </ResizablePanelGroup>
-            </div>
-            <Footer />
+          {/* Main Content - Full Height Resizable Panels */}
+          <div className="flex-1 p-4 min-h-0">
+            <ResizablePanelGroup direction="horizontal" className="h-full">
+              <ResizablePanel defaultSize={50} minSize={30} className="min-h-0">
+                <CodeEditor
+                  code={code}
+                  setCode={setCode}
+                  selectedLanguage={selectedLanguage}
+                  languages={languages}
+                />
+              </ResizablePanel>
+              <ResizableHandle withHandle />
+              <ResizablePanel defaultSize={50} minSize={30} className="min-h-0">
+                <OutputPanel
+                  activeTab={activeTab}
+                  setActiveTab={setActiveTab}
+                  output={output}
+                  hasError={hasError}
+                  aiAssistantEnabled={aiAssistantEnabled}
+                  setAiAssistantEnabled={setAiAssistantEnabled}
+                  aiSuggestion={aiSuggestion}
+                  setAiSuggestion={setAiSuggestion}
+                />
+              </ResizablePanel>
+            </ResizablePanelGroup>
           </div>
+          <Footer />
         </div>
-      </SidebarProvider>
+      </div>
     </div>
   );
 };
 
 const Practice = () => (
-  <PracticeContent />
+  <SidebarProvider defaultOpen={true}>
+    <PracticeContent />
+  </SidebarProvider>
 );
 
 export default Practice;
