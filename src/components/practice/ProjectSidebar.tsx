@@ -20,31 +20,17 @@ interface SavedProject {
   lastModified: Date;
 }
 
-interface ProjectSidebarProps {
-  projectName?: string;
-  setProjectName?: (name: string) => void;
-  aiAssistantEnabled?: boolean;
-  setAiAssistantEnabled?: (enabled: boolean) => void;
-  savedProjects?: SavedProject[];
-  onSaveProject?: () => void;
-  onLoadProject?: (project: SavedProject) => void;
-  onDeleteProject?: (projectId: string) => void;
-}
-
-const ProjectSidebar: React.FC<ProjectSidebarProps> = (props) => {
-  // Use the hook if props are not provided (for backward compatibility)
-  const hookState = usePracticeState();
-  
+const ProjectSidebar: React.FC = () => {
   const {
-    projectName = hookState.projectName,
-    setProjectName = hookState.setProjectName,
-    aiAssistantEnabled = hookState.aiAssistantEnabled,
-    setAiAssistantEnabled = hookState.setAiAssistantEnabled,
-    savedProjects = hookState.savedProjects,
-    onSaveProject = hookState.handleSaveProject,
-    onLoadProject = hookState.handleLoadProject,
-    onDeleteProject = hookState.handleDeleteProject,
-  } = props.projectName !== undefined ? props : hookState;
+    projectName,
+    setProjectName,
+    aiAssistantEnabled,
+    setAiAssistantEnabled,
+    savedProjects,
+    handleSaveProject,
+    handleLoadProject,
+    handleDeleteProject,
+  } = usePracticeState();
 
   return (
     <Sidebar>
@@ -82,7 +68,7 @@ const ProjectSidebar: React.FC<ProjectSidebarProps> = (props) => {
             />
           </div>
           
-          <Button onClick={onSaveProject} className="w-full" size="sm">
+          <Button onClick={handleSaveProject} className="w-full" size="sm">
             <Save className="w-4 h-4 mr-2" />
             Save Project
           </Button>
@@ -125,7 +111,7 @@ const ProjectSidebar: React.FC<ProjectSidebarProps> = (props) => {
                           <Button
                             size="sm"
                             variant="ghost"
-                            onClick={() => onLoadProject(project)}
+                            onClick={() => handleLoadProject(project)}
                             className="h-6 w-6 p-0"
                           >
                             <FolderOpen className="w-3 h-3" />
@@ -133,7 +119,7 @@ const ProjectSidebar: React.FC<ProjectSidebarProps> = (props) => {
                           <Button
                             size="sm"
                             variant="ghost"
-                            onClick={() => onDeleteProject(project.id)}
+                            onClick={() => handleDeleteProject(project.id)}
                             className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
                           >
                             <Trash2 className="w-3 h-3" />

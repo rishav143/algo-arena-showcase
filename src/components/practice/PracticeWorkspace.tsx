@@ -58,9 +58,12 @@ const PracticeWorkspace = () => {
         onCopyCode={handleCopyCode}
       />
 
-      <div className="flex-1 p-4">
-        <ResizablePanelGroup direction="horizontal" className="h-full rounded-lg border">
-          <ResizablePanel defaultSize={50} minSize={25}>
+      <div className="flex-1 p-2 sm:p-4 min-h-0">
+        <ResizablePanelGroup 
+          direction="horizontal" 
+          className="h-full rounded-lg border"
+        >
+          <ResizablePanel defaultSize={50} minSize={20}>
             <CodeEditor
               code={code}
               setCode={setCode}
@@ -71,7 +74,7 @@ const PracticeWorkspace = () => {
 
           <ResizableHandle withHandle />
 
-          <ResizablePanel defaultSize={50} minSize={25}>
+          <ResizablePanel defaultSize={50} minSize={20}>
             <OutputPanel
               activeTab={activeTab}
               setActiveTab={setActiveTab}
