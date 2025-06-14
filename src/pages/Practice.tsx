@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useMemo } from 'react';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { SidebarProvider, useSidebar } from '@/components/ui/sidebar';
@@ -143,7 +142,7 @@ const PracticeContent = () => {
             onDeleteProject={handleDeleteProject}
           />
           
-          <div className="flex-1 flex flex-col min-w-0">
+          <div className="flex-1 flex flex-col min-w-0 w-full">
             <PracticeHeader
               selectedLanguage={selectedLanguage}
               languages={languages}
@@ -187,14 +186,8 @@ const PracticeContent = () => {
         </div>
       </div>
       
-      {/* Footer with proper alignment */}
-      <div 
-        className={`transition-all duration-200 ease-linear ${
-          sidebarOpen ? 'ml-64' : 'ml-0'
-        }`}
-      >
-        <Footer />
-      </div>
+      {/* Footer automatically adjusts to full width when sidebar is collapsed */}
+      <Footer />
     </div>
   );
 };
