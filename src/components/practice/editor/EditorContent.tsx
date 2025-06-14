@@ -29,15 +29,50 @@ export const EditorContent: React.FC<EditorContentProps> = ({
     }
   };
 
+  const getLineNumberStyles = (theme: string) => {
+    switch (theme) {
+      case 'dark':
+        return 'bg-gray-800 text-gray-500 border-gray-700';
+      case 'monokai':
+        return 'bg-gray-700 text-gray-400 border-gray-600';
+      case 'dracula':
+        return 'bg-purple-800 text-purple-400 border-purple-700';
+      case 'github':
+        return 'bg-gray-50 text-gray-400 border-gray-300';
+      case 'vscode':
+        return 'bg-gray-700 text-gray-400 border-gray-600';
+      default:
+        return 'bg-gray-50 text-gray-400 border-gray-300';
+    }
+  };
+
+  const lines = content.split('\n');
+  const lineCount = lines.length;
+
   return (
-    <div className="flex-1 flex flex-col">
-      <textarea
-        value={content}
-        onChange={(e) => onChange(e.target.value)}
-        className={`flex-1 p-4 font-mono text-sm resize-none outline-none border-0 ${getThemeStyles(theme)}`}
-        placeholder="Start coding here..."
-        spellCheck={false}
-      />
+    <div className="flex-1 flex">
+      {/* Line Numbers */}
+      <div className={`w-12 p-4 pr-2 font-mono text-sm text-right select-none border-r ${getLineNumberStyles(theme)}`}>
+        {Array.from({ length: Math.max(lineCount, 1) }, (_, i) => (
+          <div key={i + 1} className="leading-6">
+            {i + 1}
+          </div>
+        ))}
+      </div>
+      
+      {/* Code Content */}
+      <div className="flex-1 flex flex-col">
+        <textarea
+          value={content}
+          onChange={(e) => onChange(e.target.value)}
+          className={`flex-1 p-4 pl-4 font-mono text-sm resize-none outline-none border-0 leading-6 ${getThemeStyles(theme)}`}
+          placeholder="Start coding here..."
+          spellCheck={false}
+          style={{
+            lineHeight: '1.5rem',
+          }}
+        />
+      </div>
     </div>
   );
 };
