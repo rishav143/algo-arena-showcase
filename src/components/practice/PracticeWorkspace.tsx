@@ -58,7 +58,7 @@ const PracticeWorkspace = () => {
         onCopyCode={handleCopyCode}
       />
 
-      <div className="flex-1 p-4">
+      <div className="flex-1 p-4 min-h-0">
         <ResizablePanelGroup direction="horizontal" className="h-full rounded-lg border">
           <ResizablePanel defaultSize={50} minSize={25}>
             <CodeEditor
