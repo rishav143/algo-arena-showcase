@@ -128,9 +128,10 @@ const PracticeContent = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex flex-col">
       <Navigation />
-      
-      <div className="flex-1 pt-20">
-        <div className="flex h-[calc(100vh-5rem)] w-full">
+
+      <SidebarProvider defaultOpen={true}>
+        <div className="flex flex-1 min-h-0 w-full pt-20">
+          {/* Sidebar */}
           <ProjectSidebar
             projectName={projectName}
             setProjectName={setProjectName}
@@ -141,8 +142,9 @@ const PracticeContent = () => {
             onLoadProject={handleLoadProject}
             onDeleteProject={handleDeleteProject}
           />
-          
-          <div className="flex-1 flex flex-col min-w-0 w-full">
+
+          {/* Main playground content */}
+          <div className="flex flex-col flex-1 min-w-0">
             <PracticeHeader
               selectedLanguage={selectedLanguage}
               languages={languages}
@@ -155,7 +157,6 @@ const PracticeContent = () => {
             {/* Main Content - Full Height Resizable Panels */}
             <div className="flex-1 p-4 min-h-0">
               <ResizablePanelGroup direction="horizontal" className="h-full">
-                {/* Code Editor Panel */}
                 <ResizablePanel defaultSize={50} minSize={30} className="min-h-0">
                   <CodeEditor
                     code={code}
@@ -164,10 +165,7 @@ const PracticeContent = () => {
                     languages={languages}
                   />
                 </ResizablePanel>
-
                 <ResizableHandle withHandle />
-
-                {/* Output Panel */}
                 <ResizablePanel defaultSize={50} minSize={30} className="min-h-0">
                   <OutputPanel
                     activeTab={activeTab}
@@ -182,22 +180,16 @@ const PracticeContent = () => {
                 </ResizablePanel>
               </ResizablePanelGroup>
             </div>
+            <Footer />
           </div>
         </div>
-      </div>
-      
-      {/* Footer automatically adjusts to full width when sidebar is collapsed */}
-      <Footer />
+      </SidebarProvider>
     </div>
   );
 };
 
-const Practice = () => {
-  return (
-    <SidebarProvider defaultOpen={true}>
-      <PracticeContent />
-    </SidebarProvider>
-  );
-};
+const Practice = () => (
+  <PracticeContent />
+);
 
 export default Practice;
