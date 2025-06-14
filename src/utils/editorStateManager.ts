@@ -16,11 +16,6 @@ export const createFileState = (fileId: string, content: string, language: strin
   fileId
 });
 
-export const createTemplateState = (templateId: string): EditorActiveState => ({
-  mode: 'template',
-  templateId
-});
-
 export const createLanguageState = (language: string): EditorActiveState => ({
   mode: 'language',
   languageTemplate: language
@@ -28,10 +23,6 @@ export const createLanguageState = (language: string): EditorActiveState => ({
 
 export const isActiveFile = (state: EditorState, fileId: string): boolean => {
   return state.activeState.mode === 'file' && state.activeState.fileId === fileId;
-};
-
-export const isActiveTemplate = (state: EditorState, templateId: string): boolean => {
-  return state.activeState.mode === 'template' && state.activeState.templateId === templateId;
 };
 
 export const isActiveLanguage = (state: EditorState, language: string): boolean => {

@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useProjectContext } from '@/contexts/ProjectContext';
-import { useTemplateContext } from '@/contexts/TemplateContext';
 import { EditorHeader } from './editor/EditorHeader';
 import { EditorContent } from './editor/EditorContent';
 import { SaveDialogs } from './editor/SaveDialogs';
@@ -20,11 +19,9 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
 }) => {
   const { toast } = useToast();
   const { selectedFile, updateFileContent, createFile, selectedProject, projects } = useProjectContext();
-  const { selectedTemplate, templates } = useTemplateContext();
   
   const editorStateManager = useEditorStateManager({
     selectedFile,
-    selectedTemplate,
     updateFileContent,
     selectedProjectId: selectedProject?.id || null,
   });
@@ -57,26 +54,11 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   const handleLanguageChange = (newLanguage: string) => {
     const template = getLanguageTemplate(newLanguage);
     if (editorStateManager.editorState.hasUnsavedChanges) {
-      // This will trigger the pending action dialog
       setTimeout(() => {
         editorStateManager.switchToLanguage(newLanguage, template);
       }, 0);
     } else {
       editorStateManager.switchToLanguage(newLanguage, template);
-    }
-  };
-
-  const handleTemplateChange = (templateId: string) => {
-    const template = templates.find(t => t.id === templateId && t.type === 'default');
-    if (template) {
-      if (editorStateManager.editorState.hasUnsavedChanges) {
-        // This will trigger the pending action dialog through useEffect
-        setTimeout(() => {
-          editorStateManager.switchToTemplate(template.id, template.content, template.language);
-        }, 0);
-      } else {
-        editorStateManager.switchToTemplate(template.id, template.content, template.language);
-      }
     }
   };
 
@@ -92,7 +74,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
         description: `${selectedFile.name} has been saved.`,
       });
     } else {
-      // Save as new file (removed custom template save functionality)
+      // Save as new file
       if (projects.length > 0) {
         setSaveProjectId(projects[0].id);
         setSaveFileName(`untitled.${getFileExtension(editorState.language)}`);
@@ -181,17 +163,11 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
     switch (editorState.activeState.mode) {
       case 'file':
         return selectedFile?.name || 'Unknown File';
-      case 'template':
-        return selectedTemplate ? `${selectedTemplate.name} Template` : 'Unknown Template';
       case 'language':
         return `${editorState.language} Template`;
       default:
         return 'Untitled';
     }
-  };
-
-  const getSelectedTemplateForHeader = () => {
-    return editorStateManager.editorState.activeState.mode === 'template' ? selectedTemplate : null;
   };
 
   return (
@@ -200,10 +176,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
         currentFileName={getCurrentFileName()}
         hasUnsavedChanges={editorStateManager.editorState.hasUnsavedChanges}
         language={editorStateManager.editorState.language}
-        selectedTemplate={getSelectedTemplateForHeader()}
-        templates={templates}
         onLanguageChange={handleLanguageChange}
-        onTemplateChange={handleTemplateChange}
         onRun={handleRun}
         onSave={handleSave}
         onCopy={handleCopy}

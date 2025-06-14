@@ -2,28 +2,23 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { EditorState, EditorStateManager } from '@/types/editor';
 import { ProjectFile } from '@/types/project';
-import { Template } from '@/types/template';
 import { 
   createInitialEditorState, 
   createFileState, 
-  createTemplateState, 
   createLanguageState,
   isActiveFile,
-  isActiveTemplate,
   isActiveLanguage,
   getLanguageTemplate
 } from '@/utils/editorStateManager';
 
 interface UseEditorStateManagerProps {
   selectedFile: ProjectFile | null;
-  selectedTemplate: Template | null;
   updateFileContent: (projectId: string, fileId: string, content: string) => void;
   selectedProjectId: string | null;
 }
 
 export const useEditorStateManager = ({
   selectedFile,
-  selectedTemplate,
   updateFileContent,
   selectedProjectId
 }: UseEditorStateManagerProps): EditorStateManager => {
@@ -69,32 +64,12 @@ export const useEditorStateManager = ({
     }
   }, [selectedFile]);
 
-  // Handle template selection changes
-  useEffect(() => {
-    if (selectedTemplate && !isActiveTemplate(editorState, selectedTemplate.id)) {
-      if (editorState.hasUnsavedChanges) {
-        setPendingAction(() => () => switchToTemplate(selectedTemplate.id, selectedTemplate.content, selectedTemplate.language));
-      } else {
-        switchToTemplate(selectedTemplate.id, selectedTemplate.content, selectedTemplate.language);
-      }
-    }
-  }, [selectedTemplate]);
-
   const switchToFile = useCallback((fileId: string, content: string, language: string) => {
     setEditorState({
       content,
       language,
       hasUnsavedChanges: false,
       activeState: createFileState(fileId, content, language)
-    });
-  }, []);
-
-  const switchToTemplate = useCallback((templateId: string, content: string, language: string) => {
-    setEditorState({
-      content,
-      language,
-      hasUnsavedChanges: false,
-      activeState: createTemplateState(templateId)
     });
   }, []);
 
@@ -133,7 +108,6 @@ export const useEditorStateManager = ({
   return {
     editorState,
     switchToFile,
-    switchToTemplate,
     switchToLanguage,
     updateContent,
     clearUnsavedChanges,

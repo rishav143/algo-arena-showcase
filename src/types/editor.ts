@@ -1,5 +1,5 @@
 
-export type EditorMode = 'file' | 'template' | 'language';
+export type EditorMode = 'file' | 'language';
 
 export interface EditorContent {
   content: string;
@@ -10,7 +10,6 @@ export interface EditorContent {
 export interface EditorActiveState {
   mode: EditorMode;
   fileId?: string;
-  templateId?: string;
   languageTemplate?: string;
 }
 
@@ -21,7 +20,6 @@ export interface EditorState extends EditorContent {
 export interface EditorStateManager {
   editorState: EditorState;
   switchToFile: (fileId: string, content: string, language: string) => void;
-  switchToTemplate: (templateId: string, content: string, language: string) => void;
   switchToLanguage: (language: string, content: string) => void;
   updateContent: (content: string) => void;
   clearUnsavedChanges: () => void;
