@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Template, MoreHorizontal, Trash2, Edit3 } from 'lucide-react';
+import { FileText, MoreHorizontal, Trash2, Edit3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -48,7 +48,7 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({ template }) => {
       )}
       onClick={handleSelect}
     >
-      <Template className="w-4 h-4 text-purple-500 flex-shrink-0" />
+      <FileText className="w-4 h-4 text-purple-500 flex-shrink-0" />
       
       {isRenaming ? (
         <Input
