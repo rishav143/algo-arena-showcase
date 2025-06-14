@@ -1,7 +1,6 @@
 
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { Template, TemplateContextType } from '@/types/template';
-import { useToast } from '@/hooks/use-toast';
 
 const TemplateContext = createContext<TemplateContextType | undefined>(undefined);
 
@@ -18,8 +17,7 @@ interface TemplateProviderProps {
 }
 
 export const TemplateProvider: React.FC<TemplateProviderProps> = ({ children }) => {
-  const { toast } = useToast();
-  const [templates, setTemplates] = useState<Template[]>([
+  const [templates] = useState<Template[]>([
     {
       id: 'template_codeforces',
       name: 'Codeforces',
@@ -41,66 +39,6 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({ children }) 
   ]);
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
 
-  const createTemplate = useCallback(async (name: string, content: string, language: string) => {
-    const newTemplate: Template = {
-      id: `template_${Date.now()}`,
-      name,
-      content,
-      language,
-      type: 'custom',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-
-    setTemplates(prev => [...prev, newTemplate]);
-    toast({
-      title: "Template Created",
-      description: `${name} template has been created successfully.`,
-    });
-  }, [toast]);
-
-  const deleteTemplate = useCallback(async (templateId: string) => {
-    setTemplates(prev => prev.filter(t => t.id !== templateId));
-    
-    if (selectedTemplate?.id === templateId) {
-      setSelectedTemplate(null);
-    }
-
-    toast({
-      title: "Template Deleted",
-      description: "Template has been deleted successfully.",
-    });
-  }, [selectedTemplate, toast]);
-
-  const renameTemplate = useCallback(async (templateId: string, newName: string) => {
-    setTemplates(prev => prev.map(template => 
-      template.id === templateId 
-        ? { ...template, name: newName, updatedAt: new Date() }
-        : template
-    ));
-
-    if (selectedTemplate?.id === templateId) {
-      setSelectedTemplate(prev => prev ? { ...prev, name: newName } : null);
-    }
-
-    toast({
-      title: "Template Renamed",
-      description: `Template renamed to ${newName}`,
-    });
-  }, [selectedTemplate, toast]);
-
-  const updateTemplate = useCallback(async (templateId: string, content: string) => {
-    setTemplates(prev => prev.map(template => 
-      template.id === templateId 
-        ? { ...template, content, updatedAt: new Date() }
-        : template
-    ));
-
-    if (selectedTemplate?.id === templateId) {
-      setSelectedTemplate(prev => prev ? { ...prev, content } : null);
-    }
-  }, [selectedTemplate]);
-
   const selectTemplate = useCallback((templateId: string) => {
     const template = templates.find(t => t.id === templateId);
     if (template) {
@@ -111,10 +49,6 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({ children }) 
   const value: TemplateContextType = {
     templates,
     selectedTemplate,
-    createTemplate,
-    deleteTemplate,
-    renameTemplate,
-    updateTemplate,
     selectTemplate,
   };
 

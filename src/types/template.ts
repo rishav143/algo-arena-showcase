@@ -4,7 +4,7 @@ export interface Template {
   name: string;
   content: string;
   language: string;
-  type: 'default' | 'custom';
+  type: 'default';
   createdAt: Date;
   updatedAt: Date;
 }
@@ -12,10 +12,6 @@ export interface Template {
 export interface TemplateContextType {
   templates: Template[];
   selectedTemplate: Template | null;
-  createTemplate: (name: string, content: string, language: string) => Promise<void>;
-  deleteTemplate: (templateId: string) => Promise<void>;
-  renameTemplate: (templateId: string, newName: string) => Promise<void>;
-  updateTemplate: (templateId: string, content: string) => Promise<void>;
   selectTemplate: (templateId: string) => void;
 }
 
