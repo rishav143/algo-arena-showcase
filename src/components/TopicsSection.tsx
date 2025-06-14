@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { ChevronRight, Clock, Star, TrendingUp } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const TopicsSection = () => {
   const topics = [
@@ -11,7 +12,8 @@ const TopicsSection = () => {
       difficulty: "Beginner",
       color: "from-emerald-400 to-cyan-400",
       bgColor: "bg-emerald-500/10",
-      textColor: "text-emerald-400"
+      textColor: "text-emerald-400",
+      route: "/arrays-strings"
     },
     {
       title: "Linked Lists",
@@ -20,7 +22,8 @@ const TopicsSection = () => {
       difficulty: "Beginner",
       color: "from-blue-400 to-indigo-400",
       bgColor: "bg-blue-500/10",
-      textColor: "text-blue-400"
+      textColor: "text-blue-400",
+      route: "/linked-lists"
     },
     {
       title: "Stacks & Queues",
@@ -29,7 +32,8 @@ const TopicsSection = () => {
       difficulty: "Intermediate",
       color: "from-yellow-400 to-orange-400",
       bgColor: "bg-yellow-500/10",
-      textColor: "text-yellow-400"
+      textColor: "text-yellow-400",
+      route: "/stacks-queues"
     },
     {
       title: "Trees & Graphs",
@@ -38,7 +42,8 @@ const TopicsSection = () => {
       difficulty: "Intermediate",
       color: "from-purple-400 to-pink-400",
       bgColor: "bg-purple-500/10",
-      textColor: "text-purple-400"
+      textColor: "text-purple-400",
+      route: "/trees-graphs"
     },
     {
       title: "Dynamic Programming",
@@ -47,7 +52,8 @@ const TopicsSection = () => {
       difficulty: "Advanced",
       color: "from-red-400 to-pink-400",
       bgColor: "bg-red-500/10",
-      textColor: "text-red-400"
+      textColor: "text-red-400",
+      route: "/dynamic-programming"
     },
     {
       title: "Sorting & Searching",
@@ -56,7 +62,8 @@ const TopicsSection = () => {
       difficulty: "Intermediate",
       color: "from-indigo-400 to-purple-400",
       bgColor: "bg-indigo-500/10",
-      textColor: "text-indigo-400"
+      textColor: "text-indigo-400",
+      route: "/sorting-searching"
     }
   ];
 
@@ -94,8 +101,9 @@ const TopicsSection = () => {
         
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {topics.map((topic, index) => (
-            <div 
+            <Link 
               key={index}
+              to={topic.route}
               className="group relative bg-white rounded-2xl p-8 border border-gray-100 hover:border-gray-200 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 cursor-pointer overflow-hidden"
             >
               {/* Gradient overlay on hover */}
@@ -136,7 +144,7 @@ const TopicsSection = () => {
                   <div className={`w-12 h-1 rounded-full bg-gradient-to-r ${topic.color}`}></div>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>

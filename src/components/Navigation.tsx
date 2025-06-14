@@ -20,9 +20,6 @@ const Navigation = () => {
           </Link>
 
           <div className="hidden md:flex items-center space-x-8">
-            <Link to="/topics" className="text-gray-700 hover:text-cyan-600 font-medium transition-all duration-300 hover:scale-105">
-              Topics
-            </Link>
             <a href="#problems" className="text-gray-700 hover:text-cyan-600 font-medium transition-all duration-300 hover:scale-105">
               Problems
             </a>
@@ -49,9 +46,6 @@ const Navigation = () => {
         {isMenuOpen && (
           <div className="md:hidden bg-white/90 backdrop-blur-md border-t border-gray-200 rounded-b-xl">
             <div className="py-4 space-y-1">
-              <Link to="/topics" className="block px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
-                Topics
-              </Link>
               <a href="#problems" className="block px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
                 Problems
               </a>
