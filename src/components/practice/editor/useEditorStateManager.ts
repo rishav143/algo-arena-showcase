@@ -61,8 +61,18 @@ export const useEditorStateManager = ({
       } else {
         switchToFile(selectedFile.id, selectedFile.content, selectedFile.language);
       }
+    } else if (!selectedFile && editorState.activeState.mode === 'file') {
+      // File was deleted or deselected, switch to language mode
+      const currentLanguage = editorState.language;
+      const template = getLanguageTemplate(currentLanguage);
+      setEditorState({
+        content: template,
+        language: currentLanguage,
+        hasUnsavedChanges: false,
+        activeState: createLanguageState(currentLanguage)
+      });
     }
-  }, [selectedFile]);
+  }, [selectedFile, editorState]);
 
   const switchToFile = useCallback((fileId: string, content: string, language: string) => {
     setEditorState({

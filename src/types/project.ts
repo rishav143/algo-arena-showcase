@@ -23,7 +23,7 @@ export interface ProjectContextType {
   createProject: (name: string) => Promise<void>;
   deleteProject: (projectId: string) => Promise<void>;
   renameProject: (projectId: string, newName: string) => Promise<void>;
-  createFile: (projectId: string, fileName: string, language: string) => Promise<void>;
+  createFile: (projectId: string, fileName: string, language: string, content?: string) => Promise<void>;
   deleteFile: (projectId: string, fileId: string) => Promise<void>;
   renameFile: (projectId: string, fileId: string, newName: string) => Promise<void>;
   selectFile: (projectId: string, fileId: string) => void;

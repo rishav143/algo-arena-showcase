@@ -53,6 +53,9 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
 
   const handleLanguageChange = (newLanguage: string) => {
     const template = getLanguageTemplate(newLanguage);
+    
+    // If we're currently editing a file, we need to switch to language mode
+    // This will deselect the current file
     if (editorStateManager.editorState.hasUnsavedChanges) {
       setTimeout(() => {
         editorStateManager.switchToLanguage(newLanguage, template);
@@ -89,9 +92,13 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
     }
   };
 
-  const handleSaveAsNewFile = () => {
+  const handleSaveAsNewFile = async () => {
     if (saveProjectId && saveFileName.trim()) {
-      createFile(saveProjectId, saveFileName.trim(), editorStateManager.editorState.language);
+      // Save current content to the new file
+      const fileContent = editorStateManager.editorState.content;
+      const fileLanguage = editorStateManager.editorState.language;
+      
+      await createFile(saveProjectId, saveFileName.trim(), fileLanguage, fileContent);
       editorStateManager.clearUnsavedChanges();
       setShowSaveDialog(false);
       setSaveFileName('');

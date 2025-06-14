@@ -51,6 +51,7 @@ export const ProjectItem: React.FC<ProjectItemProps> = ({
   const [isCreateFileOpen, setIsCreateFileOpen] = useState(false);
   const [newFileName, setNewFileName] = useState('');
   const [selectedLanguage, setSelectedLanguage] = useState('javascript');
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
   const handleRenameProject = () => {
     if (renameValue.trim() && renameValue !== project.name) {
@@ -68,6 +69,7 @@ export const ProjectItem: React.FC<ProjectItemProps> = ({
       onCreateFile(fileName, selectedLanguage);
       setNewFileName('');
       setIsCreateFileOpen(false);
+      setIsPopoverOpen(false); // Close the popover after file creation
     }
   };
 
@@ -116,7 +118,7 @@ export const ProjectItem: React.FC<ProjectItemProps> = ({
         ) : (
           <>
             <span className="flex-1 text-sm font-medium truncate">{project.name}</span>
-            <Popover>
+            <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
               <PopoverTrigger asChild>
                 <Button
                   variant="ghost"
@@ -193,6 +195,7 @@ export const ProjectItem: React.FC<ProjectItemProps> = ({
                     onClick={() => {
                       setIsRenaming(true);
                       setRenameValue(project.name);
+                      setIsPopoverOpen(false);
                     }}
                   >
                     <Edit3 className="w-4 h-4 mr-2" />
@@ -220,7 +223,10 @@ export const ProjectItem: React.FC<ProjectItemProps> = ({
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
                         <AlertDialogAction
-                          onClick={onDeleteProject}
+                          onClick={() => {
+                            onDeleteProject();
+                            setIsPopoverOpen(false);
+                          }}
                           className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                         >
                           Delete

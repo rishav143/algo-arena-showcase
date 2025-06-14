@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { Project, ProjectFile, ProjectContextType } from '@/types/project';
 import { useToast } from '@/hooks/use-toast';
@@ -70,11 +69,11 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({ children }) =>
     });
   }, [selectedProject, toast]);
 
-  const createFile = useCallback(async (projectId: string, fileName: string, language: string) => {
+  const createFile = useCallback(async (projectId: string, fileName: string, language: string, content?: string) => {
     const newFile: ProjectFile = {
       id: `file_${Date.now()}`,
       name: fileName,
-      content: getDefaultContent(language),
+      content: content || getDefaultContent(language),
       language,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -90,13 +89,23 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({ children }) =>
         : project
     ));
 
+    // Auto-select the newly created file
+    const project = projects.find(p => p.id === projectId);
+    if (project) {
+      setSelectedProject({ ...project, files: [...project.files, newFile] });
+      setSelectedFile(newFile);
+    }
+
     toast({
       title: "File Created",
       description: `${fileName} has been created successfully.`,
     });
-  }, [toast]);
+  }, [projects, toast]);
 
   const deleteFile = useCallback(async (projectId: string, fileId: string) => {
+    // Check if we're deleting the currently selected file
+    const isDeletingSelectedFile = selectedFile?.id === fileId;
+    
     setProjects(prev => prev.map(project => 
       project.id === projectId 
         ? { 
@@ -107,15 +116,21 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({ children }) =>
         : project
     ));
 
-    if (selectedFile?.id === fileId) {
+    // If we deleted the selected file, clear the selection
+    if (isDeletingSelectedFile) {
       setSelectedFile(null);
+      // Optionally also clear selected project if no files remain
+      const project = projects.find(p => p.id === projectId);
+      if (project && project.files.length === 1) { // Will be 0 after deletion
+        setSelectedProject(null);
+      }
     }
 
     toast({
       title: "File Deleted",
       description: "File has been deleted successfully.",
     });
-  }, [selectedFile, toast]);
+  }, [selectedFile, projects, toast]);
 
   const renameFile = useCallback(async (projectId: string, fileId: string, newName: string) => {
     setProjects(prev => prev.map(project => 
