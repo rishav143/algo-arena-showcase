@@ -6,8 +6,6 @@ import { OutputPanel } from './OutputPanel';
 import { PracticeHeader } from './PracticeHeader';
 
 export const PracticeWorkspace = () => {
-  const [activeFile, setActiveFile] = useState<string | null>(null);
-  const [code, setCode] = useState('// Welcome to CodeRoom Practice\n// Start coding here...');
   const [selectedVideo, setSelectedVideo] = useState<any>(null);
   const [aiAssistantEnabled, setAiAssistantEnabled] = useState(true);
   const [activeTab, setActiveTab] = useState('output');
@@ -19,12 +17,12 @@ export const PracticeWorkspace = () => {
   };
 
   const handleRunCode = () => {
-    console.log('Running code:', code);
+    console.log('Running code...');
     setExecutionError(''); // Clear previous errors
   };
 
   const handleSubmitCode = () => {
-    console.log('Submitting code:', code);
+    console.log('Submitting code...');
   };
 
   const handleExecutionError = (error: string) => {
@@ -47,9 +45,6 @@ export const PracticeWorkspace = () => {
           {/* Code Editor Panel */}
           <ResizablePanel defaultSize={60} minSize={30}>
             <CodeEditor 
-              code={code}
-              onChange={setCode}
-              language="javascript"
               onRunCode={handleRunCode}
               onExecutionError={handleExecutionError}
             />
@@ -60,7 +55,7 @@ export const PracticeWorkspace = () => {
           {/* Output/AI Assistant Panel */}
           <ResizablePanel defaultSize={40} minSize={25}>
             <OutputPanel 
-              code={code} 
+              code=""
               selectedVideo={selectedVideo}
               aiAssistantEnabled={aiAssistantEnabled}
               activeTab={activeTab}

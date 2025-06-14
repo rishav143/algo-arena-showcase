@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { AISettings } from './sidebar/AISettings';
+import { TemplatesSection } from './sidebar/TemplatesSection';
 import { ProjectsSection } from './sidebar/ProjectsSection';
 
 interface PracticeSidebarProps {
@@ -18,6 +19,7 @@ export const PracticeSidebar: React.FC<PracticeSidebarProps> = ({
         aiAssistantEnabled={aiAssistantEnabled}
         onAiAssistantToggle={onAiAssistantToggle}
       />
+      <TemplatesSection />
       <ProjectsSection />
     </div>
   );
