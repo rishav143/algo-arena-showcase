@@ -30,85 +30,87 @@ const SortingSearching = () => {
       
       {/* Header */}
       <div className="pt-20 pb-12 bg-gradient-to-br from-indigo-600 to-purple-600">
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <Link to="/" className="inline-flex items-center text-white/80 hover:text-white mb-6 transition-colors">
             <ArrowLeft className="w-5 h-5 mr-2" />
             Back to Home
           </Link>
           <div className="text-white">
-            <h1 className="text-5xl font-bold mb-4">Sorting & Searching</h1>
-            <p className="text-xl text-indigo-100 max-w-3xl">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">Sorting & Searching</h1>
+            <p className="text-lg sm:text-xl text-indigo-100 max-w-3xl">
               Efficient algorithms for data organization and retrieval through these essential problems.
             </p>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Stats */}
-        <div className="grid md:grid-cols-3 gap-6 mb-12">
-          <Card className="bg-white/70 backdrop-blur-sm">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+          <Card className="bg-white/70 backdrop-blur-sm border-0 shadow-lg">
             <CardContent className="p-6 text-center">
               <Code className="w-8 h-8 text-indigo-600 mx-auto mb-2" />
               <div className="text-2xl font-bold text-gray-900">{problems.length}</div>
-              <div className="text-gray-600">Problems</div>
+              <div className="text-gray-600 text-sm">Problems</div>
             </CardContent>
           </Card>
-          <Card className="bg-white/70 backdrop-blur-sm">
+          <Card className="bg-white/70 backdrop-blur-sm border-0 shadow-lg">
             <CardContent className="p-6 text-center">
               <Clock className="w-8 h-8 text-purple-600 mx-auto mb-2" />
               <div className="text-2xl font-bold text-gray-900">~2 weeks</div>
-              <div className="text-gray-600">Estimated Time</div>
+              <div className="text-gray-600 text-sm">Estimated Time</div>
             </CardContent>
           </Card>
-          <Card className="bg-white/70 backdrop-blur-sm">
+          <Card className="bg-white/70 backdrop-blur-sm border-0 shadow-lg sm:col-span-2 lg:col-span-1">
             <CardContent className="p-6 text-center">
               <Trophy className="w-8 h-8 text-yellow-600 mx-auto mb-2" />
               <div className="text-2xl font-bold text-gray-900">Intermediate</div>
-              <div className="text-gray-600">Difficulty Level</div>
+              <div className="text-gray-600 text-sm">Difficulty Level</div>
             </CardContent>
           </Card>
         </div>
 
         {/* Problems List */}
         <div className="space-y-6">
-          <h2 className="text-3xl font-bold text-gray-900 mb-8">Practice Problems</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-8">Practice Problems</h2>
           {problems.map((problem) => (
-            <Card key={problem.id} className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-white/70 backdrop-blur-sm">
+            <Card key={problem.id} className="group hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 bg-white/80 backdrop-blur-sm border-0 shadow-lg">
               <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-4 mb-3">
-                      <h3 className="text-xl font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors">
+                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mb-3">
+                      <h3 className="text-lg sm:text-xl font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors truncate">
                         {problem.title}
                       </h3>
-                      <Badge className={`${getDifficultyColor(problem.difficulty)} border`}>
+                      <Badge className={`${getDifficultyColor(problem.difficulty)} border self-start flex-shrink-0`}>
                         {problem.difficulty}
                       </Badge>
                     </div>
                     
-                    <div className="flex items-center gap-6 text-sm text-gray-600 mb-4">
+                    <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-sm text-gray-600 mb-4">
                       <div className="flex items-center gap-2">
-                        <Clock className="w-4 h-4" />
+                        <Clock className="w-4 h-4 flex-shrink-0" />
                         <span>{problem.time}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Star className="w-4 h-4 text-yellow-500" />
+                        <Star className="w-4 h-4 text-yellow-500 flex-shrink-0" />
                         <span>{problem.solved.toLocaleString()} solved</span>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm text-gray-500">Companies:</span>
-                      {problem.companies.map((company, index) => (
-                        <Badge key={index} variant="outline" className="text-xs">
-                          {company}
-                        </Badge>
-                      ))}
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-sm text-gray-500 flex-shrink-0">Companies:</span>
+                      <div className="flex flex-wrap gap-2">
+                        {problem.companies.map((company, index) => (
+                          <Badge key={index} variant="outline" className="text-xs">
+                            {company}
+                          </Badge>
+                        ))}
+                      </div>
                     </div>
                   </div>
                   
-                  <Button className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 group-hover:scale-105">
+                  <Button className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 group-hover:scale-105 self-start lg:self-center flex-shrink-0">
                     Solve Now
                   </Button>
                 </div>
