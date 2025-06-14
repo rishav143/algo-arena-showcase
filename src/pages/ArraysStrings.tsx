@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback } from 'react';
 import { ArrowLeft, Clock, Star, Code, Trophy } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -26,9 +27,14 @@ const ArraysStrings = () => {
   ];
 
   const [filteredProblems, setFilteredProblems] = useState(problems);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   const handleFilteredProblems = useCallback((filtered: typeof problems) => {
     setFilteredProblems(filtered);
+  }, []);
+
+  const handleViewModeChange = useCallback((mode: 'grid' | 'list') => {
+    setViewMode(mode);
   }, []);
 
   const getDifficultyColor = (difficulty: string) => {
@@ -67,6 +73,8 @@ const ArraysStrings = () => {
           onFilteredProblems={handleFilteredProblems}
           currentTopic="Arrays & Strings"
           topics={topics}
+          viewMode={viewMode}
+          onViewModeChange={handleViewModeChange}
         />
 
         {/* Stats */}
@@ -104,50 +112,52 @@ const ArraysStrings = () => {
               <p className="text-gray-500 text-lg">No problems found matching your search criteria.</p>
             </div>
           ) : (
-            filteredProblems.map((problem) => (
-              <Card key={problem.id} className="group hover:shadow-xl transition-all duration-300 bg-white border-0 shadow-lg">
-                <CardContent className="p-6">
-                  <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mb-3">
-                        <h3 className="text-lg sm:text-xl font-semibold text-gray-900 group-hover:text-emerald-600 transition-colors truncate">
-                          {problem.title}
-                        </h3>
-                        <Badge className={`${getDifficultyColor(problem.difficulty)} border self-start flex-shrink-0`}>
-                          {problem.difficulty}
-                        </Badge>
+            <div className={viewMode === 'grid' ? 'grid grid-cols-1 lg:grid-cols-2 gap-6' : 'space-y-6'}>
+              {filteredProblems.map((problem) => (
+                <Card key={problem.id} className="group hover:shadow-xl transition-all duration-300 bg-white border-0 shadow-lg">
+                  <CardContent className="p-6">
+                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mb-3">
+                          <h3 className="text-lg sm:text-xl font-semibold text-gray-900 group-hover:text-emerald-600 transition-colors truncate">
+                            {problem.title}
+                          </h3>
+                          <Badge className={`${getDifficultyColor(problem.difficulty)} border self-start flex-shrink-0`}>
+                            {problem.difficulty}
+                          </Badge>
+                        </div>
+                        
+                        <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-sm text-gray-600 mb-4">
+                          <div className="flex items-center gap-2">
+                            <Clock className="w-4 h-4 flex-shrink-0" />
+                            <span>{problem.time}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Star className="w-4 h-4 text-yellow-500 flex-shrink-0" />
+                            <span>{problem.solved.toLocaleString()} solved</span>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="text-sm text-gray-500 flex-shrink-0">Companies:</span>
+                          <div className="flex flex-wrap gap-2">
+                            {problem.companies.map((company, index) => (
+                              <Badge key={index} variant="outline" className="text-xs">
+                                {company}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
                       </div>
                       
-                      <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-sm text-gray-600 mb-4">
-                        <div className="flex items-center gap-2">
-                          <Clock className="w-4 h-4 flex-shrink-0" />
-                          <span>{problem.time}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Star className="w-4 h-4 text-yellow-500 flex-shrink-0" />
-                          <span>{problem.solved.toLocaleString()} solved</span>
-                        </div>
-                      </div>
-
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-sm text-gray-500 flex-shrink-0">Companies:</span>
-                        <div className="flex flex-wrap gap-2">
-                          {problem.companies.map((company, index) => (
-                            <Badge key={index} variant="outline" className="text-xs">
-                              {company}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
+                      <Button className="bg-gradient-to-r from-emerald-500 to-cyan-600 hover:from-emerald-600 hover:to-cyan-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 self-start lg:self-center flex-shrink-0">
+                        Solve Now
+                      </Button>
                     </div>
-                    
-                    <Button className="bg-gradient-to-r from-emerald-500 to-cyan-600 hover:from-emerald-600 hover:to-cyan-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 self-start lg:self-center flex-shrink-0">
-                      Solve Now
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           )}
         </div>
       </div>
