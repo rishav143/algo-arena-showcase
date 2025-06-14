@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from 'react';
 import { Project, File } from '@/types/practice';
 import { useToast } from '@/hooks/use-toast';

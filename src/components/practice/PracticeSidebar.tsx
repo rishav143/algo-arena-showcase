@@ -1,13 +1,4 @@
-import React from 'react';
-import { 
-  Sidebar,
-  SidebarContent,
-  SidebarHeader,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupLabel,
-  SidebarGroupContent,
-} from '@/components/ui/sidebar';
+import React, { useState } from 'react';
 import { ProjectTree } from './ProjectTree';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -45,8 +36,8 @@ export const PracticeSidebar: React.FC<PracticeSidebarProps> = ({
   };
 
   return (
-    <Sidebar className="border-r">
-      <SidebarHeader className="p-4">
+    <div className="w-64 h-full border-r bg-background">
+      <div className="p-4">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">Projects</h2>
         </div>
@@ -95,42 +86,38 @@ export const PracticeSidebar: React.FC<PracticeSidebarProps> = ({
             </DialogContent>
           </Dialog>
         </div>
-      </SidebarHeader>
+      </div>
       
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Your Projects</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <ProjectTree 
-              projects={projects} 
-              selectedFile={selectedFile}
-              onFileSelect={handleFileSelect}
-            />
-          </SidebarGroupContent>
-        </SidebarGroup>
+      <div className="overflow-auto">
+        <div className="p-4">
+          <h3 className="text-sm font-medium text-muted-foreground mb-2">Your Projects</h3>
+          <ProjectTree 
+            projects={projects} 
+            selectedFile={selectedFile}
+            onFileSelect={handleFileSelect}
+          />
+        </div>
         
-        <SidebarGroup>
-          <SidebarGroupLabel>Settings</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <div className="flex items-center justify-between p-2">
-              <div className="flex items-center gap-2">
-                <Bot className="w-4 h-4" />
-                <span className="text-sm">AI Assistant</span>
-              </div>
-              <Switch
-                checked={aiAssistantEnabled}
-                onCheckedChange={onAiAssistantToggle}
-              />
+        <div className="p-4 border-t">
+          <h3 className="text-sm font-medium text-muted-foreground mb-2">Settings</h3>
+          <div className="flex items-center justify-between p-2">
+            <div className="flex items-center gap-2">
+              <Bot className="w-4 h-4" />
+              <span className="text-sm">AI Assistant</span>
             </div>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
+            <Switch
+              checked={aiAssistantEnabled}
+              onCheckedChange={onAiAssistantToggle}
+            />
+          </div>
+        </div>
+      </div>
       
-      <SidebarFooter className="p-4">
+      <div className="p-4 border-t mt-auto">
         <div className="text-xs text-muted-foreground">
           {projects.length} project{projects.length !== 1 ? 's' : ''}
         </div>
-      </SidebarFooter>
-    </Sidebar>
+      </div>
+    </div>
   );
 };
