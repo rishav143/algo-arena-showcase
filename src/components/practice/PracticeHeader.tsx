@@ -12,15 +12,13 @@ interface PracticeHeaderProps {
   onRunCode: () => void;
   onSubmitCode: () => void;
   onToggleSidebar?: () => void;
-  theme: string;
 }
 
 export const PracticeHeader: React.FC<PracticeHeaderProps> = ({ 
   onVideoSelect, 
   onRunCode, 
   onSubmitCode,
-  onToggleSidebar,
-  theme
+  onToggleSidebar 
 }) => {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -58,25 +56,8 @@ export const PracticeHeader: React.FC<PracticeHeaderProps> = ({
     setSearchOpen(false);
   };
 
-  const getThemeClasses = (theme: string) => {
-    switch (theme) {
-      case 'dark':
-        return 'bg-gray-800 border-gray-700 text-gray-100';
-      case 'monokai':
-        return 'bg-gray-700 border-gray-600 text-green-400';
-      case 'dracula':
-        return 'bg-purple-800 border-purple-700 text-purple-100';
-      case 'github':
-        return 'bg-gray-50 border-gray-300 text-gray-900';
-      case 'vscode':
-        return 'bg-gray-700 border-gray-600 text-blue-200';
-      default:
-        return 'bg-background border-border text-foreground';
-    }
-  };
-
   return (
-    <div className={`border-b p-3 ${getThemeClasses(theme)}`}>
+    <div className="border-b bg-background p-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
@@ -87,8 +68,8 @@ export const PracticeHeader: React.FC<PracticeHeaderProps> = ({
             )}
             <div className="flex flex-col">
               <h1 className="text-lg font-semibold">CodeRoom Practice</h1>
-              <nav className="flex items-center space-x-1 text-xs opacity-70">
-                <Link to="/" className="flex items-center hover:opacity-100">
+              <nav className="flex items-center space-x-1 text-xs text-muted-foreground">
+                <Link to="/" className="flex items-center hover:text-foreground">
                   <Home className="w-3 h-3 mr-1" />
                   Home
                 </Link>

@@ -12,15 +12,11 @@ import { getLanguageTemplate } from '@/utils/editorStateManager';
 interface CodeEditorProps {
   onRunCode?: () => void;
   onExecutionError?: (error: string) => void;
-  theme: string;
-  onThemeChange: (theme: string) => void;
 }
 
 export const CodeEditor: React.FC<CodeEditorProps> = ({ 
   onRunCode,
-  onExecutionError,
-  theme,
-  onThemeChange
+  onExecutionError
 }) => {
   const { toast } = useToast();
   const { selectedFile, updateFileContent, selectedProject, setSelectedFile } = useProjectContext();
@@ -32,6 +28,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   });
 
   const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
+  const [theme, setTheme] = useState('light');
   const saveManagerRef = useRef<HTMLDivElement>(null);
 
   // Keyboard shortcuts
@@ -162,7 +159,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
         language={editorStateManager.editorState.language}
         theme={theme}
         onLanguageChange={handleLanguageChange}
-        onThemeChange={onThemeChange}
+        onThemeChange={setTheme}
         onRun={handleRun}
         onSave={handleSave}
         onCopy={handleCopy}
