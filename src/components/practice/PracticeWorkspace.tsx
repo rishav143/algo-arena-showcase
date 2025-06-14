@@ -45,7 +45,8 @@ export const PracticeWorkspace = () => {
           {/* Code Editor Panel */}
           <ResizablePanel defaultSize={60} minSize={30}>
             <CodeEditor 
-              aiAssistantEnabled={aiAssistantEnabled}
+              onRunCode={handleRunCode}
+              onExecutionError={handleExecutionError}
             />
           </ResizablePanel>
           

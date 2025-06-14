@@ -4,50 +4,42 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Code, Copy, Play, Save, AlertTriangle } from 'lucide-react';
 import { Template } from '@/types/template';
-import { ProjectFile } from '@/types/project';
-import { EditorState } from '@/types/editor';
 
 interface EditorHeaderProps {
-  editorState: EditorState;
-  onLanguageSelect: (language: string) => void;
-  selectedFile: ProjectFile | null;
+  currentFileName: string;
+  hasUnsavedChanges: boolean;
+  language: string;
   selectedTemplate: Template | null;
+  templates: Template[];
+  onLanguageChange: (language: string) => void;
+  onTemplateChange: (templateId: string) => void;
+  onRun: () => void;
+  onSave: () => void;
+  onCopy: () => void;
 }
 
 export const EditorHeader: React.FC<EditorHeaderProps> = ({
-  editorState,
-  onLanguageSelect,
-  selectedFile,
+  currentFileName,
+  hasUnsavedChanges,
+  language,
   selectedTemplate,
+  templates,
+  onLanguageChange,
+  onTemplateChange,
+  onRun,
+  onSave,
+  onCopy,
 }) => {
-  const getCurrentFileName = () => {
-    if (editorState.activeState.mode === 'file' && selectedFile) {
-      return selectedFile.name;
-    }
-    if (editorState.activeState.mode === 'template' && selectedTemplate) {
-      return selectedTemplate.name;
-    }
-    return `${editorState.language} Template`;
-  };
-
-  const onRun = () => {
-    console.log('Running code...');
-  };
-
-  const onSave = () => {
-    console.log('Saving code...');
-  };
-
-  const onCopy = () => {
-    navigator.clipboard.writeText(editorState.content);
+  const getDefaultTemplateOptions = () => {
+    return templates.filter(t => t.type === 'default');
   };
 
   return (
     <div className="border-b bg-muted/50 p-2 flex items-center justify-between">
       <div className="flex items-center gap-2">
         <Code className="w-4 h-4" />
-        <span className="text-sm font-medium">{getCurrentFileName()}</span>
-        {editorState.hasUnsavedChanges && (
+        <span className="text-sm font-medium">{currentFileName}</span>
+        {hasUnsavedChanges && (
           <div className="flex items-center gap-1 text-orange-600">
             <AlertTriangle className="w-3 h-3" />
             <span className="text-xs">Unsaved</span>
@@ -56,7 +48,7 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
       </div>
       
       <div className="flex items-center gap-2">
-        <Select value={editorState.language} onValueChange={onLanguageSelect}>
+        <Select value={language} onValueChange={onLanguageChange}>
           <SelectTrigger className="w-32 h-8">
             <SelectValue />
           </SelectTrigger>
@@ -69,6 +61,22 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
             <SelectItem value="c">C</SelectItem>
             <SelectItem value="go">Go</SelectItem>
             <SelectItem value="rust">Rust</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select 
+          value={selectedTemplate?.id || ''} 
+          onValueChange={onTemplateChange}
+        >
+          <SelectTrigger className="w-32 h-8">
+            <SelectValue placeholder="Template" />
+          </SelectTrigger>
+          <SelectContent>
+            {getDefaultTemplateOptions().map((template) => (
+              <SelectItem key={template.id} value={template.id}>
+                {template.name}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
         

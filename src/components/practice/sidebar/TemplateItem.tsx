@@ -7,7 +7,6 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Template as TemplateType } from '@/types/template';
 import { useTemplateContext } from '@/contexts/TemplateContext';
-import { useProjectContext } from '@/contexts/ProjectContext';
 import { cn } from '@/lib/utils';
 
 interface TemplateItemProps {
@@ -17,12 +16,10 @@ interface TemplateItemProps {
 
 export const TemplateItem: React.FC<TemplateItemProps> = ({ template, onSelect }) => {
   const { selectedTemplate, deleteTemplate, renameTemplate } = useTemplateContext();
-  const { selectedFile } = useProjectContext();
   const [isRenaming, setIsRenaming] = useState(false);
   const [renameValue, setRenameValue] = useState(template.name);
 
-  // Template should only be selected if no file is selected and this template is the selected one
-  const isSelected = selectedTemplate?.id === template.id && !selectedFile;
+  const isSelected = selectedTemplate?.id === template.id;
 
   const handleRename = () => {
     if (renameValue.trim() && renameValue !== template.name) {
