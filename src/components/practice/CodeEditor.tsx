@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useProjectContext } from '@/contexts/ProjectContext';
@@ -5,7 +6,8 @@ import { useTemplateContext } from '@/contexts/TemplateContext';
 import { EditorHeader } from './editor/EditorHeader';
 import { EditorContent } from './editor/EditorContent';
 import { SaveDialogs } from './editor/SaveDialogs';
-import { useEditorState } from './editor/useEditorState';
+import { useEditorStateManager } from './editor/useEditorStateManager';
+import { getLanguageTemplate } from '@/utils/editorStateManager';
 
 interface CodeEditorProps {
   onRunCode?: () => void;
@@ -20,11 +22,11 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   const { selectedFile, updateFileContent, createFile, selectedProject, projects } = useProjectContext();
   const { selectedTemplate, templates, updateTemplate } = useTemplateContext();
   
-  const { editorState, setEditorState, pendingAction, setPendingAction } = useEditorState({
+  const editorStateManager = useEditorStateManager({
     selectedFile,
     selectedTemplate,
-    selectedProject,
     updateFileContent,
+    selectedProjectId: selectedProject?.id || null,
   });
 
   const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
@@ -47,97 +49,52 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
 
   // Handle showing unsaved dialog when needed
   useEffect(() => {
-    if (pendingAction) {
+    if (editorStateManager.hasPendingAction) {
       setShowUnsavedDialog(true);
     }
-  }, [pendingAction]);
-
-  const handleContentChange = (newContent: string) => {
-    setEditorState(prev => ({
-      ...prev,
-      currentContent: newContent,
-      hasUnsavedChanges: true,
-    }));
-  };
+  }, [editorStateManager.hasPendingAction]);
 
   const handleLanguageChange = (newLanguage: string) => {
-    if (editorState.hasUnsavedChanges) {
-      setPendingAction(() => () => {
-        const template = getLanguageTemplate(newLanguage);
-        setEditorState({
-          hasUnsavedChanges: false,
-          currentContent: template,
-          selectedFileId: null, // Deselect file when changing language
-          selectedTemplateId: null,
-          language: newLanguage,
-        });
-      });
-      setShowUnsavedDialog(true);
+    const template = getLanguageTemplate(newLanguage);
+    if (editorStateManager.editorState.hasUnsavedChanges) {
+      // This will trigger the pending action dialog
+      setTimeout(() => {
+        editorStateManager.switchToLanguage(newLanguage, template);
+      }, 0);
     } else {
-      const template = getLanguageTemplate(newLanguage);
-      setEditorState(prev => ({
-        ...prev,
-        currentContent: template,
-        language: newLanguage,
-        selectedFileId: null, // Deselect file when changing language
-        selectedTemplateId: null,
-      }));
+      editorStateManager.switchToLanguage(newLanguage, template);
     }
   };
 
   const handleTemplateChange = (templateId: string) => {
     const template = templates.find(t => t.id === templateId && t.type === 'default');
     if (template) {
-      if (editorState.hasUnsavedChanges) {
-        setPendingAction(() => () => {
-          setEditorState({
-            hasUnsavedChanges: false,
-            currentContent: template.content,
-            selectedFileId: null, // Deselect file when changing template
-            selectedTemplateId: template.id,
-            language: template.language,
-          });
-        });
-        setShowUnsavedDialog(true);
+      if (editorStateManager.editorState.hasUnsavedChanges) {
+        // This will trigger the pending action dialog through useEffect
+        setTimeout(() => {
+          editorStateManager.switchToTemplate(template.id, template.content, template.language);
+        }, 0);
       } else {
-        setEditorState({
-          hasUnsavedChanges: false,
-          currentContent: template.content,
-          selectedFileId: null, // Deselect file when changing template
-          selectedTemplateId: template.id,
-          language: template.language,
-        });
+        editorStateManager.switchToTemplate(template.id, template.content, template.language);
       }
     }
   };
 
-  const getLanguageTemplate = (language: string): string => {
-    const languageTemplates: Record<string, string> = {
-      javascript: '// JavaScript\nconsole.log("Hello, World!");',
-      typescript: '// TypeScript\nconst message: string = "Hello, World!";\nconsole.log(message);',
-      python: '# Python\nprint("Hello, World!")',
-      java: 'public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello, World!");\n    }\n}',
-      cpp: '#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << "Hello, World!" << endl;\n    return 0;\n}',
-      c: '#include <stdio.h>\n\nint main() {\n    printf("Hello, World!\\n");\n    return 0;\n}',
-      go: 'package main\n\nimport "fmt"\n\nfunc main() {\n    fmt.Println("Hello, World!")\n}',
-      rust: 'fn main() {\n    println!("Hello, World!");\n}',
-    };
-    return languageTemplates[language] || '// Start coding here...';
-  };
-
   const handleSave = () => {
-    if (selectedFile && selectedProject && editorState.selectedFileId === selectedFile.id) {
+    const { editorState } = editorStateManager;
+    
+    if (editorState.activeState.mode === 'file' && selectedFile && selectedProject) {
       // Save to existing file
-      updateFileContent(selectedProject.id, selectedFile.id, editorState.currentContent);
-      setEditorState(prev => ({ ...prev, hasUnsavedChanges: false }));
+      updateFileContent(selectedProject.id, selectedFile.id, editorState.content);
+      editorStateManager.clearUnsavedChanges();
       toast({
         title: "File Saved",
         description: `${selectedFile.name} has been saved.`,
       });
-    } else if (selectedTemplate && selectedTemplate.type === 'custom' && editorState.selectedTemplateId === selectedTemplate.id) {
+    } else if (editorState.activeState.mode === 'template' && selectedTemplate && selectedTemplate.type === 'custom') {
       // Save to existing custom template
-      updateTemplate(selectedTemplate.id, editorState.currentContent);
-      setEditorState(prev => ({ ...prev, hasUnsavedChanges: false }));
+      updateTemplate(selectedTemplate.id, editorState.content);
+      editorStateManager.clearUnsavedChanges();
       toast({
         title: "Template Updated",
         description: `${selectedTemplate.name} template has been updated.`,
@@ -160,8 +117,8 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
 
   const handleSaveAsNewFile = () => {
     if (saveProjectId && saveFileName.trim()) {
-      createFile(saveProjectId, saveFileName.trim(), editorState.language);
-      setEditorState(prev => ({ ...prev, hasUnsavedChanges: false }));
+      createFile(saveProjectId, saveFileName.trim(), editorStateManager.editorState.language);
+      editorStateManager.clearUnsavedChanges();
       setShowSaveDialog(false);
       setSaveFileName('');
       toast({
@@ -172,7 +129,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   };
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(editorState.currentContent);
+    navigator.clipboard.writeText(editorStateManager.editorState.content);
     toast({
       title: "Copied",
       description: "Code copied to clipboard.",
@@ -181,7 +138,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
 
   const handleRun = () => {
     try {
-      if (editorState.currentContent.includes('error') || editorState.currentContent.includes('Error')) {
+      if (editorStateManager.editorState.content.includes('error') || editorStateManager.editorState.content.includes('Error')) {
         const error = 'Syntax Error: Unexpected token on line 5';
         if (onExecutionError) {
           onExecutionError(error);
@@ -208,10 +165,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
     if (action === 'save') {
       handleSave();
     }
-    if (pendingAction) {
-      pendingAction();
-      setPendingAction(null);
-    }
+    editorStateManager.executePendingAction();
     setShowUnsavedDialog(false);
   };
 
@@ -229,17 +183,32 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
     return extensions[language] || 'txt';
   };
 
-  const currentFileName = selectedFile && editorState.selectedFileId === selectedFile.id ? selectedFile.name : 
-    selectedTemplate && editorState.selectedTemplateId === selectedTemplate.id ? `${selectedTemplate.name} Template` : 
-    'Untitled';
+  const getCurrentFileName = (): string => {
+    const { editorState } = editorStateManager;
+    
+    switch (editorState.activeState.mode) {
+      case 'file':
+        return selectedFile?.name || 'Unknown File';
+      case 'template':
+        return selectedTemplate ? `${selectedTemplate.name} Template` : 'Unknown Template';
+      case 'language':
+        return `${editorState.language} Template`;
+      default:
+        return 'Untitled';
+    }
+  };
+
+  const getSelectedTemplateForHeader = () => {
+    return editorStateManager.editorState.activeState.mode === 'template' ? selectedTemplate : null;
+  };
 
   return (
     <div className="flex flex-col h-full">
       <EditorHeader
-        currentFileName={currentFileName}
-        hasUnsavedChanges={editorState.hasUnsavedChanges}
-        language={editorState.language}
-        selectedTemplate={selectedTemplate}
+        currentFileName={getCurrentFileName()}
+        hasUnsavedChanges={editorStateManager.editorState.hasUnsavedChanges}
+        language={editorStateManager.editorState.language}
+        selectedTemplate={getSelectedTemplateForHeader()}
         templates={templates}
         onLanguageChange={handleLanguageChange}
         onTemplateChange={handleTemplateChange}
@@ -249,8 +218,8 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
       />
       
       <EditorContent
-        content={editorState.currentContent}
-        onChange={handleContentChange}
+        content={editorStateManager.editorState.content}
+        onChange={editorStateManager.updateContent}
       />
 
       <SaveDialogs
