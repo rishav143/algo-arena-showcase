@@ -1,11 +1,11 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { EditorState } from '@/types/template';
-import { Project, File } from '@/types/project';
+import { Project, ProjectFile } from '@/types/project';
 import { Template } from '@/types/template';
 
 interface UseEditorStateProps {
-  selectedFile: File | null;
+  selectedFile: ProjectFile | null;
   selectedTemplate: Template | null;
   selectedProject: Project | null;
   updateFileContent: (projectId: string, fileId: string, content: string) => void;
@@ -62,7 +62,6 @@ export const useEditorState = ({
             language: selectedFile.language,
           });
         });
-        return 'showUnsavedDialog';
       } else {
         setEditorState({
           hasUnsavedChanges: false,
@@ -73,7 +72,6 @@ export const useEditorState = ({
         });
       }
     }
-    return null;
   }, [selectedFile, editorState.hasUnsavedChanges, editorState.selectedFileId]);
 
   // Effect to handle template selection changes
@@ -89,7 +87,6 @@ export const useEditorState = ({
             language: selectedTemplate.language,
           });
         });
-        return 'showUnsavedDialog';
       } else {
         setEditorState({
           hasUnsavedChanges: false,
@@ -100,7 +97,6 @@ export const useEditorState = ({
         });
       }
     }
-    return null;
   }, [selectedTemplate, selectedFile, editorState.hasUnsavedChanges, editorState.selectedTemplateId]);
 
   return {
