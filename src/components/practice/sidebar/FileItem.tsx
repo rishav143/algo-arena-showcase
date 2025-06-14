@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { ProjectFile } from '@/types/project';
+import { useTemplateContext } from '@/contexts/TemplateContext';
 import { cn } from '@/lib/utils';
 
 interface FileItemProps {
@@ -25,8 +26,12 @@ export const FileItem: React.FC<FileItemProps> = ({
   onRename,
   onDelete,
 }) => {
+  const { selectedTemplate } = useTemplateContext();
   const [isRenaming, setIsRenaming] = useState(false);
   const [renameValue, setRenameValue] = useState(file.name);
+
+  // File should only be selected if no template is selected and this file is the selected one
+  const actuallySelected = isSelected && !selectedTemplate;
 
   const handleRename = () => {
     if (renameValue.trim() && renameValue !== file.name) {
@@ -48,7 +53,7 @@ export const FileItem: React.FC<FileItemProps> = ({
     <div
       className={cn(
         "flex items-center gap-2 p-2 rounded-md hover:bg-accent cursor-pointer group",
-        isSelected && "bg-accent"
+        actuallySelected && "bg-accent"
       )}
       onClick={onSelect}
     >

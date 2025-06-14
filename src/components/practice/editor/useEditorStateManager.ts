@@ -19,13 +19,17 @@ interface UseEditorStateManagerProps {
   selectedTemplate: Template | null;
   updateFileContent: (projectId: string, fileId: string, content: string) => void;
   selectedProjectId: string | null;
+  onFileDeselect?: () => void;
+  onTemplateDeselect?: () => void;
 }
 
 export const useEditorStateManager = ({
   selectedFile,
   selectedTemplate,
   updateFileContent,
-  selectedProjectId
+  selectedProjectId,
+  onFileDeselect,
+  onTemplateDeselect
 }: UseEditorStateManagerProps): EditorStateManager => {
   const [editorState, setEditorState] = useState<EditorState>(createInitialEditorState);
   const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
@@ -61,24 +65,34 @@ export const useEditorStateManager = ({
   // Handle file selection changes
   useEffect(() => {
     if (selectedFile && !isActiveFile(editorState, selectedFile.id)) {
+      // Deselect template when switching to file
+      if (onTemplateDeselect) {
+        onTemplateDeselect();
+      }
+      
       if (editorState.hasUnsavedChanges) {
         setPendingAction(() => () => switchToFile(selectedFile.id, selectedFile.content, selectedFile.language));
       } else {
         switchToFile(selectedFile.id, selectedFile.content, selectedFile.language);
       }
     }
-  }, [selectedFile]);
+  }, [selectedFile, editorState, onTemplateDeselect]);
 
   // Handle template selection changes
   useEffect(() => {
     if (selectedTemplate && !isActiveTemplate(editorState, selectedTemplate.id)) {
+      // Deselect file when switching to template
+      if (onFileDeselect) {
+        onFileDeselect();
+      }
+      
       if (editorState.hasUnsavedChanges) {
         setPendingAction(() => () => switchToTemplate(selectedTemplate.id, selectedTemplate.content, selectedTemplate.language));
       } else {
         switchToTemplate(selectedTemplate.id, selectedTemplate.content, selectedTemplate.language);
       }
     }
-  }, [selectedTemplate]);
+  }, [selectedTemplate, editorState, onFileDeselect]);
 
   const switchToFile = useCallback((fileId: string, content: string, language: string) => {
     setEditorState({
@@ -99,13 +113,21 @@ export const useEditorStateManager = ({
   }, []);
 
   const switchToLanguage = useCallback((language: string, content: string) => {
+    // Deselect both file and template when switching to language mode
+    if (onFileDeselect) {
+      onFileDeselect();
+    }
+    if (onTemplateDeselect) {
+      onTemplateDeselect();
+    }
+    
     setEditorState({
       content,
       language,
       hasUnsavedChanges: false,
       activeState: createLanguageState(language)
     });
-  }, []);
+  }, [onFileDeselect, onTemplateDeselect]);
 
   const updateContent = useCallback((content: string) => {
     setEditorState(prev => ({
