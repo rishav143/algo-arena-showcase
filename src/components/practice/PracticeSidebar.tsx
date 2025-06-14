@@ -8,18 +8,27 @@ import {
   SidebarGroup,
   SidebarGroupLabel,
   SidebarGroupContent,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
   SidebarTrigger
 } from '@/components/ui/sidebar';
 import { ProjectTree } from './ProjectTree';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Plus, FolderPlus, FileText } from 'lucide-react';
 import { useProjectManager } from '@/hooks/useProjectManager';
 
 export const PracticeSidebar = () => {
   const { projects, createProject, createFile } = useProjectManager();
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [newProjectName, setNewProjectName] = useState('');
+
+  const handleCreateProject = () => {
+    if (newProjectName.trim()) {
+      createProject(newProjectName.trim());
+      setNewProjectName('');
+      setIsCreateDialogOpen(false);
+    }
+  };
 
   return (
     <Sidebar className="border-r">
@@ -29,15 +38,49 @@ export const PracticeSidebar = () => {
           <SidebarTrigger />
         </div>
         <div className="flex gap-2 mt-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => createProject()}
-            className="flex-1"
-          >
-            <FolderPlus className="w-4 h-4 mr-1" />
-            New Project
-          </Button>
+          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+            <DialogTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1"
+              >
+                <FolderPlus className="w-4 h-4 mr-1" />
+                New Project
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Create New Project</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium">Project Name</label>
+                  <Input
+                    placeholder="Enter project name..."
+                    value={newProjectName}
+                    onChange={(e) => setNewProjectName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        handleCreateProject();
+                      }
+                    }}
+                  />
+                </div>
+                <div className="flex gap-2 justify-end">
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsCreateDialogOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button onClick={handleCreateProject}>
+                    Create Project
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       </SidebarHeader>
       

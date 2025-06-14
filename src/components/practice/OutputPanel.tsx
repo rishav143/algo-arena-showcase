@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Terminal, Bot, Zap, MessageSquare } from 'lucide-react';
+import { Terminal, Bot, Zap, MessageSquare, Video, Play } from 'lucide-react';
 
 interface OutputPanelProps {
   code: string;
@@ -12,15 +12,20 @@ interface OutputPanelProps {
 export const OutputPanel: React.FC<OutputPanelProps> = ({ code }) => {
   const [output, setOutput] = useState('// Output will appear here when you run your code');
   const [aiMessages, setAiMessages] = useState<Array<{ type: 'user' | 'ai', content: string }>>([]);
+  const [selectedVideo, setSelectedVideo] = useState<any>(null);
 
   return (
     <div className="flex flex-col h-full">
       <Tabs defaultValue="output" className="flex flex-col h-full">
         <div className="border-b bg-muted/50 p-2">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="output" className="flex items-center gap-2">
               <Terminal className="w-4 h-4" />
               Output
+            </TabsTrigger>
+            <TabsTrigger value="video" className="flex items-center gap-2">
+              <Video className="w-4 h-4" />
+              Video
             </TabsTrigger>
             <TabsTrigger value="ai" className="flex items-center gap-2">
               <Bot className="w-4 h-4" />
@@ -45,6 +50,41 @@ export const OutputPanel: React.FC<OutputPanelProps> = ({ code }) => {
                 {output}
               </pre>
             </ScrollArea>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="video" className="flex-1 m-0">
+          <div className="flex flex-col h-full">
+            <div className="p-2 border-b bg-muted/30">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">Video Tutorial</span>
+                <Button variant="ghost" size="sm">
+                  <Play className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+            
+            <div className="flex-1 p-4">
+              {selectedVideo ? (
+                <div className="space-y-4">
+                  <div className="aspect-video bg-gray-900 rounded-lg flex items-center justify-center">
+                    <div className="text-center text-white">
+                      <Video className="w-12 h-12 mx-auto mb-2" />
+                      <p className="text-lg font-medium">{selectedVideo.title}</p>
+                      <p className="text-sm opacity-75">{selectedVideo.channel}</p>
+                    </div>
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Duration: {selectedVideo.duration}
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center text-muted-foreground py-8">
+                  <Video className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                  <p className="text-sm">Search for a problem to see related video tutorials</p>
+                </div>
+              )}
+            </div>
           </div>
         </TabsContent>
         

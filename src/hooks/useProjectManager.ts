@@ -22,10 +22,11 @@ export const useProjectManager = () => {
     }
   ]);
 
-  const createProject = useCallback(() => {
+  const createProject = useCallback((name?: string) => {
+    const projectName = name || `Project ${projects.length + 1}`;
     const newProject: Project = {
       id: Date.now().toString(),
-      name: `Project ${projects.length + 1}`,
+      name: projectName,
       files: [
         {
           id: `${Date.now()}-1`,
@@ -56,7 +57,7 @@ export const useProjectManager = () => {
 
     setProjects(prev => prev.map(project => 
       project.id === projectId 
-        ? { ...project, files: [...project.files, newFile] }
+        ? { ...project, files: [...project.files, newFile], updatedAt: new Date() }
         : project
     ));
 
