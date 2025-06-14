@@ -20,6 +20,7 @@ interface SavedProject {
 const PracticeContent = () => {
   const { toast } = useToast();
   const { state } = useSidebar();
+  
   const [selectedLanguage, setSelectedLanguage] = useState('javascript');
   const [code, setCode] = useState('// Write your code here\nconsole.log("Hello, World!");');
   const [output, setOutput] = useState('');
@@ -129,66 +130,65 @@ const PracticeContent = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex flex-col">
       <Navigation />
       
-      <div className="flex-1 pt-20">
-        <div className="flex h-[calc(100vh-5rem)]">
-          <ProjectSidebar
-            projectName={projectName}
-            setProjectName={setProjectName}
-            aiAssistantEnabled={aiAssistantEnabled}
-            setAiAssistantEnabled={setAiAssistantEnabled}
-            savedProjects={savedProjects}
-            onSaveProject={handleSaveProject}
-            onLoadProject={handleLoadProject}
-            onDeleteProject={handleDeleteProject}
+      {/* Main container with proper layout */}
+      <div className="flex-1 flex pt-20">
+        {/* Sidebar */}
+        <ProjectSidebar
+          projectName={projectName}
+          setProjectName={setProjectName}
+          aiAssistantEnabled={aiAssistantEnabled}
+          setAiAssistantEnabled={setAiAssistantEnabled}
+          savedProjects={savedProjects}
+          onSaveProject={handleSaveProject}
+          onLoadProject={handleLoadProject}
+          onDeleteProject={handleDeleteProject}
+        />
+        
+        {/* Main content area - takes remaining space */}
+        <div className="flex-1 flex flex-col">
+          <PracticeHeader
+            selectedLanguage={selectedLanguage}
+            languages={languages}
+            isRunning={isRunning}
+            onLanguageChange={handleLanguageChange}
+            onRunCode={handleRunCode}
+            onCopyCode={handleCopyCode}
           />
-          
-          <div className="flex-1 flex flex-col overflow-hidden">
-            <PracticeHeader
-              selectedLanguage={selectedLanguage}
-              languages={languages}
-              isRunning={isRunning}
-              onLanguageChange={handleLanguageChange}
-              onRunCode={handleRunCode}
-              onCopyCode={handleCopyCode}
-            />
 
-            {/* Main Content - Full Width Resizable Panels */}
-            <div className="flex-1 p-4 overflow-hidden">
-              <ResizablePanelGroup direction="horizontal" className="h-full w-full">
-                {/* Code Editor Panel */}
-                <ResizablePanel defaultSize={50} minSize={30}>
-                  <CodeEditor
-                    code={code}
-                    setCode={setCode}
-                    selectedLanguage={selectedLanguage}
-                    languages={languages}
-                  />
-                </ResizablePanel>
+          {/* Code playground - resizable panels */}
+          <div className="flex-1 p-4">
+            <ResizablePanelGroup direction="horizontal" className="h-full">
+              <ResizablePanel defaultSize={50} minSize={30}>
+                <CodeEditor
+                  code={code}
+                  setCode={setCode}
+                  selectedLanguage={selectedLanguage}
+                  languages={languages}
+                />
+              </ResizablePanel>
 
-                <ResizableHandle withHandle />
+              <ResizableHandle withHandle />
 
-                {/* Output Panel */}
-                <ResizablePanel defaultSize={50} minSize={30}>
-                  <OutputPanel
-                    activeTab={activeTab}
-                    setActiveTab={setActiveTab}
-                    output={output}
-                    hasError={hasError}
-                    aiAssistantEnabled={aiAssistantEnabled}
-                    setAiAssistantEnabled={setAiAssistantEnabled}
-                    aiSuggestion={aiSuggestion}
-                    setAiSuggestion={setAiSuggestion}
-                  />
-                </ResizablePanel>
-              </ResizablePanelGroup>
-            </div>
+              <ResizablePanel defaultSize={50} minSize={30}>
+                <OutputPanel
+                  activeTab={activeTab}
+                  setActiveTab={setActiveTab}
+                  output={output}
+                  hasError={hasError}
+                  aiAssistantEnabled={aiAssistantEnabled}
+                  setAiAssistantEnabled={setAiAssistantEnabled}
+                  aiSuggestion={aiSuggestion}
+                  setAiSuggestion={setAiSuggestion}
+                />
+              </ResizablePanel>
+            </ResizablePanelGroup>
           </div>
         </div>
       </div>
       
-      {/* Footer with sidebar-aware positioning - full width */}
+      {/* Footer with responsive layout */}
       <div 
-        className={`transition-all duration-200 ease-linear w-full ${
+        className={`transition-all duration-200 ease-linear ${
           state === 'expanded' ? 'ml-64' : 'ml-0'
         }`}
       >
