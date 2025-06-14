@@ -6,8 +6,7 @@ export const createInitialEditorState = (): EditorState => ({
   language: 'javascript',
   hasUnsavedChanges: false,
   activeState: {
-    mode: 'language',
-    languageTemplate: 'javascript'
+    mode: 'unknown'
   }
 });
 
@@ -41,4 +40,18 @@ export const getLanguageTemplate = (language: string): string => {
     rust: 'fn main() {\n    println!("Hello, World!");\n}',
   };
   return languageTemplates[language] || '// Start coding here...';
+};
+
+export const getFileExtension = (language: string): string => {
+  const extensions: Record<string, string> = {
+    javascript: 'js',
+    typescript: 'ts',
+    python: 'py',
+    java: 'java',
+    cpp: 'cpp',
+    c: 'c',
+    go: 'go',
+    rust: 'rs',
+  };
+  return extensions[language] || 'txt';
 };

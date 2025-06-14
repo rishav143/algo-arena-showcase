@@ -5,10 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Project } from '@/types/project';
 import { FileItem } from './FileItem';
+import { CreateFileDialog } from './CreateFileDialog';
 
 interface ProjectItemProps {
   project: Project;
@@ -22,17 +21,6 @@ interface ProjectItemProps {
   onRenameFile: (fileId: string, newName: string) => void;
   onDeleteFile: (fileId: string) => void;
 }
-
-const LANGUAGE_EXTENSIONS = {
-  javascript: ['.js', '.jsx'],
-  typescript: ['.ts', '.tsx'],
-  python: ['.py'],
-  java: ['.java'],
-  cpp: ['.cpp', '.cxx', '.cc'],
-  c: ['.c'],
-  go: ['.go'],
-  rust: ['.rs']
-};
 
 export const ProjectItem: React.FC<ProjectItemProps> = ({
   project,
@@ -49,8 +37,6 @@ export const ProjectItem: React.FC<ProjectItemProps> = ({
   const [isRenaming, setIsRenaming] = useState(false);
   const [renameValue, setRenameValue] = useState(project.name);
   const [isCreateFileOpen, setIsCreateFileOpen] = useState(false);
-  const [newFileName, setNewFileName] = useState('');
-  const [selectedLanguage, setSelectedLanguage] = useState('javascript');
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
   const handleRenameProject = () => {
@@ -60,31 +46,18 @@ export const ProjectItem: React.FC<ProjectItemProps> = ({
     setIsRenaming(false);
   };
 
-  const handleCreateFile = () => {
-    if (newFileName.trim()) {
-      const extension = Object.entries(LANGUAGE_EXTENSIONS)
-        .find(([lang]) => lang === selectedLanguage)?.[1][0] || '.js';
-      
-      const fileName = newFileName.includes('.') ? newFileName : `${newFileName}${extension}`;
-      onCreateFile(fileName, selectedLanguage);
-      setNewFileName('');
-      setIsCreateFileOpen(false);
-      setIsPopoverOpen(false); // Close the popover after file creation
-    }
+  const handleCreateFile = (fileName: string, language: string) => {
+    onCreateFile(fileName, language);
+    setIsCreateFileOpen(false);
+    setIsPopoverOpen(false);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
-      if (isRenaming) {
-        handleRenameProject();
-      } else {
-        handleCreateFile();
-      }
+      handleRenameProject();
     } else if (e.key === 'Escape') {
-      if (isRenaming) {
-        setIsRenaming(false);
-        setRenameValue(project.name);
-      }
+      setIsRenaming(false);
+      setRenameValue(project.name);
     }
   };
 
@@ -130,63 +103,15 @@ export const ProjectItem: React.FC<ProjectItemProps> = ({
               </PopoverTrigger>
               <PopoverContent className="w-48" align="end">
                 <div className="space-y-1">
-                  <Dialog open={isCreateFileOpen} onOpenChange={setIsCreateFileOpen}>
-                    <DialogTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="w-full justify-start"
-                      >
-                        <FilePlus className="w-4 h-4 mr-2" />
-                        Add File
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Create New File</DialogTitle>
-                      </DialogHeader>
-                      <div className="space-y-4">
-                        <div>
-                          <label className="text-sm font-medium">File Name</label>
-                          <Input
-                            placeholder="Enter file name"
-                            value={newFileName}
-                            onChange={(e) => setNewFileName(e.target.value)}
-                            onKeyDown={handleKeyDown}
-                          />
-                        </div>
-                        <div>
-                          <label className="text-sm font-medium">Language</label>
-                          <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="javascript">JavaScript</SelectItem>
-                              <SelectItem value="typescript">TypeScript</SelectItem>
-                              <SelectItem value="python">Python</SelectItem>
-                              <SelectItem value="java">Java</SelectItem>
-                              <SelectItem value="cpp">C++</SelectItem>
-                              <SelectItem value="c">C</SelectItem>
-                              <SelectItem value="go">Go</SelectItem>
-                              <SelectItem value="rust">Rust</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div className="flex gap-2 justify-end">
-                          <Button
-                            variant="outline"
-                            onClick={() => setIsCreateFileOpen(false)}
-                          >
-                            Cancel
-                          </Button>
-                          <Button onClick={handleCreateFile}>
-                            Create File
-                          </Button>
-                        </div>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full justify-start"
+                    onClick={() => setIsCreateFileOpen(true)}
+                  >
+                    <FilePlus className="w-4 h-4 mr-2" />
+                    Add File
+                  </Button>
                   
                   <Button
                     variant="ghost"
@@ -256,6 +181,12 @@ export const ProjectItem: React.FC<ProjectItemProps> = ({
           ))}
         </div>
       )}
+
+      <CreateFileDialog
+        open={isCreateFileOpen}
+        onOpenChange={setIsCreateFileOpen}
+        onCreateFile={handleCreateFile}
+      />
     </div>
   );
 };

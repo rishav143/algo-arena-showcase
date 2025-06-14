@@ -1,5 +1,5 @@
 
-export type EditorMode = 'file' | 'language';
+export type EditorMode = 'file' | 'language' | 'unknown';
 
 export interface EditorContent {
   content: string;

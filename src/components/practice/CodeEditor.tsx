@@ -1,10 +1,11 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useProjectContext } from '@/contexts/ProjectContext';
 import { EditorHeader } from './editor/EditorHeader';
 import { EditorContent } from './editor/EditorContent';
 import { SaveDialogs } from './editor/SaveDialogs';
+import { SaveManager } from './editor/SaveManager';
 import { useEditorStateManager } from './editor/useEditorStateManager';
 import { getLanguageTemplate } from '@/utils/editorStateManager';
 
@@ -18,7 +19,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   onExecutionError
 }) => {
   const { toast } = useToast();
-  const { selectedFile, updateFileContent, createFile, selectedProject, projects } = useProjectContext();
+  const { selectedFile, updateFileContent, selectedProject } = useProjectContext();
   
   const editorStateManager = useEditorStateManager({
     selectedFile,
@@ -27,9 +28,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   });
 
   const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
-  const [showSaveDialog, setShowSaveDialog] = useState(false);
-  const [saveFileName, setSaveFileName] = useState('');
-  const [saveProjectId, setSaveProjectId] = useState('');
+  const saveManagerRef = useRef<HTMLDivElement>(null);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -54,8 +53,6 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   const handleLanguageChange = (newLanguage: string) => {
     const template = getLanguageTemplate(newLanguage);
     
-    // If we're currently editing a file, we need to switch to language mode
-    // This will deselect the current file
     if (editorStateManager.editorState.hasUnsavedChanges) {
       setTimeout(() => {
         editorStateManager.switchToLanguage(newLanguage, template);
@@ -77,35 +74,11 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
         description: `${selectedFile.name} has been saved.`,
       });
     } else {
-      // Save as new file
-      if (projects.length > 0) {
-        setSaveProjectId(projects[0].id);
-        setSaveFileName(`untitled.${getFileExtension(editorState.language)}`);
-        setShowSaveDialog(true);
-      } else {
-        toast({
-          title: "No Project",
-          description: "Please create a project first.",
-          variant: "destructive",
-        });
+      // Trigger save manager
+      const saveButton = saveManagerRef.current?.querySelector('.save-trigger') as HTMLButtonElement;
+      if (saveButton) {
+        saveButton.click();
       }
-    }
-  };
-
-  const handleSaveAsNewFile = async () => {
-    if (saveProjectId && saveFileName.trim()) {
-      // Save current content to the new file
-      const fileContent = editorStateManager.editorState.content;
-      const fileLanguage = editorStateManager.editorState.language;
-      
-      await createFile(saveProjectId, saveFileName.trim(), fileLanguage, fileContent);
-      editorStateManager.clearUnsavedChanges();
-      setShowSaveDialog(false);
-      setSaveFileName('');
-      toast({
-        title: "File Created",
-        description: `${saveFileName} has been created and saved.`,
-      });
     }
   };
 
@@ -150,20 +123,6 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
     setShowUnsavedDialog(false);
   };
 
-  const getFileExtension = (language: string): string => {
-    const extensions: Record<string, string> = {
-      javascript: 'js',
-      typescript: 'ts',
-      python: 'py',
-      java: 'java',
-      cpp: 'cpp',
-      c: 'c',
-      go: 'go',
-      rust: 'rs',
-    };
-    return extensions[language] || 'txt';
-  };
-
   const getCurrentFileName = (): string => {
     const { editorState } = editorStateManager;
     
@@ -177,6 +136,16 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
     }
   };
 
+  const canSave = (): boolean => {
+    const { editorState } = editorStateManager;
+    
+    if (editorState.activeState.mode === 'file') {
+      return editorState.hasUnsavedChanges;
+    }
+    
+    return editorState.content.trim().length > 0;
+  };
+
   return (
     <div className="flex flex-col h-full">
       <EditorHeader
@@ -187,6 +156,8 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
         onRun={handleRun}
         onSave={handleSave}
         onCopy={handleCopy}
+        canSave={canSave()}
+        isFileMode={editorStateManager.editorState.activeState.mode === 'file'}
       />
       
       <EditorContent
@@ -196,17 +167,17 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
 
       <SaveDialogs
         showUnsavedDialog={showUnsavedDialog}
-        showSaveDialog={showSaveDialog}
-        saveFileName={saveFileName}
-        saveProjectId={saveProjectId}
-        projects={projects}
         onUnsavedDialogChange={setShowUnsavedDialog}
-        onSaveDialogChange={setShowSaveDialog}
-        onSaveFileNameChange={setSaveFileName}
-        onSaveProjectIdChange={setSaveProjectId}
         onUnsavedDialogAction={handleUnsavedDialogAction}
-        onSaveAsNewFile={handleSaveAsNewFile}
       />
+
+      <div ref={saveManagerRef}>
+        <SaveManager
+          content={editorStateManager.editorState.content}
+          language={editorStateManager.editorState.language}
+          onSaveSuccess={editorStateManager.clearUnsavedChanges}
+        />
+      </div>
     </div>
   );
 };

@@ -12,6 +12,8 @@ interface EditorHeaderProps {
   onRun: () => void;
   onSave: () => void;
   onCopy: () => void;
+  canSave: boolean;
+  isFileMode: boolean;
 }
 
 export const EditorHeader: React.FC<EditorHeaderProps> = ({
@@ -22,6 +24,8 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
   onRun,
   onSave,
   onCopy,
+  canSave,
+  isFileMode,
 }) => {
   return (
     <div className="border-b bg-muted/50 p-2 flex items-center justify-between">
@@ -37,7 +41,11 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
       </div>
       
       <div className="flex items-center gap-2">
-        <Select value={language} onValueChange={onLanguageChange}>
+        <Select 
+          value={language} 
+          onValueChange={onLanguageChange}
+          disabled={isFileMode}
+        >
           <SelectTrigger className="w-32 h-8">
             <SelectValue />
           </SelectTrigger>
@@ -57,7 +65,12 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
           <Play className="w-4 h-4" />
         </Button>
         
-        <Button variant="ghost" size="sm" onClick={onSave}>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={onSave}
+          disabled={!canSave}
+        >
           <Save className="w-4 h-4" />
         </Button>
         

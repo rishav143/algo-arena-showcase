@@ -7,7 +7,6 @@ import {
   createFileState, 
   createLanguageState,
   isActiveFile,
-  isActiveLanguage,
   getLanguageTemplate
 } from '@/utils/editorStateManager';
 
@@ -53,7 +52,7 @@ export const useEditorStateManager = ({
     };
   }, [editorState.hasUnsavedChanges, editorState.content, selectedFile, selectedProjectId, updateFileContent, editorState.activeState]);
 
-  // Handle file selection changes
+  // Handle file selection changes and deletions
   useEffect(() => {
     if (selectedFile && !isActiveFile(editorState, selectedFile.id)) {
       if (editorState.hasUnsavedChanges) {
@@ -62,14 +61,14 @@ export const useEditorStateManager = ({
         switchToFile(selectedFile.id, selectedFile.content, selectedFile.language);
       }
     } else if (!selectedFile && editorState.activeState.mode === 'file') {
-      // File was deleted or deselected, switch to language mode
-      const currentLanguage = editorState.language;
-      const template = getLanguageTemplate(currentLanguage);
+      // File was deleted or deselected, switch to unknown state
       setEditorState({
-        content: template,
-        language: currentLanguage,
+        content: '',
+        language: 'javascript',
         hasUnsavedChanges: false,
-        activeState: createLanguageState(currentLanguage)
+        activeState: {
+          mode: 'unknown'
+        }
       });
     }
   }, [selectedFile, editorState]);
