@@ -28,6 +28,7 @@ interface SearchToolbarProps {
   }>;
   viewMode: 'grid' | 'list';
   onViewModeChange: (mode: 'grid' | 'list') => void;
+  onTopicChange?: (topicName: string) => void;
 }
 
 const SearchToolbar: React.FC<SearchToolbarProps> = React.memo(({
@@ -36,7 +37,8 @@ const SearchToolbar: React.FC<SearchToolbarProps> = React.memo(({
   currentTopic,
   topics,
   viewMode,
-  onViewModeChange
+  onViewModeChange,
+  onTopicChange
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('');
@@ -94,6 +96,15 @@ const SearchToolbar: React.FC<SearchToolbarProps> = React.memo(({
     setIsSearchOpen(true);
   }, []);
 
+  const handleTopicClick = useCallback((topicName: string) => {
+    if (onTopicChange) {
+      onTopicChange(topicName);
+      // Reset filters when topic changes
+      setSearchQuery('');
+      setSelectedDifficulty('');
+    }
+  }, [onTopicChange]);
+
   const difficulties = ['Easy', 'Medium', 'Hard'];
 
   return (
@@ -102,9 +113,9 @@ const SearchToolbar: React.FC<SearchToolbarProps> = React.memo(({
       <div className="overflow-x-auto pb-2">
         <div className="flex gap-2 lg:gap-3 justify-start lg:justify-center min-w-max lg:min-w-0 px-1">
           {topics.map((topic) => (
-            <a
+            <button
               key={topic.name}
-              href={topic.route}
+              onClick={() => handleTopicClick(topic.name)}
               className={`px-3 sm:px-4 lg:px-6 py-2 lg:py-3 rounded-full text-xs sm:text-sm font-medium transition-all duration-300 hover:scale-105 whitespace-nowrap flex-shrink-0 ${
                 currentTopic === topic.name
                   ? `${topic.color} text-white shadow-lg transform scale-105`
@@ -112,7 +123,7 @@ const SearchToolbar: React.FC<SearchToolbarProps> = React.memo(({
               }`}
             >
               {topic.name}
-            </a>
+            </button>
           ))}
         </div>
       </div>

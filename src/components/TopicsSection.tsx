@@ -13,7 +13,7 @@ const TopicsSection = () => {
       color: "from-emerald-400 to-cyan-400",
       bgColor: "bg-emerald-500/10",
       textColor: "text-emerald-400",
-      route: "/arrays-strings"
+      route: "/topics?topic=Arrays%20%26%20Strings"
     },
     {
       title: "Linked Lists",
@@ -23,7 +23,7 @@ const TopicsSection = () => {
       color: "from-blue-400 to-indigo-400",
       bgColor: "bg-blue-500/10",
       textColor: "text-blue-400",
-      route: "/linked-lists"
+      route: "/topics?topic=Linked%20Lists"
     },
     {
       title: "Stacks & Queues",
@@ -33,7 +33,7 @@ const TopicsSection = () => {
       color: "from-yellow-400 to-orange-400",
       bgColor: "bg-yellow-500/10",
       textColor: "text-yellow-400",
-      route: "/stacks-queues"
+      route: "/topics?topic=Stacks%20%26%20Queues"
     },
     {
       title: "Trees & Graphs",
@@ -43,7 +43,7 @@ const TopicsSection = () => {
       color: "from-purple-400 to-pink-400",
       bgColor: "bg-purple-500/10",
       textColor: "text-purple-400",
-      route: "/trees-graphs"
+      route: "/topics?topic=Trees%20%26%20Graphs"
     },
     {
       title: "Dynamic Programming",
@@ -53,7 +53,7 @@ const TopicsSection = () => {
       color: "from-red-400 to-pink-400",
       bgColor: "bg-red-500/10",
       textColor: "text-red-400",
-      route: "/dynamic-programming"
+      route: "/topics?topic=Dynamic%20Programming"
     },
     {
       title: "Sorting & Searching",
@@ -63,7 +63,7 @@ const TopicsSection = () => {
       color: "from-indigo-400 to-purple-400",
       bgColor: "bg-indigo-500/10",
       textColor: "text-indigo-400",
-      route: "/sorting-searching"
+      route: "/topics?topic=Sorting%20%26%20Searching"
     }
   ];
 
