@@ -10,13 +10,32 @@ import { useTemplateContext } from '@/contexts/TemplateContext';
 import { TemplateItem } from './TemplateItem';
 
 export const TemplatesSection: React.FC = () => {
-  const { templates, createTemplate } = useTemplateContext();
+  const { templates, createTemplate, selectTemplate } = useTemplateContext();
   const [isCreateTemplateOpen, setIsCreateTemplateOpen] = useState(false);
   const [newTemplateName, setNewTemplateName] = useState('');
   const [newTemplateContent, setNewTemplateContent] = useState('');
   const [newTemplateLanguage, setNewTemplateLanguage] = useState('javascript');
 
   const customTemplates = templates.filter(t => t.type === 'custom');
+
+  const getLanguageTemplate = (language: string): string => {
+    const languageTemplates: Record<string, string> = {
+      javascript: '// JavaScript Template\nconsole.log("Hello, World!");',
+      typescript: '// TypeScript Template\nconst message: string = "Hello, World!";\nconsole.log(message);',
+      python: '# Python Template\nprint("Hello, World!")',
+      java: 'public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello, World!");\n    }\n}',
+      cpp: '#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << "Hello, World!" << endl;\n    return 0;\n}',
+      c: '#include <stdio.h>\n\nint main() {\n    printf("Hello, World!\\n");\n    return 0;\n}',
+      go: 'package main\n\nimport "fmt"\n\nfunc main() {\n    fmt.Println("Hello, World!")\n}',
+      rust: 'fn main() {\n    println!("Hello, World!");\n}',
+    };
+    return languageTemplates[language] || '// Start coding here...';
+  };
+
+  const handleLanguageChange = (language: string) => {
+    setNewTemplateLanguage(language);
+    setNewTemplateContent(getLanguageTemplate(language));
+  };
 
   const handleCreateTemplate = () => {
     if (newTemplateName.trim() && newTemplateContent.trim()) {
@@ -32,6 +51,10 @@ export const TemplatesSection: React.FC = () => {
     if (e.key === 'Enter' && e.ctrlKey) {
       handleCreateTemplate();
     }
+  };
+
+  const handleTemplateSelect = (templateId: string) => {
+    selectTemplate(templateId);
   };
 
   return (
@@ -61,7 +84,7 @@ export const TemplatesSection: React.FC = () => {
               </div>
               <div>
                 <label className="text-sm font-medium">Language</label>
-                <Select value={newTemplateLanguage} onValueChange={setNewTemplateLanguage}>
+                <Select value={newTemplateLanguage} onValueChange={handleLanguageChange}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -108,6 +131,7 @@ export const TemplatesSection: React.FC = () => {
           <TemplateItem
             key={template.id}
             template={template}
+            onSelect={() => handleTemplateSelect(template.id)}
           />
         ))}
         

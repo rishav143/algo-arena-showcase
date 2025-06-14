@@ -11,10 +11,11 @@ import { cn } from '@/lib/utils';
 
 interface TemplateItemProps {
   template: TemplateType;
+  onSelect?: () => void;
 }
 
-export const TemplateItem: React.FC<TemplateItemProps> = ({ template }) => {
-  const { selectedTemplate, deleteTemplate, renameTemplate, selectTemplate } = useTemplateContext();
+export const TemplateItem: React.FC<TemplateItemProps> = ({ template, onSelect }) => {
+  const { selectedTemplate, deleteTemplate, renameTemplate } = useTemplateContext();
   const [isRenaming, setIsRenaming] = useState(false);
   const [renameValue, setRenameValue] = useState(template.name);
 
@@ -37,7 +38,9 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({ template }) => {
   };
 
   const handleSelect = () => {
-    selectTemplate(template.id);
+    if (onSelect) {
+      onSelect();
+    }
   };
 
   return (
@@ -58,6 +61,7 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({ template }) => {
           onBlur={handleRename}
           className="h-6 text-sm"
           autoFocus
+          onClick={(e) => e.stopPropagation()}
         />
       ) : (
         <>
@@ -81,7 +85,8 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({ template }) => {
                     variant="ghost"
                     size="sm"
                     className="w-full justify-start"
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       setIsRenaming(true);
                       setRenameValue(template.name);
                     }}
@@ -96,6 +101,7 @@ export const TemplateItem: React.FC<TemplateItemProps> = ({ template }) => {
                         variant="ghost"
                         size="sm"
                         className="w-full justify-start text-destructive hover:text-destructive"
+                        onClick={(e) => e.stopPropagation()}
                       >
                         <Trash2 className="w-4 h-4 mr-2" />
                         Delete
