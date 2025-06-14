@@ -1,16 +1,21 @@
 
-import React from 'react';
-import { Sidebar, SidebarContent, SidebarHeader, SidebarFooter } from '@/components/ui/sidebar';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
-import { Save, FolderOpen, Trash2, Settings, Bot } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { usePracticeState } from '@/hooks/usePracticeState';
+import { 
+  Sidebar, 
+  SidebarContent, 
+  SidebarHeader, 
+  SidebarGroup, 
+  SidebarGroupContent, 
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton
+} from '@/components/ui/sidebar';
+import { FolderOpen, Save, Trash2, Eye, EyeOff, ChevronDown, ChevronUp } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface SavedProject {
   id: string;
@@ -21,139 +26,128 @@ interface SavedProject {
 }
 
 interface ProjectSidebarProps {
-  projectName?: string;
-  setProjectName?: (name: string) => void;
-  aiAssistantEnabled?: boolean;
-  setAiAssistantEnabled?: (enabled: boolean) => void;
-  savedProjects?: SavedProject[];
-  onSaveProject?: () => void;
-  onLoadProject?: (project: SavedProject) => void;
-  onDeleteProject?: (projectId: string) => void;
+  projectName: string;
+  setProjectName: (name: string) => void;
+  aiAssistantEnabled: boolean;
+  setAiAssistantEnabled: (enabled: boolean) => void;
+  savedProjects: SavedProject[];
+  onSaveProject: () => void;
+  onLoadProject: (project: SavedProject) => void;
+  onDeleteProject: (projectId: string) => void;
 }
 
-const ProjectSidebar: React.FC<ProjectSidebarProps> = (props) => {
-  // Use the hook if props are not provided (for backward compatibility)
-  const hookState = usePracticeState();
-  
-  const {
-    projectName = hookState.projectName,
-    setProjectName = hookState.setProjectName,
-    aiAssistantEnabled = hookState.aiAssistantEnabled,
-    setAiAssistantEnabled = hookState.setAiAssistantEnabled,
-    savedProjects = hookState.savedProjects,
-    onSaveProject = hookState.handleSaveProject,
-    onLoadProject = hookState.handleLoadProject,
-    onDeleteProject = hookState.handleDeleteProject,
-  } = props.projectName !== undefined ? props : hookState;
+const ProjectSidebar: React.FC<ProjectSidebarProps> = ({
+  projectName,
+  setProjectName,
+  aiAssistantEnabled,
+  setAiAssistantEnabled,
+  savedProjects,
+  onSaveProject,
+  onLoadProject,
+  onDeleteProject
+}) => {
+  const [savedProjectsVisible, setSavedProjectsVisible] = useState(true);
 
   return (
-    <Sidebar>
-      <SidebarHeader className="p-4">
-        <div className="flex items-center gap-2 mb-4">
-          <Settings className="w-5 h-5 text-blue-600" />
-          <h2 className="font-semibold text-gray-800">Project Settings</h2>
-        </div>
-        
-        <div className="space-y-4">
-          <div>
-            <Label htmlFor="project-name" className="text-sm font-medium text-gray-700">
-              Project Name
-            </Label>
-            <Input
-              id="project-name"
-              value={projectName}
-              onChange={(e) => setProjectName(e.target.value)}
-              placeholder="Enter project name"
-              className="mt-1"
-            />
-          </div>
-          
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Bot className="w-4 h-4 text-purple-600" />
-              <Label htmlFor="ai-assistant" className="text-sm font-medium text-gray-700">
-                AI Assistant
-              </Label>
-            </div>
-            <Switch
-              id="ai-assistant"
-              checked={aiAssistantEnabled}
-              onCheckedChange={setAiAssistantEnabled}
-            />
-          </div>
-          
-          <Button onClick={onSaveProject} className="w-full" size="sm">
-            <Save className="w-4 h-4 mr-2" />
-            Save Project
-          </Button>
-        </div>
+    <Sidebar className="w-64">
+      <SidebarHeader className="border-b border-gray-200 p-4">
+        <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+          <FolderOpen className="w-5 h-5" />
+          Projects
+        </h2>
       </SidebarHeader>
-
-      <SidebarContent>
-        <div className="p-4">
-          <div className="flex items-center gap-2 mb-3">
-            <FolderOpen className="w-4 h-4 text-gray-600" />
-            <h3 className="font-medium text-gray-800">Saved Projects</h3>
-            <Badge variant="secondary" className="ml-auto">
-              {savedProjects.length}
-            </Badge>
-          </div>
-          
-          <ScrollArea className="h-[400px]">
-            <div className="space-y-2">
-              {savedProjects.length === 0 ? (
-                <p className="text-sm text-gray-500 text-center py-4">
-                  No saved projects yet
-                </p>
-              ) : (
-                savedProjects.map((project) => (
-                  <Card key={project.id} className="cursor-pointer hover:bg-gray-50 transition-colors">
-                    <CardContent className="p-3">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-medium text-sm text-gray-800 truncate">
-                            {project.name}
-                          </h4>
-                          <p className="text-xs text-gray-500 mt-1">
-                            {project.language}
-                          </p>
-                          <p className="text-xs text-gray-400 mt-1">
-                            {new Date(project.lastModified).toLocaleDateString()}
-                          </p>
-                        </div>
-                        <div className="flex gap-1 ml-2">
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => onLoadProject(project)}
-                            className="h-6 w-6 p-0"
-                          >
-                            <FolderOpen className="w-3 h-3" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => onDeleteProject(project.id)}
-                            className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
-                          >
-                            <Trash2 className="w-3 h-3" />
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))
-              )}
+      <SidebarContent className="flex flex-col h-full">
+        <SidebarGroup>
+          <SidebarGroupLabel>Current Project</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <div className="p-3 space-y-3">
+              <Input
+                value={projectName}
+                onChange={(e) => setProjectName(e.target.value)}
+                placeholder="Project name"
+                className="text-sm"
+              />
+              <Button 
+                onClick={onSaveProject}
+                size="sm"
+                className="w-full"
+              >
+                <Save className="w-4 h-4 mr-2" />
+                Save Project
+              </Button>
             </div>
-          </ScrollArea>
-        </div>
-      </SidebarContent>
+          </SidebarGroupContent>
+        </SidebarGroup>
 
-      <SidebarFooter className="p-4">
-        <div className="text-xs text-gray-500 text-center">
-          Code Playground v1.0
-        </div>
-      </SidebarFooter>
+        <SidebarGroup>
+          <SidebarGroupLabel>Settings</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <div className="p-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm">AI Assistant</span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setAiAssistantEnabled(!aiAssistantEnabled)}
+                  className="h-8 w-8 p-0"
+                >
+                  {aiAssistantEnabled ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                </Button>
+              </div>
+            </div>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup className="flex-1 min-h-0">
+          <div className="flex items-center justify-between px-2">
+            <SidebarGroupLabel>Saved Projects ({savedProjects.length})</SidebarGroupLabel>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setSavedProjectsVisible(!savedProjectsVisible)}
+              className="h-6 w-6 p-0"
+            >
+              {savedProjectsVisible ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </Button>
+          </div>
+          {savedProjectsVisible && (
+            <SidebarGroupContent className="flex-1 min-h-0">
+              <ScrollArea className="h-full px-2">
+                <SidebarMenu>
+                  {savedProjects.length > 0 ? (
+                    savedProjects.map((project) => (
+                      <SidebarMenuItem key={project.id} className="flex items-center justify-between mb-2">
+                        <SidebarMenuButton
+                          onClick={() => onLoadProject(project)}
+                          className="flex-1 justify-start text-left"
+                        >
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium truncate">{project.name}</div>
+                            <div className="text-xs text-gray-500">{project.language}</div>
+                            <div className="text-xs text-gray-400">{project.lastModified.toLocaleDateString()}</div>
+                          </div>
+                        </SidebarMenuButton>
+                        <Button 
+                          size="sm" 
+                          variant="ghost"
+                          onClick={() => onDeleteProject(project.id)}
+                          className="h-8 w-8 p-0 text-red-600 hover:bg-red-50 ml-2"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
+                      </SidebarMenuItem>
+                    ))
+                  ) : (
+                    <div className="p-3 text-center text-gray-500 text-sm">
+                      No saved projects yet
+                    </div>
+                  )}
+                </SidebarMenu>
+              </ScrollArea>
+            </SidebarGroupContent>
+          )}
+        </SidebarGroup>
+      </SidebarContent>
     </Sidebar>
   );
 };
