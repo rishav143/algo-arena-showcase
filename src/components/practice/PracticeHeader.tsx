@@ -2,10 +2,11 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, Play, Video } from 'lucide-react';
+import { Search, Play, Video, Home, ChevronRight } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { SidebarTrigger } from '@/components/ui/sidebar';
+import { Link } from 'react-router-dom';
 
 export const PracticeHeader = () => {
   const [searchOpen, setSearchOpen] = useState(false);
@@ -41,16 +42,26 @@ export const PracticeHeader = () => {
   };
 
   return (
-    <div className="border-b bg-background p-4">
+    <div className="border-b bg-background p-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
             <SidebarTrigger />
-            <h1 className="text-xl font-semibold">CodeRoom Practice</h1>
+            <div className="flex flex-col">
+              <h1 className="text-lg font-semibold">CodeRoom Practice</h1>
+              <nav className="flex items-center space-x-1 text-xs text-muted-foreground">
+                <Link to="/" className="flex items-center hover:text-foreground">
+                  <Home className="w-3 h-3 mr-1" />
+                  Home
+                </Link>
+                <ChevronRight className="w-3 h-3" />
+                <span className="font-medium">Practice</span>
+              </nav>
+            </div>
           </div>
           <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" className="flex items-center gap-2">
+              <Button variant="outline" size="sm" className="flex items-center gap-2">
                 <Search className="w-4 h-4" />
                 Search Problems & Videos
               </Button>
