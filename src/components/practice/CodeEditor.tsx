@@ -20,7 +20,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
 }) => {
   const { toast } = useToast();
   const { selectedFile, updateFileContent, createFile, selectedProject, projects } = useProjectContext();
-  const { selectedTemplate, templates, updateTemplate } = useTemplateContext();
+  const { selectedTemplate, templates } = useTemplateContext();
   
   const editorStateManager = useEditorStateManager({
     selectedFile,
@@ -91,16 +91,8 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
         title: "File Saved",
         description: `${selectedFile.name} has been saved.`,
       });
-    } else if (editorState.activeState.mode === 'template' && selectedTemplate && selectedTemplate.type === 'custom') {
-      // Save to existing custom template
-      updateTemplate(selectedTemplate.id, editorState.content);
-      editorStateManager.clearUnsavedChanges();
-      toast({
-        title: "Template Updated",
-        description: `${selectedTemplate.name} template has been updated.`,
-      });
     } else {
-      // Save as new file
+      // Save as new file (removed custom template save functionality)
       if (projects.length > 0) {
         setSaveProjectId(projects[0].id);
         setSaveFileName(`untitled.${getFileExtension(editorState.language)}`);
