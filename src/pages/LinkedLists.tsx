@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { ArrowLeft, Clock, Star, Code, Trophy } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -6,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Navigation from '../components/Navigation';
+import YouTubeSection from '../components/YouTubeSection';
 
 const LinkedLists = () => {
   const problems = [
@@ -14,6 +14,41 @@ const LinkedLists = () => {
     { id: 3, title: "Add Two Numbers", difficulty: "Medium", time: "30 min", solved: 580, companies: ["Apple", "Netflix"] },
     { id: 4, title: "Copy List with Random Pointer", difficulty: "Medium", time: "35 min", solved: 410, companies: ["Uber", "Spotify"] },
     { id: 5, title: "Merge k Sorted Lists", difficulty: "Hard", time: "50 min", solved: 280, companies: ["Google", "Amazon"] }
+  ];
+
+  const videoTutorials = [
+    {
+      id: "1",
+      title: "Reverse Linked List - Iterative & Recursive Solutions",
+      description: "Master both iterative and recursive approaches to reverse a linked list with clear explanations.",
+      duration: "16:20",
+      views: "22.4K",
+      thumbnail: "placeholder"
+    },
+    {
+      id: "2",
+      title: "Merge Two Sorted Lists - Step by Step",
+      description: "Learn how to merge two sorted linked lists efficiently with pointer manipulation.",
+      duration: "13:45",
+      views: "18.7K",
+      thumbnail: "placeholder"
+    },
+    {
+      id: "3",
+      title: "Linked List Cycle Detection - Floyd's Algorithm",
+      description: "Understand the two-pointer technique to detect cycles in linked lists.",
+      duration: "19:30",
+      views: "15.2K",
+      thumbnail: "placeholder"
+    },
+    {
+      id: "4",
+      title: "Copy List with Random Pointer - Complete Solution",
+      description: "Solve this complex linked list problem using hash map and constant space approaches.",
+      duration: "24:15",
+      views: "11.8K",
+      thumbnail: "placeholder"
+    }
   ];
 
   const getDifficultyColor = (difficulty: string) => {
@@ -117,6 +152,12 @@ const LinkedLists = () => {
             </Card>
           ))}
         </div>
+
+        {/* YouTube Video Tutorials Section */}
+        <YouTubeSection 
+          problemTitle="Linked Lists"
+          videos={videoTutorials}
+        />
       </div>
     </div>
   );

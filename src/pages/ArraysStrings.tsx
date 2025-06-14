@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Navigation from '../components/Navigation';
+import YouTubeSection from '../components/YouTubeSection';
 
 const ArraysStrings = () => {
   const problems = [
@@ -14,6 +15,41 @@ const ArraysStrings = () => {
     { id: 3, title: "Container With Most Water", difficulty: "Medium", time: "25 min", solved: 750, companies: ["Facebook", "Netflix"] },
     { id: 4, title: "Longest Substring Without Repeating", difficulty: "Medium", time: "30 min", solved: 650, companies: ["Uber", "Airbnb"] },
     { id: 5, title: "Median of Two Sorted Arrays", difficulty: "Hard", time: "45 min", solved: 320, companies: ["Google", "Microsoft"] }
+  ];
+
+  const videoTutorials = [
+    {
+      id: "1",
+      title: "Two Sum Problem - Complete Solution with Multiple Approaches",
+      description: "Learn to solve the classic Two Sum problem with brute force, hash map, and two-pointer approaches.",
+      duration: "12:45",
+      views: "15.2K",
+      thumbnail: "placeholder"
+    },
+    {
+      id: "2", 
+      title: "String Manipulation Techniques in DSA",
+      description: "Master string reversal, palindrome checking, and character manipulation techniques.",
+      duration: "18:30",
+      views: "8.7K",
+      thumbnail: "placeholder"
+    },
+    {
+      id: "3",
+      title: "Container With Most Water - Optimal Solution",
+      description: "Understand the two-pointer technique to solve this popular array problem efficiently.",
+      duration: "14:20",
+      views: "12.1K", 
+      thumbnail: "placeholder"
+    },
+    {
+      id: "4",
+      title: "Sliding Window Technique for Substring Problems",
+      description: "Learn the sliding window pattern to solve longest substring and other related problems.",
+      duration: "22:15",
+      views: "19.3K",
+      thumbnail: "placeholder"
+    }
   ];
 
   const getDifficultyColor = (difficulty: string) => {
@@ -117,6 +153,12 @@ const ArraysStrings = () => {
             </Card>
           ))}
         </div>
+
+        {/* YouTube Video Tutorials Section */}
+        <YouTubeSection 
+          problemTitle="Arrays & Strings"
+          videos={videoTutorials}
+        />
       </div>
     </div>
   );

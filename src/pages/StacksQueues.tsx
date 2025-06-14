@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { ArrowLeft, Clock, Star, Code, Trophy } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -6,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Navigation from '../components/Navigation';
+import YouTubeSection from '../components/YouTubeSection';
 
 const StacksQueues = () => {
   const problems = [
@@ -13,6 +13,41 @@ const StacksQueues = () => {
     { id: 2, title: "Min Stack", difficulty: "Medium", time: "25 min", solved: 650, companies: ["Amazon", "Apple"] },
     { id: 3, title: "Evaluate Reverse Polish Notation", difficulty: "Medium", time: "30 min", solved: 520, companies: ["Facebook", "Uber"] },
     { id: 4, title: "Sliding Window Maximum", difficulty: "Hard", time: "45 min", solved: 250, companies: ["Google", "Netflix"] }
+  ];
+
+  const videoTutorials = [
+    {
+      id: "1",
+      title: "Valid Parentheses - Stack Solution Explained",
+      description: "Learn how to use stack data structure to validate balanced parentheses efficiently.",
+      duration: "11:30",
+      views: "17.8K",
+      thumbnail: "placeholder"
+    },
+    {
+      id: "2",
+      title: "Min Stack Implementation - Complete Guide",
+      description: "Build a stack that supports push, pop, top, and getMin operations in O(1) time.",
+      duration: "15:45",
+      views: "13.2K",
+      thumbnail: "placeholder"
+    },
+    {
+      id: "3",
+      title: "Queue Implementation using Stacks",
+      description: "Understand how to implement a queue using two stacks with detailed examples.",
+      duration: "18:20",
+      views: "9.6K",
+      thumbnail: "placeholder"
+    },
+    {
+      id: "4",
+      title: "Sliding Window Maximum - Deque Approach",
+      description: "Master the deque data structure to solve sliding window maximum problem optimally.",
+      duration: "21:40",
+      views: "14.3K",
+      thumbnail: "placeholder"
+    }
   ];
 
   const getDifficultyColor = (difficulty: string) => {
@@ -116,6 +151,12 @@ const StacksQueues = () => {
             </Card>
           ))}
         </div>
+
+        {/* YouTube Video Tutorials Section */}
+        <YouTubeSection 
+          problemTitle="Stacks & Queues"
+          videos={videoTutorials}
+        />
       </div>
     </div>
   );

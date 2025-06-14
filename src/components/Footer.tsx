@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { Code, Github, Twitter, Mail, Heart } from 'lucide-react';
+import { Code, Github, Twitter, Mail, Heart, Youtube } from 'lucide-react';
 
 const Footer = () => {
   return (
@@ -25,6 +24,9 @@ const Footer = () => {
               featuring structured content, detailed approaches, and clean implementations.
             </p>
             <div className="flex space-x-4">
+              <a href="https://youtube.com/@rishavengineering" target="_blank" rel="noopener noreferrer" className="p-2 sm:p-3 bg-red-500/20 hover:bg-red-500/30 rounded-lg sm:rounded-xl transition-all duration-300 hover:scale-110 border border-red-500/30">
+                <Youtube className="w-4 h-4 sm:w-5 sm:h-5 text-red-400 hover:text-red-300 transition-colors" />
+              </a>
               <a href="#" className="p-2 sm:p-3 bg-white/10 hover:bg-white/20 rounded-lg sm:rounded-xl transition-all duration-300 hover:scale-110">
                 <Github className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 hover:text-white transition-colors" />
               </a>
@@ -65,7 +67,7 @@ const Footer = () => {
             <p className="text-gray-400 flex items-center gap-2 text-sm sm:text-base">
               &copy; 2024 DSA Master. Built with 
               <Heart className="w-4 h-4 text-red-500 animate-pulse" />
-              for learning.
+              for learning by Rishav Engineering.
             </p>
             <div className="flex items-center gap-4 sm:gap-6 text-xs sm:text-sm text-gray-400">
               <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>

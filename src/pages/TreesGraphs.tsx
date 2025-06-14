@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { ArrowLeft, Clock, Star, Code, Trophy } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -6,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Navigation from '../components/Navigation';
+import YouTubeSection from '../components/YouTubeSection';
 
 const TreesGraphs = () => {
   const problems = [
@@ -14,6 +14,41 @@ const TreesGraphs = () => {
     { id: 3, title: "Binary Tree Level Order Traversal", difficulty: "Medium", time: "25 min", solved: 620, companies: ["Apple", "Netflix"] },
     { id: 4, title: "Course Schedule", difficulty: "Medium", time: "40 min", solved: 380, companies: ["Uber", "Airbnb"] },
     { id: 5, title: "Serialize and Deserialize Binary Tree", difficulty: "Hard", time: "55 min", solved: 200, companies: ["Google", "Microsoft"] }
+  ];
+
+  const videoTutorials = [
+    {
+      id: "1",
+      title: "Binary Tree Traversals - Inorder, Preorder, Postorder",
+      description: "Master all three tree traversal techniques with recursive and iterative approaches.",
+      duration: "25:30",
+      views: "28.4K",
+      thumbnail: "placeholder"
+    },
+    {
+      id: "2",
+      title: "Binary Search Tree Validation - Complete Solution", 
+      description: "Learn multiple approaches to validate if a binary tree is a valid BST.",
+      duration: "19:15",
+      views: "16.8K",
+      thumbnail: "placeholder"
+    },
+    {
+      id: "3",
+      title: "Graph Traversal - BFS and DFS Explained",
+      description: "Understand breadth-first and depth-first search algorithms with practical examples.",
+      duration: "22:45",
+      views: "31.2K",
+      thumbnail: "placeholder"
+    },
+    {
+      id: "4",
+      title: "Topological Sort - Course Schedule Problem",
+      description: "Solve dependency problems using topological sorting and cycle detection.",
+      duration: "20:10",
+      views: "12.7K",
+      thumbnail: "placeholder"
+    }
   ];
 
   const getDifficultyColor = (difficulty: string) => {
@@ -117,6 +152,12 @@ const TreesGraphs = () => {
             </Card>
           ))}
         </div>
+
+        {/* YouTube Video Tutorials Section */}
+        <YouTubeSection 
+          problemTitle="Trees & Graphs"
+          videos={videoTutorials}
+        />
       </div>
     </div>
   );
