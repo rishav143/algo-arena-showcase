@@ -16,12 +16,17 @@ const PracticeLayout = () => {
       <div className="flex flex-1 pt-20">
         <ProjectSidebar />
         
-        <div className="flex-1 min-w-0 flex flex-col">
-          <div className="flex-1">
-            <PracticeWorkspace />
-          </div>
-          <Footer />
+        <div className="flex-1 min-w-0">
+          <PracticeWorkspace />
         </div>
+      </div>
+      
+      <div 
+        className={`transition-all duration-200 ease-linear ${
+          state === 'expanded' ? 'ml-64' : 'ml-0'
+        }`}
+      >
+        <Footer />
       </div>
     </div>
   );
