@@ -8,13 +8,12 @@ import {
   SidebarGroup,
   SidebarGroupLabel,
   SidebarGroupContent,
-  SidebarTrigger
 } from '@/components/ui/sidebar';
 import { ProjectTree } from './ProjectTree';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, FolderPlus, FileText } from 'lucide-react';
+import { FolderPlus } from 'lucide-react';
 import { useProjectManager } from '@/hooks/useProjectManager';
 
 export const PracticeSidebar = () => {
@@ -35,7 +34,6 @@ export const PracticeSidebar = () => {
       <SidebarHeader className="p-4">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">Projects</h2>
-          <SidebarTrigger />
         </div>
         <div className="flex gap-2 mt-2">
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>

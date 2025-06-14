@@ -21,13 +21,15 @@ const Practice = () => {
         </nav>
       </div>
 
-      {/* Main Content */}
+      {/* Main Content with Sidebar */}
       <div className="flex-1 flex w-full">
         <SidebarProvider defaultOpen={true}>
-          <PracticeSidebar />
-          <main className="flex-1 flex flex-col">
-            <PracticeWorkspace />
-          </main>
+          <div className="flex w-full h-full">
+            <PracticeSidebar />
+            <main className="flex-1 flex flex-col">
+              <PracticeWorkspace />
+            </main>
+          </div>
         </SidebarProvider>
       </div>
     </div>
