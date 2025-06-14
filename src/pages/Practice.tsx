@@ -8,9 +8,9 @@ import { ChevronRight, Home } from 'lucide-react';
 
 const Practice = () => {
   return (
-    <div className="h-screen flex flex-col w-full">
-      {/* Navigation Breadcrumb - Fixed z-index */}
-      <div className="border-b bg-background px-4 py-2 relative z-50">
+    <div className="h-screen flex flex-col w-full overflow-hidden">
+      {/* Navigation Breadcrumb - Always visible at top */}
+      <div className="border-b bg-background px-4 py-2 flex-shrink-0 z-50">
         <nav className="flex items-center space-x-2 text-sm">
           <Link to="/" className="flex items-center text-muted-foreground hover:text-foreground">
             <Home className="w-4 h-4 mr-1" />
@@ -21,11 +21,11 @@ const Practice = () => {
         </nav>
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 flex w-full">
+      {/* Main Content - Takes remaining height */}
+      <div className="flex-1 flex w-full min-h-0">
         <SidebarProvider defaultOpen={true}>
           <PracticeSidebar />
-          <main className="flex-1 flex flex-col">
+          <main className="flex-1 flex flex-col min-w-0">
             <PracticeWorkspace />
           </main>
         </SidebarProvider>
