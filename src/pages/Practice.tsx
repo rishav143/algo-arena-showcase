@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -232,16 +231,14 @@ const Practice = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex flex-col">
       <Navigation />
       
-      {/* Main Content Container */}
-      <main className="flex-1 pt-20">
+      <div className="flex-1 pt-20">
         <SidebarProvider>
           <div className="flex h-[calc(100vh-5rem)]">
             <ProjectSidebar />
             
-            {/* Content Area */}
-            <div className="flex-1 flex flex-col min-w-0">
+            <div className="flex-1 flex flex-col">
               {/* Header */}
-              <div className="bg-white border-b border-gray-200 p-4 flex-shrink-0">
+              <div className="bg-white border-b border-gray-200 p-4">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-4">
                     <SidebarTrigger />
@@ -303,37 +300,41 @@ const Practice = () => {
                 </div>
               </div>
 
-              {/* Editor and Output Grid */}
-              <div className="flex-1 flex min-h-0 gap-4 p-4">
-                {/* Code Editor - Left Side */}
-                <div className="flex-1 min-w-0">
-                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 h-full flex flex-col overflow-hidden">
-                    <div className="bg-gray-800 text-gray-300 p-3 text-sm font-medium border-b flex items-center justify-between flex-shrink-0">
-                      <div className="flex items-center gap-2">
-                        <Code2 className="w-4 h-4" />
-                        Code Editor - {languages.find(l => l.value === selectedLanguage)?.label}
+              {/* Main Content */}
+              <div className="flex-1 flex p-4 gap-4">
+                {/* Code Editor */}
+                <div className="flex-1">
+                  <Card className="h-full">
+                    <CardHeader className="bg-gray-800 text-gray-300 p-3 rounded-t-lg">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Code2 className="w-4 h-4" />
+                          <span className="text-sm font-medium">
+                            Code Editor - {languages.find(l => l.value === selectedLanguage)?.label}
+                          </span>
+                        </div>
+                        <div className="text-xs text-gray-400">
+                          Lines: {code.split('\n').length}
+                        </div>
                       </div>
-                      <div className="text-xs text-gray-400">
-                        Lines: {code.split('\n').length}
-                      </div>
-                    </div>
-                    <div className="flex-1 min-h-0">
+                    </CardHeader>
+                    <CardContent className="p-0 h-full">
                       <Textarea
                         value={code}
                         onChange={(e) => setCode(e.target.value)}
-                        className="h-full w-full border-0 resize-none font-mono text-sm focus-visible:ring-0 rounded-none bg-gray-900 text-green-400 leading-relaxed"
+                        className="h-[calc(100vh-300px)] w-full border-0 resize-none font-mono text-sm focus-visible:ring-0 rounded-none bg-gray-900 text-green-400 leading-relaxed"
                         placeholder="Write your code here..."
                         spellCheck={false}
                       />
-                    </div>
-                  </div>
+                    </CardContent>
+                  </Card>
                 </div>
 
-                {/* Output and AI Panel - Right Side */}
-                <div className="w-96 flex-shrink-0">
-                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 h-full flex flex-col overflow-hidden">
+                {/* Output Panel */}
+                <div className="w-80">
+                  <Card className="h-full">
                     <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-                      <TabsList className="grid w-full grid-cols-2 bg-gray-50 m-0 rounded-none rounded-t-lg flex-shrink-0">
+                      <TabsList className="grid w-full grid-cols-2 bg-gray-50 m-0 rounded-none rounded-t-lg">
                         <TabsTrigger value="output" className="flex items-center gap-2">
                           <Zap className="w-4 h-4" />
                           Output
@@ -346,13 +347,13 @@ const Practice = () => {
                         </TabsTrigger>
                       </TabsList>
                       
-                      <TabsContent value="output" className="m-0 border-0 flex-1 min-h-0 p-4">
+                      <TabsContent value="output" className="flex-1 p-4">
                         <div className="bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm h-full whitespace-pre-wrap overflow-auto border-l-4 border-green-500">
                           {output || '🚀 Ready to run your code!\n\nClick "Run Code" to see the magic happen...\n\n💡 Tips:\n• Write your code in the editor\n• Use console.log() for debugging\n• Check syntax before running'}
                         </div>
                       </TabsContent>
                       
-                      <TabsContent value="ai-help" className="m-0 border-0 flex-1 min-h-0 p-4">
+                      <TabsContent value="ai-help" className="flex-1 p-4">
                         <div className="h-full flex flex-col">
                           {!aiAssistantEnabled ? (
                             <div className="flex-1 flex flex-col items-center justify-center text-center">
@@ -368,7 +369,7 @@ const Practice = () => {
                               </Button>
                             </div>
                           ) : aiSuggestion ? (
-                            <div className="flex-1 flex flex-col min-h-0">
+                            <div className="flex-1 flex flex-col">
                               <div className="bg-gradient-to-br from-purple-50 to-blue-50 p-4 rounded-lg border border-purple-200 flex-1 overflow-auto">
                                 <div className="text-sm text-gray-700 whitespace-pre-wrap">
                                   {aiSuggestion}
@@ -406,13 +407,13 @@ const Practice = () => {
                         </div>
                       </TabsContent>
                     </Tabs>
-                  </div>
+                  </Card>
                 </div>
               </div>
             </div>
           </div>
         </SidebarProvider>
-      </main>
+      </div>
       
       <Footer />
     </div>
