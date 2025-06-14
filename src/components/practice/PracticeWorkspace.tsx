@@ -4,55 +4,31 @@ import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/componen
 import { CodeEditor } from './CodeEditor';
 import { OutputPanel } from './OutputPanel';
 import { PracticeHeader } from './PracticeHeader';
-import { useAIAssistant } from '@/hooks/useAIAssistant';
-import { useVideoManager } from '@/hooks/useVideoManager';
 
 export const PracticeWorkspace = () => {
   const [activeFile, setActiveFile] = useState<string | null>(null);
   const [code, setCode] = useState('// Welcome to CodeRoom Practice\n// Start coding here...');
-  
-  const aiAssistant = useAIAssistant();
-  const videoManager = useVideoManager();
-
-  const handleCodeError = (error: string | null) => {
-    if (error && aiAssistant.isEnabled) {
-      aiAssistant.handleCodeError(error);
-    }
-  };
 
   return (
     <div className="flex flex-col h-full">
-      <PracticeHeader 
-        onVideoSelect={videoManager.selectVideo}
-        onVideoSearch={videoManager.searchVideos}
-        searchResults={videoManager.searchResults}
-      />
+      <PracticeHeader />
       
       <div className="flex-1">
         <ResizablePanelGroup direction="horizontal" className="h-full">
           {/* Code Editor Panel */}
           <ResizablePanel defaultSize={60} minSize={30}>
-            <div className="h-full">
-              <CodeEditor 
-                code={code}
-                onChange={setCode}
-                language="javascript"
-                onError={handleCodeError}
-              />
-            </div>
+            <CodeEditor 
+              code={code}
+              onChange={setCode}
+              language="javascript"
+            />
           </ResizablePanel>
           
           <ResizableHandle withHandle />
           
           {/* Output/AI Assistant Panel */}
           <ResizablePanel defaultSize={40} minSize={25}>
-            <div className="h-full">
-              <OutputPanel 
-                code={code} 
-                aiAssistant={aiAssistant}
-                videoManager={videoManager}
-              />
-            </div>
+            <OutputPanel code={code} />
           </ResizablePanel>
         </ResizablePanelGroup>
       </div>

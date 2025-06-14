@@ -13,17 +13,14 @@ import {
 import { ProjectTree } from './ProjectTree';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, FolderPlus, Settings, Bot } from 'lucide-react';
+import { Plus, FolderPlus, FileText } from 'lucide-react';
 import { useProjectManager } from '@/hooks/useProjectManager';
 
 export const PracticeSidebar = () => {
   const { projects, createProject, createFile } = useProjectManager();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState(false);
   const [newProjectName, setNewProjectName] = useState('');
-  const [aiAssistantEnabled, setAiAssistantEnabled] = useState(true);
 
   const handleCreateProject = () => {
     if (newProjectName.trim()) {
@@ -79,46 +76,6 @@ export const PracticeSidebar = () => {
                   </Button>
                   <Button onClick={handleCreateProject}>
                     Create Project
-                  </Button>
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
-
-          <Dialog open={isSettingsDialogOpen} onOpenChange={setIsSettingsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline" size="sm">
-                <Settings className="w-4 h-4" />
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Project Settings</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <div className="flex items-center gap-2">
-                      <Bot className="w-4 h-4" />
-                      <span className="text-sm font-medium">AI Assistant</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      Enable AI-powered code assistance and error detection
-                    </p>
-                  </div>
-                  <Switch
-                    checked={aiAssistantEnabled}
-                    onCheckedChange={setAiAssistantEnabled}
-                  />
-                </div>
-                
-                <div className="pt-4 border-t">
-                  <Button 
-                    variant="outline" 
-                    onClick={() => setIsSettingsDialogOpen(false)}
-                    className="w-full"
-                  >
-                    Close
                   </Button>
                 </div>
               </div>
