@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useProjectContext } from '@/contexts/ProjectContext';
@@ -68,7 +67,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
         setEditorState({
           hasUnsavedChanges: false,
           currentContent: template,
-          selectedFileId: null,
+          selectedFileId: null, // Deselect file when changing language
           selectedTemplateId: null,
           language: newLanguage,
         });
@@ -80,7 +79,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
         ...prev,
         currentContent: template,
         language: newLanguage,
-        selectedFileId: null,
+        selectedFileId: null, // Deselect file when changing language
         selectedTemplateId: null,
       }));
     }
@@ -94,7 +93,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
           setEditorState({
             hasUnsavedChanges: false,
             currentContent: template.content,
-            selectedFileId: null,
+            selectedFileId: null, // Deselect file when changing template
             selectedTemplateId: template.id,
             language: template.language,
           });
@@ -104,7 +103,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
         setEditorState({
           hasUnsavedChanges: false,
           currentContent: template.content,
-          selectedFileId: null,
+          selectedFileId: null, // Deselect file when changing template
           selectedTemplateId: template.id,
           language: template.language,
         });

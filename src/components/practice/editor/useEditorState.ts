@@ -76,16 +76,16 @@ export const useEditorState = ({
     }
   }, [selectedFile, editorState.hasUnsavedChanges, editorState.selectedFileId]);
 
-  // Effect to handle template selection changes
+  // Effect to handle template selection changes - works regardless of file selection
   useEffect(() => {
-    if (selectedTemplate && !selectedFile) {
+    if (selectedTemplate) {
       // If switching to a different template and have unsaved changes
       if (editorState.hasUnsavedChanges && editorState.selectedTemplateId !== selectedTemplate.id) {
         setPendingAction(() => () => {
           setEditorState({
             hasUnsavedChanges: false,
             currentContent: selectedTemplate.content,
-            selectedFileId: null,
+            selectedFileId: null, // Always deselect file when switching to template
             selectedTemplateId: selectedTemplate.id,
             language: selectedTemplate.language,
           });
@@ -95,13 +95,13 @@ export const useEditorState = ({
         setEditorState({
           hasUnsavedChanges: false,
           currentContent: selectedTemplate.content,
-          selectedFileId: null,
+          selectedFileId: null, // Always deselect file when switching to template
           selectedTemplateId: selectedTemplate.id,
           language: selectedTemplate.language,
         });
       }
     }
-  }, [selectedTemplate, selectedFile, editorState.hasUnsavedChanges, editorState.selectedTemplateId]);
+  }, [selectedTemplate, editorState.hasUnsavedChanges, editorState.selectedTemplateId]);
 
   return {
     editorState,
