@@ -1,12 +1,12 @@
 
 import React from 'react';
 import { SidebarProvider } from '@/components/ui/sidebar';
-import PracticeContent from '../components/practice/PracticeContent';
+import PracticeLayout from '../components/practice/PracticeLayout';
 
 const Practice = () => {
   return (
     <SidebarProvider defaultOpen={true}>
-      <PracticeContent />
+      <PracticeLayout />
     </SidebarProvider>
   );
 };
