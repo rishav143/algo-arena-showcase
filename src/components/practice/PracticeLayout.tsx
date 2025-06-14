@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useSidebar } from '@/components/ui/sidebar';
 import Navigation from '../Navigation';
@@ -16,17 +15,12 @@ const PracticeLayout = () => {
       <div className="flex flex-1 pt-20">
         <ProjectSidebar />
         
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 flex flex-col">
           <PracticeWorkspace />
+          
+          {/* Footer integrated within the main content area */}
+          <Footer />
         </div>
-      </div>
-      
-      <div 
-        className={`transition-all duration-200 ease-linear ${
-          state === 'expanded' ? 'ml-64' : 'ml-0'
-        }`}
-      >
-        <Footer />
       </div>
     </div>
   );
