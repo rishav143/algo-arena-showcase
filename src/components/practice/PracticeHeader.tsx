@@ -1,42 +1,33 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Search, Play, Video } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { VideoData } from '@/hooks/useVideoManager';
 
-export const PracticeHeader = () => {
+interface PracticeHeaderProps {
+  onVideoSelect: (video: VideoData) => void;
+  onVideoSearch: (query: string) => VideoData[];
+  searchResults: VideoData[];
+}
+
+export const PracticeHeader: React.FC<PracticeHeaderProps> = ({ 
+  onVideoSelect, 
+  onVideoSearch, 
+  searchResults 
+}) => {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const mockVideos = [
-    {
-      id: '1',
-      title: 'Two Sum Problem - Complete Solution',
-      channel: 'Rishav Engineering',
-      duration: '15:30',
-      isMyVideo: true
-    },
-    {
-      id: '2', 
-      title: 'Array Problems Explained',
-      channel: 'CodeWithMosh',
-      duration: '22:15',
-      isMyVideo: false
-    },
-    {
-      id: '3',
-      title: 'Binary Search Implementation',
-      channel: 'Rishav Engineering', 
-      duration: '18:45',
-      isMyVideo: true
-    }
-  ];
-
-  const handleVideoSelect = (video: any) => {
-    console.log('Selected video:', video);
+  const handleVideoSelect = (video: VideoData) => {
+    onVideoSelect(video);
     setSearchOpen(false);
+  };
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    onVideoSearch(query);
   };
 
   return (
@@ -59,55 +50,61 @@ export const PracticeHeader = () => {
                 <CommandInput 
                   placeholder="Search for coding problems..."
                   value={searchQuery}
-                  onValueChange={setSearchQuery}
+                  onValueChange={handleSearch}
                 />
                 <CommandList>
                   <CommandEmpty>No results found.</CommandEmpty>
-                  <CommandGroup heading="Recommended Videos">
-                    {mockVideos
-                      .filter(video => video.isMyVideo)
-                      .map((video) => (
-                        <CommandItem
-                          key={video.id}
-                          onSelect={() => handleVideoSelect(video)}
-                          className="flex items-center gap-3 p-3 cursor-pointer"
-                        >
-                          <div className="p-2 bg-red-100 rounded">
-                            <Video className="w-4 h-4 text-red-600" />
-                          </div>
-                          <div className="flex-1">
-                            <div className="font-medium">{video.title}</div>
-                            <div className="text-sm text-muted-foreground">
-                              {video.channel} • {video.duration}
+                  
+                  {searchResults.filter(video => video.isMyVideo).length > 0 && (
+                    <CommandGroup heading="Rishav Engineering Videos">
+                      {searchResults
+                        .filter(video => video.isMyVideo)
+                        .map((video) => (
+                          <CommandItem
+                            key={video.id}
+                            onSelect={() => handleVideoSelect(video)}
+                            className="flex items-center gap-3 p-3 cursor-pointer"
+                          >
+                            <div className="p-2 bg-red-100 rounded">
+                              <Video className="w-4 h-4 text-red-600" />
                             </div>
-                          </div>
-                          <Button size="sm" variant="ghost">
-                            <Play className="w-4 h-4" />
-                          </Button>
-                        </CommandItem>
-                      ))}
-                  </CommandGroup>
-                  <CommandGroup heading="Other Videos">
-                    {mockVideos
-                      .filter(video => !video.isMyVideo)
-                      .map((video) => (
-                        <CommandItem
-                          key={video.id}
-                          onSelect={() => handleVideoSelect(video)}
-                          className="flex items-center gap-3 p-3 cursor-pointer"
-                        >
-                          <div className="p-2 bg-gray-100 rounded">
-                            <Video className="w-4 h-4 text-gray-600" />
-                          </div>
-                          <div className="flex-1">
-                            <div className="font-medium">{video.title}</div>
-                            <div className="text-sm text-muted-foreground">
-                              {video.channel} • {video.duration}
+                            <div className="flex-1">
+                              <div className="font-medium">{video.title}</div>
+                              <div className="text-sm text-muted-foreground">
+                                {video.channel} • {video.duration}
+                              </div>
                             </div>
-                          </div>
-                        </CommandItem>
-                      ))}
-                  </CommandGroup>
+                            <Button size="sm" variant="ghost">
+                              <Play className="w-4 h-4" />
+                            </Button>
+                          </CommandItem>
+                        ))}
+                    </CommandGroup>
+                  )}
+                  
+                  {searchResults.filter(video => !video.isMyVideo).length > 0 && (
+                    <CommandGroup heading="Other Videos">
+                      {searchResults
+                        .filter(video => !video.isMyVideo)
+                        .map((video) => (
+                          <CommandItem
+                            key={video.id}
+                            onSelect={() => handleVideoSelect(video)}
+                            className="flex items-center gap-3 p-3 cursor-pointer"
+                          >
+                            <div className="p-2 bg-gray-100 rounded">
+                              <Video className="w-4 h-4 text-gray-600" />
+                            </div>
+                            <div className="flex-1">
+                              <div className="font-medium">{video.title}</div>
+                              <div className="text-sm text-muted-foreground">
+                                {video.channel} • {video.duration}
+                              </div>
+                            </div>
+                          </CommandItem>
+                        ))}
+                    </CommandGroup>
+                  )}
                 </CommandList>
               </Command>
             </DialogContent>

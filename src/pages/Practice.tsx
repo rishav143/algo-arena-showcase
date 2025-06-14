@@ -9,8 +9,8 @@ import { ChevronRight, Home } from 'lucide-react';
 const Practice = () => {
   return (
     <div className="h-screen flex flex-col w-full">
-      {/* Navigation Breadcrumb */}
-      <div className="border-b bg-background px-4 py-2">
+      {/* Navigation Breadcrumb - Fixed z-index */}
+      <div className="border-b bg-background px-4 py-2 relative z-50">
         <nav className="flex items-center space-x-2 text-sm">
           <Link to="/" className="flex items-center text-muted-foreground hover:text-foreground">
             <Home className="w-4 h-4 mr-1" />

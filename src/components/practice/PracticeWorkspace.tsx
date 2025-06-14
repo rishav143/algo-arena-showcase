@@ -4,14 +4,29 @@ import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/componen
 import { CodeEditor } from './CodeEditor';
 import { OutputPanel } from './OutputPanel';
 import { PracticeHeader } from './PracticeHeader';
+import { useAIAssistant } from '@/hooks/useAIAssistant';
+import { useVideoManager } from '@/hooks/useVideoManager';
 
 export const PracticeWorkspace = () => {
   const [activeFile, setActiveFile] = useState<string | null>(null);
   const [code, setCode] = useState('// Welcome to CodeRoom Practice\n// Start coding here...');
+  
+  const aiAssistant = useAIAssistant();
+  const videoManager = useVideoManager();
+
+  const handleCodeError = (error: string | null) => {
+    if (error && aiAssistant.isEnabled) {
+      aiAssistant.handleCodeError(error);
+    }
+  };
 
   return (
     <div className="flex flex-col h-full">
-      <PracticeHeader />
+      <PracticeHeader 
+        onVideoSelect={videoManager.selectVideo}
+        onVideoSearch={videoManager.searchVideos}
+        searchResults={videoManager.searchResults}
+      />
       
       <div className="flex-1">
         <ResizablePanelGroup direction="horizontal" className="h-full">
@@ -21,6 +36,7 @@ export const PracticeWorkspace = () => {
               code={code}
               onChange={setCode}
               language="javascript"
+              onError={handleCodeError}
             />
           </ResizablePanel>
           
@@ -28,7 +44,11 @@ export const PracticeWorkspace = () => {
           
           {/* Output/AI Assistant Panel */}
           <ResizablePanel defaultSize={40} minSize={25}>
-            <OutputPanel code={code} />
+            <OutputPanel 
+              code={code} 
+              aiAssistant={aiAssistant}
+              videoManager={videoManager}
+            />
           </ResizablePanel>
         </ResizablePanelGroup>
       </div>
