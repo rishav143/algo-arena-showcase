@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { Project, ProjectFile, ProjectContextType } from '@/types/project';
 import { useToast } from '@/hooks/use-toast';
@@ -39,11 +40,16 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({ children }) =>
   }, [toast]);
 
   const deleteProject = useCallback(async (projectId: string) => {
+    const wasSelectedProject = selectedProject?.id === projectId;
+    
     setProjects(prev => prev.filter(p => p.id !== projectId));
     
-    if (selectedProject?.id === projectId) {
+    if (wasSelectedProject) {
       setSelectedProject(null);
       setSelectedFile(null);
+      
+      // Trigger editor state update by dispatching a custom event
+      window.dispatchEvent(new CustomEvent('projectDeleted'));
     }
 
     toast({
@@ -116,9 +122,13 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({ children }) =>
         : project
     ));
 
-    // If we deleted the selected file, clear the selection
+    // If we deleted the selected file, clear the selection and trigger editor update
     if (isDeletingSelectedFile) {
       setSelectedFile(null);
+      
+      // Trigger editor state update by dispatching a custom event
+      window.dispatchEvent(new CustomEvent('fileDeleted'));
+      
       // Optionally also clear selected project if no files remain
       const project = projects.find(p => p.id === projectId);
       if (project && project.files.length === 1) { // Will be 0 after deletion

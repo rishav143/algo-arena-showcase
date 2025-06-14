@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { EditorState, EditorStateManager } from '@/types/editor';
 import { ProjectFile } from '@/types/project';
@@ -71,6 +70,37 @@ export const useEditorStateManager = ({
       });
     }
   }, [selectedFile, editorState]);
+
+  // Listen for deletion events to switch to language template
+  useEffect(() => {
+    const handleFileDeleted = () => {
+      const template = getLanguageTemplate(editorState.language);
+      setEditorState({
+        content: template,
+        language: editorState.language,
+        hasUnsavedChanges: false,
+        activeState: createLanguageState(editorState.language)
+      });
+    };
+
+    const handleProjectDeleted = () => {
+      const template = getLanguageTemplate(editorState.language);
+      setEditorState({
+        content: template,
+        language: editorState.language,
+        hasUnsavedChanges: false,
+        activeState: createLanguageState(editorState.language)
+      });
+    };
+
+    window.addEventListener('fileDeleted', handleFileDeleted);
+    window.addEventListener('projectDeleted', handleProjectDeleted);
+
+    return () => {
+      window.removeEventListener('fileDeleted', handleFileDeleted);
+      window.removeEventListener('projectDeleted', handleProjectDeleted);
+    };
+  }, [editorState.language]);
 
   const switchToFile = useCallback((fileId: string, content: string, language: string) => {
     setEditorState({
