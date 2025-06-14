@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   Sidebar,
@@ -26,9 +25,10 @@ export const PracticeSidebar: React.FC<PracticeSidebarProps> = ({
   aiAssistantEnabled, 
   onAiAssistantToggle 
 }) => {
-  const { projects, createProject, createFile } = useProjectManager();
+  const { projects, createProject } = useProjectManager();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [newProjectName, setNewProjectName] = useState('');
+  const [selectedFile, setSelectedFile] = useState<string | null>(null);
 
   const handleCreateProject = () => {
     if (newProjectName.trim()) {
@@ -36,6 +36,12 @@ export const PracticeSidebar: React.FC<PracticeSidebarProps> = ({
       setNewProjectName('');
       setIsCreateDialogOpen(false);
     }
+  };
+
+  const handleFileSelect = (fileId: string) => {
+    setSelectedFile(fileId);
+    // Here you can add logic to load the file content in the editor
+    console.log('Selected file:', fileId);
   };
 
   return (
@@ -95,7 +101,11 @@ export const PracticeSidebar: React.FC<PracticeSidebarProps> = ({
         <SidebarGroup>
           <SidebarGroupLabel>Your Projects</SidebarGroupLabel>
           <SidebarGroupContent>
-            <ProjectTree projects={projects} />
+            <ProjectTree 
+              projects={projects} 
+              selectedFile={selectedFile}
+              onFileSelect={handleFileSelect}
+            />
           </SidebarGroupContent>
         </SidebarGroup>
         

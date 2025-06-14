@@ -48,38 +48,66 @@ export const useProjectManager = () => {
   }, [projects.length, toast]);
 
   const createFile = useCallback((projectId: string, fileName: string) => {
-    const newFile: File = {
-      id: `${Date.now()}-${Math.random()}`,
-      name: fileName,
-      content: '// New file\n',
-      language: 'javascript'
-    };
+    return new Promise<void>((resolve, reject) => {
+      try {
+        const newFile: File = {
+          id: `${Date.now()}-${Math.random()}`,
+          name: fileName,
+          content: '// New file\n',
+          language: 'javascript'
+        };
 
-    setProjects(prev => prev.map(project => 
-      project.id === projectId 
-        ? { ...project, files: [...project.files, newFile], updatedAt: new Date() }
-        : project
-    ));
+        setProjects(prev => {
+          const updated = prev.map(project => 
+            project.id === projectId 
+              ? { ...project, files: [...project.files, newFile], updatedAt: new Date() }
+              : project
+          );
+          return updated;
+        });
 
-    toast({
-      title: "File Created",
-      description: `${fileName} has been added to the project.`,
+        resolve();
+      } catch (error) {
+        reject(error);
+      }
     });
-  }, [toast]);
+  }, []);
 
   const deleteProject = useCallback((projectId: string) => {
-    setProjects(prev => prev.filter(project => project.id !== projectId));
-    
-    toast({
-      title: "Project Deleted",
-      description: "Project has been removed successfully.",
+    return new Promise<void>((resolve, reject) => {
+      try {
+        setProjects(prev => prev.filter(project => project.id !== projectId));
+        resolve();
+      } catch (error) {
+        reject(error);
+      }
     });
-  }, [toast]);
+  }, []);
+
+  const renameFile = useCallback((fileId: string, newName: string) => {
+    return new Promise<void>((resolve, reject) => {
+      try {
+        setProjects(prev => prev.map(project => ({
+          ...project,
+          files: project.files.map(file => 
+            file.id === fileId 
+              ? { ...file, name: newName }
+              : file
+          ),
+          updatedAt: new Date()
+        })));
+        resolve();
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }, []);
 
   return {
     projects,
     createProject,
     createFile,
     deleteProject,
+    renameFile,
   };
 };

@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { ChevronRight, ChevronDown, Folder, FileText, MoreHorizontal, Trash, FilePlus, Edit2 } from 'lucide-react';
+import { ChevronRight, ChevronDown, Folder, FileText, MoreHorizontal, Trash, FilePlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -13,13 +13,19 @@ import { useToast } from '@/hooks/use-toast';
 
 interface ProjectTreeProps {
   projects: Project[];
+  selectedFile?: string | null;
+  onFileSelect?: (fileId: string) => void;
 }
 
-export const ProjectTree: React.FC<ProjectTreeProps> = ({ projects }) => {
-  const { createFile, deleteProject } = useProjectManager();
+export const ProjectTree: React.FC<ProjectTreeProps> = ({ 
+  projects, 
+  selectedFile, 
+  onFileSelect 
+}) => {
+  const { createFile, deleteProject, renameFile } = useProjectManager();
   const { toast } = useToast();
+  
   const [expandedProjects, setExpandedProjects] = useState<Set<string>>(new Set());
-  const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const [isCreateFileDialogOpen, setIsCreateFileDialogOpen] = useState(false);
   const [selectedProjectForFile, setSelectedProjectForFile] = useState<string>('');
   const [newFileName, setNewFileName] = useState('');
@@ -67,10 +73,12 @@ export const ProjectTree: React.FC<ProjectTreeProps> = ({ projects }) => {
   };
 
   const handleFileSelect = (fileId: string) => {
-    setSelectedFile(fileId);
+    if (onFileSelect) {
+      onFileSelect(fileId);
+    }
   };
 
-  const handleCreateFile = () => {
+  const handleCreateFile = async () => {
     const validation = validateFileName(newFileName);
     if (validation) {
       toast({
@@ -82,15 +90,28 @@ export const ProjectTree: React.FC<ProjectTreeProps> = ({ projects }) => {
     }
 
     if (newFileName.trim() && selectedProjectForFile) {
-      createFile(selectedProjectForFile, newFileName.trim());
-      
-      // Automatically expand the project to show the new file
-      setExpandedProjects(prev => new Set([...prev, selectedProjectForFile]));
-      
-      // Close dialog and reset form
-      setNewFileName('');
-      setIsCreateFileDialogOpen(false);
-      setSelectedProjectForFile('');
+      try {
+        await createFile(selectedProjectForFile, newFileName.trim());
+        
+        // Automatically expand the project to show the new file
+        setExpandedProjects(prev => new Set([...prev, selectedProjectForFile]));
+        
+        // Close dialog and reset form
+        setNewFileName('');
+        setIsCreateFileDialogOpen(false);
+        setSelectedProjectForFile('');
+        
+        toast({
+          title: "File Created",
+          description: `${newFileName.trim()} has been created successfully.`,
+        });
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to create file. Please try again.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -99,23 +120,27 @@ export const ProjectTree: React.FC<ProjectTreeProps> = ({ projects }) => {
     setIsCreateFileDialogOpen(true);
   };
 
-  const handleDeleteProject = (projectId: string) => {
-    deleteProject(projectId);
-    
-    // Remove from expanded projects if it was expanded
-    setExpandedProjects(prev => {
-      const newExpanded = new Set(prev);
-      newExpanded.delete(projectId);
-      return newExpanded;
-    });
-    
-    // Clear selected file if it belonged to the deleted project
-    const deletedProject = projects.find(p => p.id === projectId);
-    if (deletedProject && selectedFile) {
-      const fileInProject = deletedProject.files.some(f => f.id === selectedFile);
-      if (fileInProject) {
-        setSelectedFile(null);
-      }
+  const handleDeleteProject = async (projectId: string) => {
+    try {
+      await deleteProject(projectId);
+      
+      // Remove from expanded projects if it was expanded
+      setExpandedProjects(prev => {
+        const newExpanded = new Set(prev);
+        newExpanded.delete(projectId);
+        return newExpanded;
+      });
+      
+      toast({
+        title: "Project Deleted",
+        description: "Project has been deleted successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete project. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -124,7 +149,7 @@ export const ProjectTree: React.FC<ProjectTreeProps> = ({ projects }) => {
     setRenameValue(file.name);
   };
 
-  const handleRenameSubmit = (fileId: string) => {
+  const handleRenameSubmit = async (fileId: string) => {
     const validation = validateFileName(renameValue);
     if (validation) {
       toast({
@@ -135,20 +160,42 @@ export const ProjectTree: React.FC<ProjectTreeProps> = ({ projects }) => {
       return;
     }
 
-    // Here you would implement the actual rename functionality
-    console.log('Renaming file', fileId, 'to', renameValue);
-    toast({
-      title: "File Renamed",
-      description: `File renamed to ${renameValue}`,
-    });
-    
-    setRenamingFile(null);
-    setRenameValue('');
+    try {
+      if (renameFile) {
+        await renameFile(fileId, renameValue);
+      }
+      
+      toast({
+        title: "File Renamed",
+        description: `File renamed to ${renameValue}`,
+      });
+      
+      setRenamingFile(null);
+      setRenameValue('');
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to rename file. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleRenameCancel = () => {
     setRenamingFile(null);
     setRenameValue('');
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent, action: () => void) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      action();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      if (renamingFile) {
+        handleRenameCancel();
+      }
+    }
   };
 
   return (
@@ -246,13 +293,7 @@ export const ProjectTree: React.FC<ProjectTreeProps> = ({ projects }) => {
                       <Input
                         value={renameValue}
                         onChange={(e) => setRenameValue(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            handleRenameSubmit(file.id);
-                          } else if (e.key === 'Escape') {
-                            handleRenameCancel();
-                          }
-                        }}
+                        onKeyDown={(e) => handleKeyDown(e, () => handleRenameSubmit(file.id))}
                         onBlur={() => handleRenameCancel()}
                         className="h-6 text-sm"
                         autoFocus
@@ -281,11 +322,7 @@ export const ProjectTree: React.FC<ProjectTreeProps> = ({ projects }) => {
                 placeholder="Enter file name (e.g., main.js, app.py)"
                 value={newFileName}
                 onChange={(e) => setNewFileName(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    handleCreateFile();
-                  }
-                }}
+                onKeyDown={(e) => handleKeyDown(e, handleCreateFile)}
               />
               <p className="text-xs text-muted-foreground mt-1">
                 Supported extensions: {getAllowedExtensions().join(', ')}
