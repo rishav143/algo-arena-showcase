@@ -130,7 +130,7 @@ const PracticeContent = () => {
       <Navigation />
       
       <div className="flex-1 pt-20">
-        <div className="flex h-[calc(100vh-5rem)] w-full max-w-full">
+        <div className="flex h-[calc(100vh-5rem)]">
           <ProjectSidebar
             projectName={projectName}
             setProjectName={setProjectName}
@@ -142,7 +142,7 @@ const PracticeContent = () => {
             onDeleteProject={handleDeleteProject}
           />
           
-          <div className="flex-1 flex flex-col min-w-0 w-full">
+          <div className="flex-1 flex flex-col overflow-hidden">
             <PracticeHeader
               selectedLanguage={selectedLanguage}
               languages={languages}
@@ -153,10 +153,10 @@ const PracticeContent = () => {
             />
 
             {/* Main Content - Full Width Resizable Panels */}
-            <div className="flex-1 p-4 min-h-0 w-full">
+            <div className="flex-1 p-4 overflow-hidden">
               <ResizablePanelGroup direction="horizontal" className="h-full w-full">
                 {/* Code Editor Panel */}
-                <ResizablePanel defaultSize={50} minSize={30} className="min-h-0">
+                <ResizablePanel defaultSize={50} minSize={30}>
                   <CodeEditor
                     code={code}
                     setCode={setCode}
@@ -168,7 +168,7 @@ const PracticeContent = () => {
                 <ResizableHandle withHandle />
 
                 {/* Output Panel */}
-                <ResizablePanel defaultSize={50} minSize={30} className="min-h-0">
+                <ResizablePanel defaultSize={50} minSize={30}>
                   <OutputPanel
                     activeTab={activeTab}
                     setActiveTab={setActiveTab}
