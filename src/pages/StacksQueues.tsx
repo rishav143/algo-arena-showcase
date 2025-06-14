@@ -47,21 +47,21 @@ const StacksQueues = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          <Card className="bg-white/70 backdrop-blur-sm border-0 shadow-lg">
+          <Card className="bg-white/80 border-0 shadow-lg">
             <CardContent className="p-6 text-center">
               <Code className="w-8 h-8 text-yellow-600 mx-auto mb-2" />
               <div className="text-2xl font-bold text-gray-900">{problems.length}</div>
               <div className="text-gray-600 text-sm">Problems</div>
             </CardContent>
           </Card>
-          <Card className="bg-white/70 backdrop-blur-sm border-0 shadow-lg">
+          <Card className="bg-white/80 border-0 shadow-lg">
             <CardContent className="p-6 text-center">
               <Clock className="w-8 h-8 text-orange-600 mx-auto mb-2" />
               <div className="text-2xl font-bold text-gray-900">~2 weeks</div>
               <div className="text-gray-600 text-sm">Estimated Time</div>
             </CardContent>
           </Card>
-          <Card className="bg-white/70 backdrop-blur-sm border-0 shadow-lg sm:col-span-2 lg:col-span-1">
+          <Card className="bg-white/80 border-0 shadow-lg sm:col-span-2 lg:col-span-1">
             <CardContent className="p-6 text-center">
               <Trophy className="w-8 h-8 text-yellow-600 mx-auto mb-2" />
               <div className="text-2xl font-bold text-gray-900">Intermediate</div>
@@ -74,7 +74,7 @@ const StacksQueues = () => {
         <div className="space-y-6">
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-8">Practice Problems</h2>
           {problems.map((problem) => (
-            <Card key={problem.id} className="group hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+            <Card key={problem.id} className="group hover:shadow-xl transition-shadow duration-200 bg-white border-0 shadow-lg">
               <CardContent className="p-6">
                 <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                   <div className="flex-1 min-w-0">
@@ -110,7 +110,7 @@ const StacksQueues = () => {
                     </div>
                   </div>
                   
-                  <Button className="bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-600 hover:to-orange-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 group-hover:scale-105 self-start lg:self-center flex-shrink-0">
+                  <Button className="bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-600 hover:to-orange-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 self-start lg:self-center flex-shrink-0">
                     Solve Now
                   </Button>
                 </div>
