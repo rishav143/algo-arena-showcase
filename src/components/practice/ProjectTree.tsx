@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { ChevronRight, ChevronDown, Folder, FileText, MoreHorizontal, Trash, FilePlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
