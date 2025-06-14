@@ -2,10 +2,9 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, Play, Video, Home, ChevronRight } from 'lucide-react';
+import { Search, Play, Video, Home, ChevronRight, Menu } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
-import { SidebarTrigger } from '@/components/ui/sidebar';
 import { Link } from 'react-router-dom';
 
 interface PracticeHeaderProps {
@@ -56,7 +55,9 @@ export const PracticeHeader: React.FC<PracticeHeaderProps> = ({ onVideoSelect, o
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <SidebarTrigger />
+            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+              <Menu className="w-4 h-4" />
+            </Button>
             <div className="flex flex-col">
               <h1 className="text-lg font-semibold">CodeRoom Practice</h1>
               <nav className="flex items-center space-x-1 text-xs text-muted-foreground">
@@ -69,6 +70,7 @@ export const PracticeHeader: React.FC<PracticeHeaderProps> = ({ onVideoSelect, o
               </nav>
             </div>
           </div>
+          
           <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
             <DialogTrigger asChild>
               <Button variant="outline" size="sm" className="flex items-center gap-2">
