@@ -28,9 +28,9 @@ export const useEditorState = ({
   const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Auto-save effect
+  // Auto-save effect - only for files, not templates
   useEffect(() => {
-    if (editorState.hasUnsavedChanges && selectedFile && selectedProject) {
+    if (editorState.hasUnsavedChanges && selectedFile && selectedProject && editorState.selectedFileId === selectedFile.id) {
       if (autoSaveTimeoutRef.current) {
         clearTimeout(autoSaveTimeoutRef.current);
       }
@@ -47,11 +47,12 @@ export const useEditorState = ({
         clearTimeout(autoSaveTimeoutRef.current);
       }
     };
-  }, [editorState.hasUnsavedChanges, editorState.currentContent, selectedFile, selectedProject, updateFileContent]);
+  }, [editorState.hasUnsavedChanges, editorState.currentContent, selectedFile, selectedProject, updateFileContent, editorState.selectedFileId]);
 
   // Effect to handle file selection changes
   useEffect(() => {
     if (selectedFile) {
+      // If switching to a different file and have unsaved changes
       if (editorState.hasUnsavedChanges && editorState.selectedFileId !== selectedFile.id) {
         setPendingAction(() => () => {
           setEditorState({
@@ -62,7 +63,8 @@ export const useEditorState = ({
             language: selectedFile.language,
           });
         });
-      } else {
+      } else if (editorState.selectedFileId !== selectedFile.id) {
+        // Switch to file without unsaved changes
         setEditorState({
           hasUnsavedChanges: false,
           currentContent: selectedFile.content,
@@ -77,6 +79,7 @@ export const useEditorState = ({
   // Effect to handle template selection changes
   useEffect(() => {
     if (selectedTemplate && !selectedFile) {
+      // If switching to a different template and have unsaved changes
       if (editorState.hasUnsavedChanges && editorState.selectedTemplateId !== selectedTemplate.id) {
         setPendingAction(() => () => {
           setEditorState({
@@ -87,7 +90,8 @@ export const useEditorState = ({
             language: selectedTemplate.language,
           });
         });
-      } else {
+      } else if (editorState.selectedTemplateId !== selectedTemplate.id) {
+        // Switch to template without unsaved changes
         setEditorState({
           hasUnsavedChanges: false,
           currentContent: selectedTemplate.content,

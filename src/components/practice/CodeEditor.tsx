@@ -36,7 +36,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.key === 's') {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
         e.preventDefault();
         handleSave();
       }
@@ -127,14 +127,16 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   };
 
   const handleSave = () => {
-    if (selectedFile && selectedProject) {
+    if (selectedFile && selectedProject && editorState.selectedFileId === selectedFile.id) {
+      // Save to existing file
       updateFileContent(selectedProject.id, selectedFile.id, editorState.currentContent);
       setEditorState(prev => ({ ...prev, hasUnsavedChanges: false }));
       toast({
         title: "File Saved",
         description: `${selectedFile.name} has been saved.`,
       });
-    } else if (selectedTemplate && selectedTemplate.type === 'custom') {
+    } else if (selectedTemplate && selectedTemplate.type === 'custom' && editorState.selectedTemplateId === selectedTemplate.id) {
+      // Save to existing custom template
       updateTemplate(selectedTemplate.id, editorState.currentContent);
       setEditorState(prev => ({ ...prev, hasUnsavedChanges: false }));
       toast({
@@ -142,6 +144,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
         description: `${selectedTemplate.name} template has been updated.`,
       });
     } else {
+      // Save as new file
       if (projects.length > 0) {
         setSaveProjectId(projects[0].id);
         setSaveFileName(`untitled.${getFileExtension(editorState.language)}`);
@@ -227,8 +230,9 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
     return extensions[language] || 'txt';
   };
 
-  const currentFileName = selectedFile ? selectedFile.name : 
-    selectedTemplate ? `${selectedTemplate.name} Template` : 'Untitled';
+  const currentFileName = selectedFile && editorState.selectedFileId === selectedFile.id ? selectedFile.name : 
+    selectedTemplate && editorState.selectedTemplateId === selectedTemplate.id ? `${selectedTemplate.name} Template` : 
+    'Untitled';
 
   return (
     <div className="flex flex-col h-full">
