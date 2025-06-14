@@ -21,13 +21,13 @@ const Navigation = () => {
           </Link>
 
           <div className="hidden md:flex items-center space-x-4 lg:space-x-6">
-            <Link 
-              to="/#topics"
+            <a 
+              href="#topics"
               className="flex items-center space-x-1 text-gray-700 hover:text-cyan-600 font-medium transition-all duration-300 hover:scale-105 px-2 py-1 rounded-lg hover:bg-cyan-50"
             >
               <BookOpen className="w-4 h-4" />
               <span>Topics</span>
-            </Link>
+            </a>
             <a href="#problems" className="text-gray-700 hover:text-cyan-600 font-medium transition-all duration-300 hover:scale-105 px-2 py-1 rounded-lg hover:bg-gray-50">
               Problems
             </a>
@@ -45,13 +45,13 @@ const Navigation = () => {
 
           {/* Mobile menu for medium screens */}
           <div className="hidden sm:flex md:hidden items-center space-x-2">
-            <Link 
-              to="/#topics"
+            <a 
+              href="#topics"
               className="flex items-center space-x-1 text-gray-700 hover:text-cyan-600 font-medium transition-all duration-300 px-2 py-1 rounded-lg hover:bg-cyan-50"
             >
               <BookOpen className="w-4 h-4" />
               <span className="text-sm">Topics</span>
-            </Link>
+            </a>
             <button className="px-3 py-1.5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-full hover:from-cyan-600 hover:to-blue-700 transition-all duration-300 shadow-md flex items-center gap-1">
               <Sparkles className="w-3 h-3" />
               <span className="text-sm font-medium">Start</span>
@@ -70,14 +70,14 @@ const Navigation = () => {
         {isMenuOpen && (
           <div className="sm:hidden bg-white/95 backdrop-blur-md border-t border-gray-200 rounded-b-lg shadow-lg mx-2 mb-2">
             <div className="py-2 space-y-1">
-              <Link 
-                to="/#topics"
+              <a 
+                href="#topics"
                 onClick={() => setIsMenuOpen(false)}
                 className="flex items-center space-x-2 px-3 py-2.5 text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 rounded-lg transition-colors mx-2"
               >
                 <BookOpen className="w-4 h-4" />
                 <span className="font-medium">DSA Topics</span>
-              </Link>
+              </a>
               <a 
                 href="#problems" 
                 className="block px-3 py-2.5 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors mx-2"
