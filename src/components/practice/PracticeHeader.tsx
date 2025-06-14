@@ -5,7 +5,6 @@ import { Input } from '@/components/ui/input';
 import { Search, Play, Video } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
-import { SidebarTrigger } from '@/components/ui/sidebar';
 
 export const PracticeHeader = () => {
   const [searchOpen, setSearchOpen] = useState(false);
@@ -44,10 +43,7 @@ export const PracticeHeader = () => {
     <div className="border-b bg-background p-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <SidebarTrigger />
-            <h1 className="text-xl font-semibold">CodeRoom Practice</h1>
-          </div>
+          <h1 className="text-xl font-semibold">CodeRoom Practice</h1>
           <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
             <DialogTrigger asChild>
               <Button variant="outline" className="flex items-center gap-2">
