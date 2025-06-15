@@ -1,9 +1,11 @@
 
 import React, { useEffect } from 'react';
 import { usePractice } from '@/contexts/PracticeContext';
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import PracticeNavigation from './PracticeNavigation';
 import ProjectsSidebar from './sidebar/ProjectsSidebar';
 import MainWorkspace from './workspace/MainWorkspace';
+import RightPanel from './workspace/RightPanel';
 
 const PracticeLayout: React.FC = () => {
   const { state, dispatch } = usePractice();
@@ -22,7 +24,6 @@ const PracticeLayout: React.FC = () => {
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeydown = (e: KeyboardEvent) => {
-      // Ctrl+S or Cmd+S for save
       if ((e.ctrlKey || e.metaKey) && e.key === 's') {
         e.preventDefault();
         if (state.activeFile?.isUnsaved) {
@@ -30,7 +31,6 @@ const PracticeLayout: React.FC = () => {
         }
       }
       
-      // Ctrl+I or Cmd+I for AI assistant
       if ((e.ctrlKey || e.metaKey) && e.key === 'i') {
         e.preventDefault();
         if (state.aiAssistantEnabled) {
@@ -44,17 +44,34 @@ const PracticeLayout: React.FC = () => {
   }, [state.activeFile?.isUnsaved, state.aiAssistantEnabled, dispatch]);
 
   return (
-    <div className="h-screen flex flex-col bg-background overflow-hidden">
+    <div className="h-screen flex flex-col bg-background">
       {/* Fixed Navigation */}
       <PracticeNavigation />
       
-      {/* Main Content Area */}
+      {/* Main Content Area with Resizable Panels */}
       <div className="flex-1 flex overflow-hidden">
         {/* Projects Sidebar */}
         <ProjectsSidebar />
         
-        {/* Main Workspace */}
-        <MainWorkspace />
+        {/* Resizable Main Content Area */}
+        <ResizablePanelGroup direction="horizontal" className="flex-1">
+          {/* Code Editor (Main Workspace) */}
+          <ResizablePanel defaultSize={60} minSize={30}>
+            <div className="h-full overflow-hidden">
+              <MainWorkspace />
+            </div>
+          </ResizablePanel>
+          
+          {/* Resizable Handle */}
+          <ResizableHandle withHandle />
+          
+          {/* Right Panel for Output/AI/Video */}
+          <ResizablePanel defaultSize={40} minSize={25}>
+            <div className="h-full overflow-hidden">
+              <RightPanel />
+            </div>
+          </ResizablePanel>
+        </ResizablePanelGroup>
       </div>
     </div>
   );
