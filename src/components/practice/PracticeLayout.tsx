@@ -1,7 +1,5 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { usePractice } from '@/contexts/PracticeContext';
-import { useDebounce } from '@/hooks/useDebounce';
-import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import PracticeNavigation from './PracticeNavigation';
 import ProjectsSidebar from './sidebar/ProjectsSidebar';
 import MainWorkspace from './workspace/MainWorkspace';
@@ -9,40 +7,36 @@ import RightPanel from './workspace/RightPanel';
 import { useToast } from '@/components/ui/use-toast'; // import shadcn/ui toast
 import { CreateFileDialogProvider } from './sidebar/CreateFileDialogContext';
 
+const AUTO_SAVE_INTERVAL_MS = 5000; // 5 seconds
+
 const PracticeLayout: React.FC = () => {
   const { state, dispatch } = usePractice();
   const { toast } = useToast();
 
-  // Only debounce on content AND file id; this ensures that if you switch files, timers reset.
-  // To further stabilize, don't debounce on every char, but only when file/content truly changes.
-  // Also, use a slightly longer delay for less "chattery" auto-save.
-  const debouncedContent = useDebounce(
-    state.activeFile ? state.activeFile.content : '',
-    2000 // 2 seconds feels natural for "auto-save after typing stops"
-  );
-  const debouncedFileId = useDebounce(
-    state.activeFile ? state.activeFile.id : '',
-    2000
-  );
+  // === INTERVAL-BASED AUTO-SAVE ===
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  // This effect triggers ONLY when user stops editing a file for 2 sec, and they haven't switched files.
   useEffect(() => {
-    if (!state.activeFile?.isUnsaved) return; // Only auto-save if truly unsaved
-    if (!state.activeFile || !state.activeFile.id) return;
+    // Clear any previous interval just in case
+    if (intervalRef.current) clearInterval(intervalRef.current);
 
-    // Match file ids to ensure no cross-file glitches.
-    if (state.activeFile.id !== debouncedFileId) return;
+    intervalRef.current = setInterval(() => {
+      if (state.activeFile && state.activeFile.isUnsaved) {
+        // Avoid saving empty files
+        if (state.activeFile.content.trim() !== "") {
+          dispatch({ type: 'SAVE_FILE' });
+          console.log('[AutoSave] File auto-saved:', state.activeFile?.name, 'Length:', state.activeFile.content.length);
+        }
+      }
+    }, AUTO_SAVE_INTERVAL_MS);
 
-    // To avoid accidental auto-saves on empty new files, only save if not empty or whitespace
-    if (debouncedContent.trim() === '') return;
-
-    // Actually trigger save
-    dispatch({ type: 'SAVE_FILE' });
-
-    // Optionally: Add a console log to monitor when auto-save triggers
-    console.log('[AutoSave] File auto-saved:', state.activeFile?.name, 'Length:', debouncedContent.length);
-
-  }, [debouncedContent, debouncedFileId, state.activeFile, dispatch]);
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+    // We only want to set up the interval once when the component mounts and clean up when it unmounts.
+    // We do NOT want to rerun this effect on every state change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.activeFile && state.activeFile.id]);
 
   // Keyboard shortcuts
   useEffect(() => {
