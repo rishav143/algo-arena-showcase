@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
@@ -23,6 +22,30 @@ const SUPPORTED_LANGUAGES = [
   { value: 'go', label: 'Go' },
   { value: 'rust', label: 'Rust' },
 ];
+
+// Extension to language mapping
+const EXT_TO_LANG: Record<string, string> = {
+  js: 'javascript',
+  jsx: 'javascript',
+  ts: 'typescript',
+  tsx: 'typescript',
+  py: 'python',
+  java: 'java',
+  cpp: 'cpp',
+  cc: 'cpp',
+  cxx: 'cpp',
+  c: 'c',
+  h: 'c',
+  cs: 'csharp',
+  go: 'go',
+  rs: 'rust',
+};
+
+const getLangFromFilename = (filename: string): string | undefined => {
+  const ext = filename.split('.').pop()?.toLowerCase();
+  if (!ext) return undefined;
+  return EXT_TO_LANG[ext];
+};
 
 const CodeEditor: React.FC = () => {
   const { state, dispatch } = usePractice();
@@ -83,12 +106,51 @@ const CodeEditor: React.FC = () => {
 
   const handleLanguageChange = (language: string) => {
     if (state.activeFile && state.activeFile.language !== language) {
+      // Just change the language, keep content the same
       dispatch({
         type: 'UPDATE_FILE_CONTENT',
         payload: { content: state.activeFile.content }
       });
+      // Actually update the language in the file object:
+      dispatch({
+        type: 'RENAME_FILE',
+        payload: {
+          projectId: state.activeProject?.id ?? "",
+          fileId: state.activeFile.id,
+          name: state.activeFile.name
+        }
+      });
+      // Now update the language property (must extend the reducer/action to support this in real project)
+      dispatch({
+        type: 'SET_ACTIVE_FILE',
+        payload: {
+          file: { ...state.activeFile, language }
+        }
+      });
     }
   };
+
+  // Auto-set language when new file is selected based on extension
+  useEffect(() => {
+    if (state.activeFile) {
+      const extLang = getLangFromFilename(state.activeFile.name);
+      // Only set language if the autodetected one differs and is supported
+      if (
+        extLang &&
+        extLang !== state.activeFile.language &&
+        SUPPORTED_LANGUAGES.some(l => l.value === extLang)
+      ) {
+        dispatch({
+          type: 'SET_ACTIVE_FILE',
+          payload: {
+            file: { ...state.activeFile, language: extLang },
+          },
+        });
+      }
+    }
+    // Only run when activeFile changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.activeFile?.id]);
 
   useEffect(() => {
     const textarea = textareaRef.current;
