@@ -29,19 +29,11 @@ const FileItem: React.FC<FileItemProps> = ({ file, projectId }) => {
 
   const handleDoubleClick = () => {
     setIsRenaming(true);
-    safeOpenDialog(setShowRename);
-  };
-
-  // Ensures focus is not trapped in dropdown before dialog opens
-  const safeOpenDialog = (setOpen: (v: boolean) => void) => {
-    if (document.activeElement instanceof HTMLElement) {
-      document.activeElement.blur();
-    }
-    setTimeout(() => setOpen(true), 0);
+    setShowRename(true);
   };
 
   const handleRename = () => {
-    safeOpenDialog(setShowRename);
+    setShowRename(true);
   };
 
   const handleDelete = () => {
@@ -89,10 +81,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, projectId }) => {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-40 bg-white border border-gray-200 shadow-lg">
-            <DropdownMenuItem
-              onClick={handleRename}
-              className="hover:bg-gray-50"
-            >
+            <DropdownMenuItem onClick={handleRename} className="hover:bg-gray-50">
               Rename
             </DropdownMenuItem>
             <DropdownMenuItem 
@@ -120,4 +109,3 @@ const FileItem: React.FC<FileItemProps> = ({ file, projectId }) => {
 };
 
 export default FileItem;
-

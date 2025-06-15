@@ -29,17 +29,8 @@ const ProjectItem: React.FC<ProjectItemProps> = ({ project, isActive, onCreateFi
     setIsExpanded(!isExpanded);
   };
 
-  // Ensures focus is not trapped in dropdown before dialog opens
-  const safeOpenDialog = (setOpen: (v: boolean) => void) => {
-    if (document.activeElement instanceof HTMLElement) {
-      document.activeElement.blur();
-    }
-    // Wait for dropdown to close before opening dialog
-    setTimeout(() => setOpen(true), 0);
-  };
-
   const handleRename = () => {
-    safeOpenDialog(setShowRename);
+    setShowRename(true);
   };
 
   const handleDelete = () => {
@@ -95,22 +86,11 @@ const ProjectItem: React.FC<ProjectItemProps> = ({ project, isActive, onCreateFi
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-48 bg-white border border-gray-200 shadow-lg">
-            <DropdownMenuItem
-              onClick={() => {
-                if (document.activeElement instanceof HTMLElement) {
-                  document.activeElement.blur();
-                }
-                setTimeout(() => onCreateFile(), 0);
-              }}
-              className="hover:bg-gray-50"
-            >
+            <DropdownMenuItem onClick={onCreateFile} className="hover:bg-gray-50">
               <Plus className="w-4 h-4 mr-2" />
               Create New File
             </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={handleRename}
-              className="hover:bg-gray-50"
-            >
+            <DropdownMenuItem onClick={handleRename} className="hover:bg-gray-50">
               Rename Project
             </DropdownMenuItem>
             <DropdownMenuItem 
@@ -168,4 +148,3 @@ const ProjectItem: React.FC<ProjectItemProps> = ({ project, isActive, onCreateFi
 };
 
 export default ProjectItem;
-
