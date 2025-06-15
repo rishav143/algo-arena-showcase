@@ -1,10 +1,11 @@
+
 import React, { useRef } from 'react';
+import { Code } from 'lucide-react';
 import { usePractice } from '@/contexts/PracticeContext';
 import { compileCode } from '@/services/compilerService';
 import { useLanguageSwitcher } from "./useLanguageSwitcher";
 import EditorToolbar from "./EditorToolbar";
 import { useAutoResize } from "./useAutoResize";
-import { SUPPORTED_LANGUAGES, getLangFromFilename } from "./languageMaps";
 
 const CodeEditor: React.FC = () => {
   const { state, dispatch } = usePractice();
