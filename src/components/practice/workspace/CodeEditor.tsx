@@ -7,9 +7,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Play, Save, Loader2, Code } from 'lucide-react';
+import { Play, Save, Loader2, Code, FileStack } from 'lucide-react';
 import { usePractice } from '@/contexts/PracticeContext';
-import { compileCode } from '@/services/compilerService';
+import { compileCode, getLanguageTemplate } from '@/services/compilerService';
 
 const SUPPORTED_LANGUAGES = [
   { value: 'javascript', label: 'JavaScript' },
@@ -189,13 +189,26 @@ const CodeEditor: React.FC = () => {
     }
   }, [state.activeFile?.content]);
 
+  const handleInsertTemplate = () => {
+    if (
+      state.activeFile &&
+      typeof state.activeFile.language === 'string'
+    ) {
+      const template = getLanguageTemplate(state.activeFile.language);
+      dispatch({ type: 'UPDATE_FILE_CONTENT', payload: { content: template } });
+    }
+  };
+
   if (!state.activeFile) {
     return (
       <div className="h-full flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <Code className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+          <FileStack className="w-16 h-16 text-gray-300 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">No file selected</h3>
-          <p className="text-gray-500">Create a new project and file to start coding</p>
+          <p className="text-gray-500 mb-2">Create or select a file to start coding.</p>
+          <div className="text-xs text-gray-400 max-w-xs mx-auto">
+            Tip: Use the sidebar to create a file and select a language. Then you can auto-insert a starter code template for any supported language!
+          </div>
         </div>
       </div>
     );
@@ -226,7 +239,6 @@ const CodeEditor: React.FC = () => {
               </SelectContent>
             </Select>
           </div>
-          
           <div className="text-sm text-gray-500">
             {state.activeFile.name}
             {state.activeFile.isUnsaved && (
@@ -236,6 +248,18 @@ const CodeEditor: React.FC = () => {
         </div>
 
         <div className="flex items-center space-x-2">
+          {/* Insert Template Button */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleInsertTemplate}
+            disabled={!state.activeFile.language}
+            type="button"
+            title="Insert language starter template"
+          >
+            <FileStack className="w-4 h-4 mr-2" />
+            Insert Template
+          </Button>
           <Button
             onClick={handleSave}
             disabled={!state.activeFile.isUnsaved}
@@ -245,7 +269,6 @@ const CodeEditor: React.FC = () => {
             <Save className="w-4 h-4 mr-2" />
             Save
           </Button>
-          
           <Button
             onClick={handleRun}
             disabled={state.isRunning}

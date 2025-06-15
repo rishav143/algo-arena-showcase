@@ -26,11 +26,27 @@ const PracticeNavigation: React.FC = () => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
 
-  // Generate video suggestions based on search query
+  // Helper to sort suggestions by match quality
+  function sortSuggestions(suggestions: VideoSuggestion[], query: string): VideoSuggestion[] {
+    // Normalize query for case-insensitive match
+    const q = query.toLowerCase().trim();
+    // Assign score: 3 = full word, 2 = substring, 1 = included, 0 = no match
+    return [...suggestions].sort((a, b) => {
+      function score(title: string) {
+        const lt = title.toLowerCase();
+        if (lt.split(' ').includes(q)) return 3;
+        if (lt.includes(q) && q.length > 1) return 2;
+        if (lt.indexOf(q) !== -1) return 1;
+        return 0;
+      }
+      return score(b.title) - score(a.title);
+    });
+  }
+
+  // Generate video suggestions based on search query – sorted so best matches come first
   const generateVideoSuggestions = (query: string): VideoSuggestion[] => {
     if (!query.trim()) return [];
 
-    // Suggestion titles are generic, do not use the user's input
     const myVideos: VideoSuggestion[] = [
       {
         id: 'my-1',
@@ -48,7 +64,6 @@ const PracticeNavigation: React.FC = () => {
       }
     ];
 
-    // Generic popular programming/video titles (no direct use of query)
     const otherVideos: VideoSuggestion[] = [
       {
         id: 'yt-1',
@@ -70,7 +85,9 @@ const PracticeNavigation: React.FC = () => {
       }
     ];
 
-    return [...myVideos, ...otherVideos];
+    // Sort by match
+    const sorted = sortSuggestions([...myVideos, ...otherVideos], query);
+    return sorted;
   };
 
   useEffect(() => {
