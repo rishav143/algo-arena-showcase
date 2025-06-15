@@ -7,6 +7,7 @@ import { ProjectProvider } from '@/contexts/ProjectContext';
 const Practice = () => {
   const [aiAssistantEnabled, setAiAssistantEnabled] = useState(true);
   const [sidebarVisible, setSidebarVisible] = useState(true);
+  const [theme, setTheme] = useState('light');
 
   const toggleSidebar = () => {
     setSidebarVisible(!sidebarVisible);
@@ -22,7 +23,12 @@ const Practice = () => {
           />
         )}
         <main className="flex-1 flex flex-col">
-          <PracticeWorkspace onToggleSidebar={toggleSidebar} />
+          <PracticeWorkspace 
+            theme={theme}
+            aiAssistantEnabled={aiAssistantEnabled}
+            onToggleSidebar={toggleSidebar}
+            onThemeChange={setTheme}
+          />
         </main>
       </div>
     </ProjectProvider>

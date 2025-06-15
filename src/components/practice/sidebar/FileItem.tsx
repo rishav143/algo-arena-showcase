@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { ProjectFile } from '@/types/project';
+import { validateFileExtension } from '@/utils/fileValidation';
 import { cn } from '@/lib/utils';
 
 interface FileItemProps {
@@ -27,12 +28,28 @@ export const FileItem: React.FC<FileItemProps> = ({
 }) => {
   const [isRenaming, setIsRenaming] = useState(false);
   const [renameValue, setRenameValue] = useState(file.name);
+  const [error, setError] = useState('');
 
   const handleRename = () => {
-    if (renameValue.trim() && renameValue !== file.name) {
-      onRename(renameValue.trim());
+    if (!renameValue.trim()) {
+      setError('File name cannot be empty');
+      return;
     }
+
+    if (renameValue === file.name) {
+      setIsRenaming(false);
+      return;
+    }
+
+    const validationError = validateFileExtension(renameValue);
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
+    onRename(renameValue.trim());
     setIsRenaming(false);
+    setError('');
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -41,7 +58,14 @@ export const FileItem: React.FC<FileItemProps> = ({
     } else if (e.key === 'Escape') {
       setIsRenaming(false);
       setRenameValue(file.name);
+      setError('');
     }
+  };
+
+  const handleStartRename = () => {
+    setIsRenaming(true);
+    setRenameValue(file.name);
+    setError('');
   };
 
   return (
@@ -55,14 +79,20 @@ export const FileItem: React.FC<FileItemProps> = ({
       <FileText className="w-4 h-4 text-muted-foreground flex-shrink-0" />
       
       {isRenaming ? (
-        <Input
-          value={renameValue}
-          onChange={(e) => setRenameValue(e.target.value)}
-          onKeyDown={handleKeyDown}
-          onBlur={handleRename}
-          className="h-6 text-sm"
-          autoFocus
-        />
+        <div className="flex-1">
+          <Input
+            value={renameValue}
+            onChange={(e) => {
+              setRenameValue(e.target.value);
+              setError('');
+            }}
+            onKeyDown={handleKeyDown}
+            onBlur={handleRename}
+            className={cn("h-6 text-sm", error && "border-red-500")}
+            autoFocus
+          />
+          {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+        </div>
       ) : (
         <>
           <span className="text-sm flex-1 truncate">{file.name}</span>
@@ -83,10 +113,7 @@ export const FileItem: React.FC<FileItemProps> = ({
                   variant="ghost"
                   size="sm"
                   className="w-full justify-start"
-                  onClick={() => {
-                    setIsRenaming(true);
-                    setRenameValue(file.name);
-                  }}
+                  onClick={handleStartRename}
                 >
                   <Edit3 className="w-4 h-4 mr-2" />
                   Rename

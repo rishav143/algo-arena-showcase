@@ -8,15 +8,20 @@ import { SaveDialogs } from './editor/SaveDialogs';
 import { SaveManager } from './editor/SaveManager';
 import { useEditorStateManager } from './editor/useEditorStateManager';
 import { getLanguageTemplate } from '@/utils/editorStateManager';
+import { CompilerService } from '@/services/compilerService';
 
 interface CodeEditorProps {
+  theme: string;
   onRunCode?: () => void;
   onExecutionError?: (error: string) => void;
+  onCompilationResult?: (result: any) => void;
 }
 
 export const CodeEditor: React.FC<CodeEditorProps> = ({ 
+  theme,
   onRunCode,
-  onExecutionError
+  onExecutionError,
+  onCompilationResult
 }) => {
   const { toast } = useToast();
   const { selectedFile, updateFileContent, selectedProject, setSelectedFile } = useProjectContext();
@@ -28,21 +33,25 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   });
 
   const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
-  const [theme, setTheme] = useState('light');
+  const [isCompiling, setIsCompiling] = useState(false);
   const saveManagerRef = useRef<HTMLDivElement>(null);
 
-  // Keyboard shortcuts
+  // Improved keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 's') {
         e.preventDefault();
         handleSave();
       }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
+        e.preventDefault();
+        handleRun();
+      }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [editorStateManager.editorState]);
 
   // Handle showing unsaved dialog when needed
   useEffect(() => {
@@ -80,7 +89,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
         description: `${selectedFile.name} has been saved.`,
       });
     } else {
-      // Trigger save manager
+      // Trigger save manager for new files
       const saveButton = saveManagerRef.current?.querySelector('.save-trigger') as HTMLButtonElement;
       if (saveButton) {
         saveButton.click();
@@ -96,28 +105,49 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
     });
   };
 
-  const handleRun = () => {
+  const handleRun = async () => {
+    setIsCompiling(true);
+    
     try {
-      if (editorStateManager.editorState.content.includes('error') || editorStateManager.editorState.content.includes('Error')) {
-        const error = 'Syntax Error: Unexpected token on line 5';
+      const result = await CompilerService.executeCode(
+        editorStateManager.editorState.content,
+        editorStateManager.editorState.language
+      );
+
+      if (onCompilationResult) {
+        onCompilationResult(result);
+      }
+
+      if (!result.success && result.error) {
         if (onExecutionError) {
-          onExecutionError(error);
+          onExecutionError(result.error);
         }
-        return;
+        toast({
+          title: "Compilation Error",
+          description: result.error,
+          variant: "destructive",
+        });
+      } else {
+        if (onRunCode) {
+          onRunCode();
+        }
+        toast({
+          title: "Code Executed",
+          description: `Execution completed in ${result.executionTime}ms`,
+        });
       }
-      
-      if (onRunCode) {
-        onRunCode();
-      }
-      
-      toast({
-        title: "Running Code",
-        description: "Executing your code...",
-      });
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       if (onExecutionError) {
-        onExecutionError(error instanceof Error ? error.message : 'Unknown error occurred');
+        onExecutionError(errorMessage);
       }
+      toast({
+        title: "Execution Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setIsCompiling(false);
     }
   };
 
@@ -159,11 +189,12 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
         language={editorStateManager.editorState.language}
         theme={theme}
         onLanguageChange={handleLanguageChange}
-        onThemeChange={setTheme}
+        onThemeChange={() => {}} // Theme is controlled at higher level
         onRun={handleRun}
         onSave={handleSave}
         onCopy={handleCopy}
         canSave={canSave()}
+        isCompiling={isCompiling}
       />
       
       <EditorContent
