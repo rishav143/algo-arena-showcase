@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Play, Save, Loader2 } from 'lucide-react';
+import { Play, Save, Loader2, Code } from 'lucide-react';
 import { usePractice } from '@/contexts/PracticeContext';
 import { compileCode } from '@/services/compilerService';
 
