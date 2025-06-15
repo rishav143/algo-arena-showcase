@@ -118,7 +118,6 @@ const CodeEditor: React.FC = () => {
 
   const handleLanguageChange = (language: string) => {
     if (!state.activeFile) return;
-
     if (state.activeFile.language === language) return;
 
     const currentName = state.activeFile.name;
@@ -128,19 +127,33 @@ const CodeEditor: React.FC = () => {
     const newName = baseName + (newExt ? `.${newExt}` : '');
     const newContent = getLanguageTemplate(language);
 
-    const updateFileStateAndSidebar = (updatedFile: typeof state.activeFile) => {
+    // This function now always fetches the latest file by id from state before updating, ensuring a new ref
+    const updateActiveFileAndContent = () => {
       const latestProject = state.projects.find((p) => p.id === state.activeProject?.id);
-      const latestFile = latestProject?.files.find((f) => f.id === updatedFile?.id);
-      const fileToUse = latestFile ? { ...latestFile, ...updatedFile } : updatedFile;
-
-      dispatch({
-        type: 'SET_ACTIVE_FILE',
-        payload: { file: fileToUse },
-      });
-      dispatch({
-        type: 'UPDATE_FILE_CONTENT',
-        payload: { content: fileToUse.content },
-      });
+      // Find by *name* AND *id* for extra safety after multiple rapid language changes
+      const latestFile = latestProject?.files.find((f) =>
+        f.id === state.activeFile?.id ||
+        (f.name === newName && f.language === language)
+      );
+      if (latestFile) {
+        // Always dispatch with a whole new file reference (including new name, language, content)
+        dispatch({
+          type: 'SET_ACTIVE_FILE',
+          payload: {
+            file: {
+              ...latestFile,
+              name: newName,
+              language,
+              content: newContent,
+              isUnsaved: true,
+            },
+          },
+        });
+        dispatch({
+          type: 'UPDATE_FILE_CONTENT',
+          payload: { content: newContent },
+        });
+      }
     };
 
     if (currentName !== newName) {
@@ -152,27 +165,10 @@ const CodeEditor: React.FC = () => {
           name: newName,
         },
       });
-      setTimeout(() => {
-        const updatedProject = state.projects.find((p) => p.id === state.activeProject?.id);
-        const renamedFile = updatedProject?.files.find((f) => f.id === state.activeFile?.id);
-        if (renamedFile) {
-          updateFileStateAndSidebar({
-            ...renamedFile,
-            name: newName,
-            language,
-            content: newContent,
-            isUnsaved: true,
-          });
-        }
-      }, 0);
+      // Rely on next state update—setTimeout will batch behind reducer, just a tick is enough
+      setTimeout(updateActiveFileAndContent, 0);
     } else {
-      updateFileStateAndSidebar({
-        ...state.activeFile,
-        name: newName,
-        language,
-        content: newContent,
-        isUnsaved: true,
-      });
+      updateActiveFileAndContent();
     }
   };
 
