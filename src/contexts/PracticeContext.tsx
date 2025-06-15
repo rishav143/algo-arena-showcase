@@ -197,25 +197,29 @@ const practiceReducer = (state: PracticeState, action: PracticeAction): Practice
       };
     
     case 'UPDATE_FILE_CONTENT': {
-      if (!state.activeFile || !state.activeProject) return state;
+      // Only flag isUnsaved=true if the content actually changed! (prevents flashing)
+      if (
+        !state.activeFile ||
+        !state.activeProject ||
+        state.activeFile.content === action.payload.content
+      )
+        return state;
 
       const updatedFile: CodeFile = {
         ...state.activeFile,
         content: action.payload.content,
-        isUnsaved: true
+        isUnsaved: true,
       };
 
+      // ... keep rest of the logic (updating project/files) the same ...
       const updatedProjectFiles = state.activeProject.files.map(f =>
         f.id === updatedFile.id ? updatedFile : f
       );
-
       const updatedProjects = state.projects.map(p =>
         p.id === state.activeProject?.id
           ? { ...p, files: updatedProjectFiles }
           : p
       );
-
-      // Use updated activeProject from updatedProjects for referential integrity
       const updatedActiveProject =
         updatedProjects.find(p => p.id === state.activeProject?.id) || state.activeProject;
 
@@ -230,27 +234,28 @@ const practiceReducer = (state: PracticeState, action: PracticeAction): Practice
     case 'SAVE_FILE': {
       if (!state.activeFile || !state.activeProject) return state;
 
-      const savedFile = { 
-        ...state.activeFile, 
-        isUnsaved: false, 
-        lastSaved: new Date() 
+      // Only clear isUnsaved if it was actually unsaved before!
+      if (!state.activeFile.isUnsaved) return state;
+
+      const savedFile = {
+        ...state.activeFile,
+        isUnsaved: false,
+        lastSaved: new Date(),
       };
 
       const savedProjectFiles = state.activeProject.files.map(f =>
         f.id === savedFile.id ? savedFile : f
       );
-
       const savedProjects = state.projects.map(p =>
         p.id === state.activeProject?.id
           ? { ...p, files: savedProjectFiles }
           : p
       );
-
-      // Use updated activeProject from savedProjects for referential integrity
       const savedActiveProject =
         savedProjects.find(p => p.id === state.activeProject?.id) || state.activeProject;
 
-      console.log('Saving file:', savedFile.name, 'Content length:', savedFile.content.length);
+      // Add a console.log for clarity on manual saves (in addition to autosave logs)
+      console.log('[ManualSave] File manually saved:', savedFile.name, 'Length:', savedFile.content.length);
 
       return {
         ...state,

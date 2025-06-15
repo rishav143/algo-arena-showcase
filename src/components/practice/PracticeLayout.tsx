@@ -13,24 +13,35 @@ const PracticeLayout: React.FC = () => {
   const { state, dispatch } = usePractice();
   const { toast } = useToast();
 
-  // Debounce tied strictly to active file id + content to prevent unwanted saves
+  // Only debounce on content AND file id; this ensures that if you switch files, timers reset.
+  // To further stabilize, don't debounce on every char, but only when file/content truly changes.
+  // Also, use a slightly longer delay for less "chattery" auto-save.
   const debouncedContent = useDebounce(
     state.activeFile ? state.activeFile.content : '',
-    1600 // slightly faster debounce for responsive feel, adjust as needed
+    2000 // 2 seconds feels natural for "auto-save after typing stops"
   );
   const debouncedFileId = useDebounce(
     state.activeFile ? state.activeFile.id : '',
-    1600
+    2000
   );
 
-  // Auto-save ONLY if the debounced content matches the same file id
+  // This effect triggers ONLY when user stops editing a file for 2 sec, and they haven't switched files.
   useEffect(() => {
-    if (!state.activeFile?.isUnsaved) return;
+    if (!state.activeFile?.isUnsaved) return; // Only auto-save if truly unsaved
     if (!state.activeFile || !state.activeFile.id) return;
+
+    // Match file ids to ensure no cross-file glitches.
     if (state.activeFile.id !== debouncedFileId) return;
+
+    // To avoid accidental auto-saves on empty new files, only save if not empty or whitespace
     if (debouncedContent.trim() === '') return;
 
+    // Actually trigger save
     dispatch({ type: 'SAVE_FILE' });
+
+    // Optionally: Add a console log to monitor when auto-save triggers
+    console.log('[AutoSave] File auto-saved:', state.activeFile?.name, 'Length:', debouncedContent.length);
+
   }, [debouncedContent, debouncedFileId, state.activeFile, dispatch]);
 
   // Keyboard shortcuts
