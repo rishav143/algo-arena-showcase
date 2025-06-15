@@ -30,41 +30,41 @@ const PracticeNavigation: React.FC = () => {
   const generateVideoSuggestions = (query: string): VideoSuggestion[] => {
     if (!query.trim()) return [];
 
-    // My videos come first
+    // Suggestion titles are generic, do not use the user's input
     const myVideos: VideoSuggestion[] = [
       {
         id: 'my-1',
-        title: `${query} - Complete Tutorial by Rishav Engineering`,
+        title: `How To Master Coding - Complete Tutorial by Rishav Engineering`,
         url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
         thumbnail: '/placeholder.svg',
         isMyVideo: true
       },
       {
         id: 'my-2',
-        title: `Advanced ${query} - Rishav Engineering`,
+        title: `Advanced Programming Principles - Rishav Engineering`,
         url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
         thumbnail: '/placeholder.svg',
         isMyVideo: true
       }
     ];
 
-    // Other YouTube videos
+    // Generic popular programming/video titles (no direct use of query)
     const otherVideos: VideoSuggestion[] = [
       {
         id: 'yt-1',
-        title: `${query} Tutorial - TechChannel`,
+        title: `Popular Coding Tips & Tricks`,
         url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
         thumbnail: '/placeholder.svg'
       },
       {
         id: 'yt-2',
-        title: `Learn ${query} in 10 Minutes`,
+        title: `Best Practices for Programmers`,
         url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
         thumbnail: '/placeholder.svg'
       },
       {
         id: 'yt-3',
-        title: `${query} Explained Simply`,
+        title: `How to Solve Coding Challenges`,
         url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
         thumbnail: '/placeholder.svg'
       }
