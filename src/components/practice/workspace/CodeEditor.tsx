@@ -64,8 +64,26 @@ const CodeEditor: React.FC = () => {
   const { state, dispatch } = usePractice();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  // Helper: update the active file with full sync, prevents async bugs
+  const updateActiveFile = (file: typeof state.activeFile) => {
+    if (!file) return;
+    // Update file in active project (so autosave triggers for correct, most recent file)
+    dispatch({
+      type: "SET_ACTIVE_FILE",
+      payload: { file }
+    });
+    dispatch({
+      type: "UPDATE_FILE_CONTENT",
+      payload: { content: file.content }
+    });
+  };
+
   const handleContentChange = (content: string) => {
-    dispatch({ type: 'UPDATE_FILE_CONTENT', payload: { content } });
+    if (state.activeFile == null) return;
+    dispatch({
+      type: "UPDATE_FILE_CONTENT",
+      payload: { content }
+    });
   };
 
   const handleSave = () => {
@@ -118,49 +136,41 @@ const CodeEditor: React.FC = () => {
   };
 
   const handleLanguageChange = (language: string) => {
-    if (state.activeFile && state.activeFile.language !== language) {
-      const currentName = state.activeFile.name;
-      const parts = currentName.split('.');
-      const baseName =
-        parts.length > 1 ? parts.slice(0, -1).join('.') : currentName.split('.')[0];
-      const newExt = LANG_TO_EXT[language] || '';
-      let newName = baseName + (newExt ? `.${newExt}` : '');
+    if (!state.activeFile) return;
 
-      // Use language template automatically when switching language
-      const newContent = getLanguageTemplate(language);
+    // If no change, do nothing
+    if (state.activeFile.language === language) return;
 
-      if (currentName !== newName) {
-        dispatch({
-          type: 'RENAME_FILE',
-          payload: {
-            projectId: state.activeProject?.id ?? "",
-            fileId: state.activeFile.id,
-            name: newName,
-          }
-        });
-        dispatch({
-          type: 'SET_ACTIVE_FILE',
-          payload: {
-            file: { ...state.activeFile, name: newName, language, content: newContent }
-          }
-        });
-        dispatch({
-          type: 'UPDATE_FILE_CONTENT',
-          payload: { content: newContent }
-        });
-      } else {
-        dispatch({
-          type: 'SET_ACTIVE_FILE',
-          payload: {
-            file: { ...state.activeFile, language, content: newContent }
-          }
-        });
-        dispatch({
-          type: 'UPDATE_FILE_CONTENT',
-          payload: { content: newContent }
-        });
-      }
+    const currentName = state.activeFile.name;
+    const parts = currentName.split('.');
+    const baseName = parts.length > 1 ? parts.slice(0, -1).join('.') : currentName.split('.')[0];
+    const newExt = LANG_TO_EXT[language] || '';
+    const newName = baseName + (newExt ? `.${newExt}` : '');
+
+    // Always use the language template for the new language
+    const newContent = getLanguageTemplate(language);
+
+    // Use atomic update so autosave (in Layout) triggers for only the right file+content
+    const updatedFile = {
+      ...state.activeFile,
+      name: newName,
+      language,
+      content: newContent,
+      isUnsaved: true
+    };
+
+    // Rename if needed, then update content/language (SET_ACTIVE_FILE keeps sync)
+    if (currentName !== newName) {
+      dispatch({
+        type: 'RENAME_FILE',
+        payload: {
+          projectId: state.activeProject?.id ?? "",
+          fileId: state.activeFile.id,
+          name: newName,
+        }
+      });
     }
+    updateActiveFile(updatedFile);
   };
 
   // Auto-set language when new file is selected based on extension

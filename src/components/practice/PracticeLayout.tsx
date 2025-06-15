@@ -13,27 +13,25 @@ const PracticeLayout: React.FC = () => {
   const { state, dispatch } = usePractice();
   const { toast } = useToast();
 
-  // Debounce the file content for auto-save (3 seconds)
-  const debouncedContent = useDebounce(state.activeFile?.content || '', 3000);
+  // Debounce tied strictly to active file id + content to prevent unwanted saves
+  const debouncedContent = useDebounce(
+    state.activeFile ? state.activeFile.content : '',
+    1600 // slightly faster debounce for responsive feel, adjust as needed
+  );
+  const debouncedFileId = useDebounce(
+    state.activeFile ? state.activeFile.id : '',
+    1600
+  );
 
-  // Auto-save functionality - triggers 3 seconds after content changes
+  // Auto-save ONLY if the debounced content matches the same file id
   useEffect(() => {
-    if (!state.activeFile?.isUnsaved || !debouncedContent) return;
+    if (!state.activeFile?.isUnsaved) return;
+    if (!state.activeFile || !state.activeFile.id) return;
+    if (state.activeFile.id !== debouncedFileId) return;
+    if (debouncedContent.trim() === '') return;
 
-    if (
-      state.activeFile &&
-      state.activeFile.isUnsaved &&
-      debouncedContent.trim() !== ''
-    ) {
-      console.log(
-        'Auto-saving file:',
-        state.activeFile.name,
-        '| Content snapshot:',
-        debouncedContent.slice(0, 60)
-      );
-      dispatch({ type: 'SAVE_FILE' });
-    }
-  }, [debouncedContent, state.activeFile?.isUnsaved, dispatch, state.activeFile?.name]);
+    dispatch({ type: 'SAVE_FILE' });
+  }, [debouncedContent, debouncedFileId, state.activeFile, dispatch]);
 
   // Keyboard shortcuts
   useEffect(() => {
