@@ -2,12 +2,11 @@
 import { EditorState, EditorMode, EditorActiveState } from '@/types/editor';
 
 export const createInitialEditorState = (): EditorState => ({
-  content: getLanguageTemplate('java'), // Set Java as default
-  language: 'java',
+  content: '',
+  language: 'javascript',
   hasUnsavedChanges: false,
   activeState: {
-    mode: 'language',
-    languageTemplate: 'java'
+    mode: 'unknown'
   }
 });
 

@@ -2,102 +2,158 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Play, Send, Menu, Sun, Moon } from 'lucide-react';
-import { getThemeStyles } from '@/utils/themeManager';
+import { Search, Play, Video, Home, ChevronRight, PanelLeft } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Link } from 'react-router-dom';
 
 interface PracticeHeaderProps {
-  theme: string;
   onVideoSelect: (video: any) => void;
   onRunCode: () => void;
   onSubmitCode: () => void;
   onToggleSidebar?: () => void;
-  onThemeChange?: (theme: string) => void;
 }
 
-export const PracticeHeader: React.FC<PracticeHeaderProps> = ({
-  theme,
-  onVideoSelect,
-  onRunCode,
+export const PracticeHeader: React.FC<PracticeHeaderProps> = ({ 
+  onVideoSelect, 
+  onRunCode, 
   onSubmitCode,
-  onToggleSidebar,
-  onThemeChange
+  onToggleSidebar 
 }) => {
+  const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedProblem, setSelectedProblem] = useState('');
-  const themeStyles = getThemeStyles(theme);
 
-  const handleSearch = () => {
-    if (searchQuery.trim()) {
-      // Mock video data - in real app this would come from API
-      const mockVideo = {
-        title: `Tutorial: ${searchQuery}`,
-        channel: 'CodeTutorials',
-        duration: '10:30',
-        videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ'
-      };
-      onVideoSelect(mockVideo);
+  const mockVideos = [
+    {
+      id: '1',
+      title: 'Two Sum Problem - Complete Solution',
+      channel: 'Rishav Engineering',
+      duration: '15:30',
+      isMyVideo: true,
+      videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ'
+    },
+    {
+      id: '2', 
+      title: 'Array Problems Explained',
+      channel: 'CodeWithMosh',
+      duration: '22:15',
+      isMyVideo: false,
+      videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ'
+    },
+    {
+      id: '3',
+      title: 'Binary Search Implementation',
+      channel: 'Rishav Engineering', 
+      duration: '18:45',
+      isMyVideo: true,
+      videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ'
     }
-  };
+  ];
 
-  const toggleTheme = () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light';
-    onThemeChange?.(newTheme);
+  const handleVideoSelect = (video: any) => {
+    console.log('Selected video:', video);
+    onVideoSelect(video);
+    setSearchOpen(false);
   };
 
   return (
-    <div className={`border-b p-4 ${themeStyles.border} ${themeStyles.background}`}>
-      <div className="flex items-center justify-between gap-4">
+    <div className="border-b bg-background p-3">
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          {onToggleSidebar && (
-            <Button variant="ghost" size="sm" onClick={onToggleSidebar}>
-              <Menu className="w-4 h-4" />
-            </Button>
-          )}
-          
-          <Select value={selectedProblem} onValueChange={setSelectedProblem}>
-            <SelectTrigger className="w-48">
-              <SelectValue placeholder="Select a problem" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="two-sum">Two Sum</SelectItem>
-              <SelectItem value="reverse-string">Reverse String</SelectItem>
-              <SelectItem value="fibonacci">Fibonacci</SelectItem>
-              <SelectItem value="binary-search">Binary Search</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex items-center gap-4 flex-1 max-w-md">
-          <div className="flex gap-2 flex-1">
-            <Input
-              placeholder="Search for tutorials..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  handleSearch();
-                }
-              }}
-            />
-            <Button variant="outline" size="sm" onClick={handleSearch}>
-              <Search className="w-4 h-4" />
-            </Button>
+          <div className="flex items-center gap-2">
+            {onToggleSidebar && (
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={onToggleSidebar}>
+                <PanelLeft className="w-4 h-4" />
+              </Button>
+            )}
+            <div className="flex flex-col">
+              <h1 className="text-lg font-semibold">CodeRoom Practice</h1>
+              <nav className="flex items-center space-x-1 text-xs text-muted-foreground">
+                <Link to="/" className="flex items-center hover:text-foreground">
+                  <Home className="w-3 h-3 mr-1" />
+                  Home
+                </Link>
+                <ChevronRight className="w-3 h-3" />
+                <span className="font-medium">Practice</span>
+              </nav>
+            </div>
           </div>
+          
+          <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="sm" className="flex items-center gap-2">
+                <Search className="w-4 h-4" />
+                Search Problems & Videos
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>Search Problems & Video Tutorials</DialogTitle>
+              </DialogHeader>
+              <Command>
+                <CommandInput 
+                  placeholder="Search for coding problems..."
+                  value={searchQuery}
+                  onValueChange={setSearchQuery}
+                />
+                <CommandList>
+                  <CommandEmpty>No results found.</CommandEmpty>
+                  <CommandGroup heading="Recommended Videos">
+                    {mockVideos
+                      .filter(video => video.isMyVideo)
+                      .map((video) => (
+                        <CommandItem
+                          key={video.id}
+                          onSelect={() => handleVideoSelect(video)}
+                          className="flex items-center gap-3 p-3 cursor-pointer"
+                        >
+                          <div className="p-2 bg-red-100 rounded">
+                            <Video className="w-4 h-4 text-red-600" />
+                          </div>
+                          <div className="flex-1">
+                            <div className="font-medium">{video.title}</div>
+                            <div className="text-sm text-muted-foreground">
+                              {video.channel} • {video.duration}
+                            </div>
+                          </div>
+                          <Button size="sm" variant="ghost">
+                            <Play className="w-4 h-4" />
+                          </Button>
+                        </CommandItem>
+                      ))}
+                  </CommandGroup>
+                  <CommandGroup heading="Other Videos">
+                    {mockVideos
+                      .filter(video => !video.isMyVideo)
+                      .map((video) => (
+                        <CommandItem
+                          key={video.id}
+                          onSelect={() => handleVideoSelect(video)}
+                          className="flex items-center gap-3 p-3 cursor-pointer"
+                        >
+                          <div className="p-2 bg-gray-100 rounded">
+                            <Video className="w-4 h-4 text-gray-600" />
+                          </div>
+                          <div className="flex-1">
+                            <div className="font-medium">{video.title}</div>
+                            <div className="text-sm text-muted-foreground">
+                              {video.channel} • {video.duration}
+                            </div>
+                          </div>
+                        </CommandItem>
+                      ))}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </DialogContent>
+          </Dialog>
         </div>
-
+        
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm" onClick={toggleTheme}>
-            {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
-          </Button>
-          
           <Button variant="outline" size="sm" onClick={onRunCode}>
-            <Play className="w-4 h-4 mr-1" />
-            Run
+            Run Code
           </Button>
-          
-          <Button variant="default" size="sm" onClick={onSubmitCode}>
-            <Send className="w-4 h-4 mr-1" />
+          <Button size="sm" onClick={onSubmitCode}>
             Submit
           </Button>
         </div>

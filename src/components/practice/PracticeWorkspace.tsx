@@ -6,22 +6,14 @@ import { OutputPanel } from './OutputPanel';
 import { PracticeHeader } from './PracticeHeader';
 
 interface PracticeWorkspaceProps {
-  theme: string;
-  aiAssistantEnabled: boolean;
   onToggleSidebar?: () => void;
-  onThemeChange?: (theme: string) => void;
 }
 
-export const PracticeWorkspace: React.FC<PracticeWorkspaceProps> = ({ 
-  theme,
-  aiAssistantEnabled,
-  onToggleSidebar,
-  onThemeChange
-}) => {
+export const PracticeWorkspace: React.FC<PracticeWorkspaceProps> = ({ onToggleSidebar }) => {
   const [selectedVideo, setSelectedVideo] = useState<any>(null);
+  const [aiAssistantEnabled, setAiAssistantEnabled] = useState(true);
   const [activeTab, setActiveTab] = useState('output');
   const [executionError, setExecutionError] = useState<string>('');
-  const [compilationResult, setCompilationResult] = useState<any>(null);
 
   const handleVideoSelect = (video: any) => {
     setSelectedVideo(video);
@@ -44,24 +36,13 @@ export const PracticeWorkspace: React.FC<PracticeWorkspaceProps> = ({
     }
   };
 
-  const handleCompilationResult = (result: any) => {
-    setCompilationResult(result);
-    if (!result.success && aiAssistantEnabled) {
-      setActiveTab('ai');
-    } else if (result.success) {
-      setActiveTab('output');
-    }
-  };
-
   return (
     <div className="flex flex-col h-full">
       <PracticeHeader 
-        theme={theme}
         onVideoSelect={handleVideoSelect}
         onRunCode={handleRunCode}
         onSubmitCode={handleSubmitCode}
         onToggleSidebar={onToggleSidebar}
-        onThemeChange={onThemeChange}
       />
       
       <div className="flex-1">
@@ -69,10 +50,8 @@ export const PracticeWorkspace: React.FC<PracticeWorkspaceProps> = ({
           {/* Code Editor Panel */}
           <ResizablePanel defaultSize={60} minSize={30}>
             <CodeEditor 
-              theme={theme}
               onRunCode={handleRunCode}
               onExecutionError={handleExecutionError}
-              onCompilationResult={handleCompilationResult}
             />
           </ResizablePanel>
           
@@ -81,8 +60,7 @@ export const PracticeWorkspace: React.FC<PracticeWorkspaceProps> = ({
           {/* Output/AI Assistant Panel */}
           <ResizablePanel defaultSize={40} minSize={25}>
             <OutputPanel 
-              theme={theme}
-              compilationResult={compilationResult}
+              code=""
               selectedVideo={selectedVideo}
               aiAssistantEnabled={aiAssistantEnabled}
               activeTab={activeTab}

@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { EditorState, EditorStateManager } from '@/types/editor';
 import { ProjectFile } from '@/types/project';
@@ -24,7 +23,6 @@ export const useEditorStateManager = ({
   const [editorState, setEditorState] = useState<EditorState>(createInitialEditorState);
   const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const isNewFileRef = useRef(false);
 
   // Auto-save for files only
   useEffect(() => {
@@ -56,11 +54,7 @@ export const useEditorStateManager = ({
   // Handle file selection changes and deletions
   useEffect(() => {
     if (selectedFile && !isActiveFile(editorState, selectedFile.id)) {
-      // Check if this is a newly created file (content matches template)
-      const template = getLanguageTemplate(selectedFile.language);
-      isNewFileRef.current = selectedFile.content === template || selectedFile.content.trim() === '';
-      
-      if (editorState.hasUnsavedChanges && !isNewFileRef.current) {
+      if (editorState.hasUnsavedChanges) {
         setPendingAction(() => () => switchToFile(selectedFile.id, selectedFile.content, selectedFile.language));
       } else {
         switchToFile(selectedFile.id, selectedFile.content, selectedFile.language);
@@ -115,7 +109,6 @@ export const useEditorStateManager = ({
       hasUnsavedChanges: false,
       activeState: createFileState(fileId, content, language)
     });
-    isNewFileRef.current = false;
   }, []);
 
   const switchToLanguage = useCallback((language: string, content: string) => {
@@ -125,14 +118,13 @@ export const useEditorStateManager = ({
       hasUnsavedChanges: false,
       activeState: createLanguageState(language)
     });
-    isNewFileRef.current = false;
   }, []);
 
   const updateContent = useCallback((content: string) => {
     setEditorState(prev => ({
       ...prev,
       content,
-      hasUnsavedChanges: !isNewFileRef.current
+      hasUnsavedChanges: true
     }));
   }, []);
 
@@ -157,7 +149,7 @@ export const useEditorStateManager = ({
     switchToLanguage,
     updateContent,
     clearUnsavedChanges,
-    hasPendingAction: !!pendingAction && !isNewFileRef.current,
+    hasPendingAction: !!pendingAction,
     executePendingAction,
     cancelPendingAction
   };

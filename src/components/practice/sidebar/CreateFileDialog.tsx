@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { validateFileExtension, getLanguageFromExtension, SUPPORTED_LANGUAGES } from '@/utils/fileValidation';
+import { getFileExtension } from '@/utils/editorStateManager';
 
 interface CreateFileDialogProps {
   open: boolean;
@@ -18,33 +18,30 @@ export const CreateFileDialog: React.FC<CreateFileDialogProps> = ({
   onCreateFile
 }) => {
   const [fileName, setFileName] = useState('');
-  const [language, setLanguage] = useState('java');
+  const [language, setLanguage] = useState('javascript');
   const [error, setError] = useState('');
 
-  const handleFileNameChange = (name: string) => {
-    setFileName(name);
-    setError('');
-    
-    // Auto-detect language from extension
-    if (name.includes('.')) {
-      const detectedLanguage = getLanguageFromExtension(name);
-      setLanguage(detectedLanguage);
+  const validateFileName = (name: string): string | null => {
+    if (!name.trim()) {
+      return 'File name is required';
     }
+    if (name.trim().length < 1) {
+      return 'File name cannot be empty';
+    }
+    return null;
   };
 
   const handleCreate = () => {
-    if (!fileName.trim()) {
-      setError('File name is required');
-      return;
-    }
-
-    const validationError = validateFileExtension(fileName);
+    const validationError = validateFileName(fileName);
     if (validationError) {
       setError(validationError);
       return;
     }
 
-    onCreateFile(fileName, language);
+    const extension = getFileExtension(language);
+    const finalFileName = fileName.includes('.') ? fileName : `${fileName}.${extension}`;
+    
+    onCreateFile(finalFileName, language);
     setFileName('');
     setError('');
   };
@@ -65,9 +62,12 @@ export const CreateFileDialog: React.FC<CreateFileDialogProps> = ({
           <div>
             <label className="text-sm font-medium">File Name</label>
             <Input
-              placeholder="Enter file name (e.g., Main.java)"
+              placeholder="Enter file name"
               value={fileName}
-              onChange={(e) => handleFileNameChange(e.target.value)}
+              onChange={(e) => {
+                setFileName(e.target.value);
+                setError('');
+              }}
               onKeyDown={handleKeyDown}
               className={error ? 'border-red-500' : ''}
             />
@@ -80,11 +80,14 @@ export const CreateFileDialog: React.FC<CreateFileDialogProps> = ({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {Object.entries(SUPPORTED_LANGUAGES).map(([key, config]) => (
-                  <SelectItem key={key} value={key}>
-                    {config.name} (.{config.extensions.join(', .')})
-                  </SelectItem>
-                ))}
+                <SelectItem value="javascript">JavaScript</SelectItem>
+                <SelectItem value="typescript">TypeScript</SelectItem>
+                <SelectItem value="python">Python</SelectItem>
+                <SelectItem value="java">Java</SelectItem>
+                <SelectItem value="cpp">C++</SelectItem>
+                <SelectItem value="c">C</SelectItem>
+                <SelectItem value="go">Go</SelectItem>
+                <SelectItem value="rust">Rust</SelectItem>
               </SelectContent>
             </Select>
           </div>

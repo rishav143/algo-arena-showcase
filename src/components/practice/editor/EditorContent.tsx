@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { getEditorThemeStyles, getLineNumberStyles } from '@/utils/themeManager';
 
 interface EditorContentProps {
   content: string;
@@ -13,28 +12,60 @@ export const EditorContent: React.FC<EditorContentProps> = ({
   onChange,
   theme = 'light'
 }) => {
+  const getThemeStyles = (theme: string) => {
+    switch (theme) {
+      case 'dark':
+        return 'bg-gray-900 text-gray-100 border-gray-700';
+      case 'monokai':
+        return 'bg-gray-800 text-green-400 border-gray-600';
+      case 'dracula':
+        return 'bg-purple-900 text-purple-100 border-purple-700';
+      case 'github':
+        return 'bg-white text-gray-900 border-gray-300';
+      case 'vscode':
+        return 'bg-gray-800 text-blue-200 border-gray-600';
+      default:
+        return 'bg-white text-gray-900 border-gray-300';
+    }
+  };
+
+  const getLineNumberStyles = (theme: string) => {
+    switch (theme) {
+      case 'dark':
+        return 'bg-gray-800 text-gray-500 border-gray-700';
+      case 'monokai':
+        return 'bg-gray-700 text-gray-400 border-gray-600';
+      case 'dracula':
+        return 'bg-purple-800 text-purple-400 border-purple-700';
+      case 'github':
+        return 'bg-gray-50 text-gray-400 border-gray-300';
+      case 'vscode':
+        return 'bg-gray-700 text-gray-400 border-gray-600';
+      default:
+        return 'bg-gray-50 text-gray-400 border-gray-300';
+    }
+  };
+
   const lines = content.split('\n');
-  const lineCount = Math.max(lines.length, 20); // Minimum 20 lines for better UX
+  const lineCount = lines.length;
 
   return (
-    <div className="flex-1 flex overflow-hidden h-full">
+    <div className="flex-1 flex">
       {/* Line Numbers */}
-      <div className={`w-12 py-4 px-2 font-mono text-sm text-right select-none border-r flex-shrink-0 ${getLineNumberStyles(theme)}`}>
-        <div className="space-y-0 leading-6">
-          {Array.from({ length: lineCount }, (_, i) => (
-            <div key={i + 1} className="h-6 flex items-center justify-end">
-              {i + 1}
-            </div>
-          ))}
-        </div>
+      <div className={`w-12 p-4 pr-2 font-mono text-sm text-right select-none border-r ${getLineNumberStyles(theme)}`}>
+        {Array.from({ length: Math.max(lineCount, 1) }, (_, i) => (
+          <div key={i + 1} className="leading-6">
+            {i + 1}
+          </div>
+        ))}
       </div>
       
       {/* Code Content */}
-      <div className="flex-1 relative">
+      <div className="flex-1 flex flex-col">
         <textarea
           value={content}
           onChange={(e) => onChange(e.target.value)}
-          className={`w-full h-full p-4 font-mono text-sm resize-none outline-none border-0 leading-6 ${getEditorThemeStyles(theme)}`}
+          className={`flex-1 p-4 pl-4 font-mono text-sm resize-none outline-none border-0 leading-6 ${getThemeStyles(theme)}`}
           placeholder="Start coding here..."
           spellCheck={false}
           style={{
