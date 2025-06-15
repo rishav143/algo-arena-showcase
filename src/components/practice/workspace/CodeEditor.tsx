@@ -1,3 +1,4 @@
+
 import React, { useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
@@ -10,6 +11,7 @@ import {
 import { Play, Save, Loader2, Code } from 'lucide-react';
 import { usePractice } from '@/contexts/PracticeContext';
 import { compileCode } from '@/services/compilerService';
+import { useToast } from "@/components/ui/use-toast";
 
 const SUPPORTED_LANGUAGES = [
   { value: 'javascript', label: 'JavaScript' },
@@ -23,7 +25,6 @@ const SUPPORTED_LANGUAGES = [
   { value: 'rust', label: 'Rust' },
 ];
 
-// Extension to language mapping
 const EXT_TO_LANG: Record<string, string> = {
   js: 'javascript',
   jsx: 'javascript',
@@ -49,6 +50,7 @@ const getLangFromFilename = (filename: string): string | undefined => {
 
 const CodeEditor: React.FC = () => {
   const { state, dispatch } = usePractice();
+  const { toast } = useToast();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleContentChange = (content: string) => {
@@ -71,7 +73,7 @@ const CodeEditor: React.FC = () => {
     }
 
     dispatch({ type: 'SET_RUNNING', payload: { isRunning: true } });
-    
+
     try {
       const result = await compileCode(
         state.activeFile.content,
@@ -93,7 +95,7 @@ const CodeEditor: React.FC = () => {
         });
         dispatch({ type: 'SET_ACTIVE_TAB', payload: { tab: 'ai' } });
       }
-      
+
     } catch (error) {
       dispatch({ 
         type: 'SET_OUTPUT', 
@@ -104,37 +106,31 @@ const CodeEditor: React.FC = () => {
     }
   };
 
+  // Ensure dropdown language selection matches the file extension and give a warning if conflicting
   const handleLanguageChange = (language: string) => {
-    if (state.activeFile && state.activeFile.language !== language) {
-      // Just change the language, keep content the same
-      dispatch({
-        type: 'UPDATE_FILE_CONTENT',
-        payload: { content: state.activeFile.content }
-      });
-      // Actually update the language in the file object:
-      dispatch({
-        type: 'RENAME_FILE',
-        payload: {
-          projectId: state.activeProject?.id ?? "",
-          fileId: state.activeFile.id,
-          name: state.activeFile.name
-        }
-      });
-      // Now update the language property (must extend the reducer/action to support this in real project)
+    if (state.activeFile) {
+      // Warn if selected language does not match extension
+      const extLang = getLangFromFilename(state.activeFile.name);
+      if (extLang && language !== extLang) {
+        toast({
+          variant: "destructive",
+          title: "Warning",
+          description: `File extension ".${state.activeFile.name.split('.').pop()}" usually maps to "${extLang}". You selected "${language}". We recommend matching extension and language!`,
+        });
+      }
       dispatch({
         type: 'SET_ACTIVE_FILE',
         payload: {
-          file: { ...state.activeFile, language }
+          file: { ...state.activeFile, language },
         }
       });
     }
   };
 
-  // Auto-set language when new file is selected based on extension
+  // Auto-set language when new file is selected/renamed (always in sync with extension)
   useEffect(() => {
     if (state.activeFile) {
       const extLang = getLangFromFilename(state.activeFile.name);
-      // Only set language if the autodetected one differs and is supported
       if (
         extLang &&
         extLang !== state.activeFile.language &&
@@ -146,11 +142,21 @@ const CodeEditor: React.FC = () => {
             file: { ...state.activeFile, language: extLang },
           },
         });
+        toast({
+          title: "Language auto-detected",
+          description: `Based on extension, language set to "${extLang}".`
+        });
+      }
+      // If extension not recognized, notify user
+      if (!extLang) {
+        toast({
+          title: "Unknown extension",
+          description: `Extension ".${state.activeFile.name.split('.').pop()}" is not supported for language detection.`,
+        });
       }
     }
-    // Only run when activeFile changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.activeFile?.id]);
+  }, [state.activeFile?.id, state.activeFile?.name]);
 
   useEffect(() => {
     const textarea = textareaRef.current;
