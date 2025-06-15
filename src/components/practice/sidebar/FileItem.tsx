@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { File, MoreVertical, Circle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -26,7 +27,6 @@ const FileItem: React.FC<{ file: CodeFile; projectId: string }> = ({ file, proje
   };
 
   const handleDoubleClick = () => {
-    setIsRenaming(true);
     safeOpenDialog(setShowRename);
   };
 
