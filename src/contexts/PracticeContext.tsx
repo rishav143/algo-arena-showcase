@@ -70,6 +70,29 @@ const initialState: PracticeState = {
   isAiTyping: false,
 };
 
+const EXT_TO_LANG: Record<string, string> = {
+  js: 'javascript',
+  jsx: 'javascript',
+  ts: 'typescript',
+  tsx: 'typescript',
+  py: 'python',
+  java: 'java',
+  cpp: 'cpp',
+  cc: 'cpp',
+  cxx: 'cpp',
+  c: 'c',
+  h: 'c',
+  cs: 'csharp',
+  go: 'go',
+  rs: 'rust',
+};
+
+const getLangFromFilename = (filename: string): string | undefined => {
+  const ext = filename.split('.').pop()?.toLowerCase();
+  if (!ext) return undefined;
+  return EXT_TO_LANG[ext];
+};
+
 const practiceReducer = (state: PracticeState, action: PracticeAction): PracticeState => {
   switch (action.type) {
     case 'CREATE_PROJECT': {
@@ -163,6 +186,8 @@ const practiceReducer = (state: PracticeState, action: PracticeAction): Practice
     }
     
     case 'RENAME_FILE': {
+      // See if extension changed and known language
+      const extLang = getLangFromFilename(action.payload.name);
       return {
         ...state,
         projects: state.projects.map(p =>
@@ -170,7 +195,13 @@ const practiceReducer = (state: PracticeState, action: PracticeAction): Practice
             ? {
                 ...p,
                 files: p.files.map(f =>
-                  f.id === action.payload.fileId ? { ...f, name: action.payload.name } : f
+                  f.id === action.payload.fileId
+                    ? {
+                        ...f,
+                        name: action.payload.name,
+                        language: extLang ?? f.language,
+                      }
+                    : f
                 ),
               }
             : p
@@ -179,12 +210,22 @@ const practiceReducer = (state: PracticeState, action: PracticeAction): Practice
           ? {
               ...state.activeProject,
               files: state.activeProject.files.map(f =>
-                f.id === action.payload.fileId ? { ...f, name: action.payload.name } : f
+                f.id === action.payload.fileId
+                  ? {
+                      ...f,
+                      name: action.payload.name,
+                      language: extLang ?? f.language,
+                    }
+                  : f
               ),
             }
           : state.activeProject,
         activeFile: state.activeFile?.id === action.payload.fileId
-          ? { ...state.activeFile, name: action.payload.name }
+          ? {
+              ...state.activeFile,
+              name: action.payload.name,
+              language: extLang ?? state.activeFile.language,
+            }
           : state.activeFile,
       };
     }
