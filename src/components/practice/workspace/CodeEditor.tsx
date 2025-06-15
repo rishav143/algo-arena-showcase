@@ -64,28 +64,6 @@ const CodeEditor: React.FC = () => {
     dispatch({ type: 'UPDATE_FILE_CONTENT', payload: { content } });
   };
 
-  // Save logic improvement
-  const handleSave = () => {
-    // Must have an active file and it can't be an "untitled" (force user to create real file/project)
-    if (!state.activeFile || state.activeFile.name.startsWith("untitled")) {
-      setShowCreateDialog(true);
-      return;
-    }
-
-    if (state.activeFile?.isUnsaved) {
-      dispatch({ type: 'SAVE_FILE' });
-      toast({
-        title: "File saved!",
-        description: `File "${state.activeFile.name}" saved successfully.`,
-      });
-    } else {
-      toast({
-        title: "No changes to save.",
-        description: "The file is already up to date.",
-      });
-    }
-  };
-
   // Handle running code, prompt for project/file if in untitled state
   const handleRun = async () => {
     if (!state.activeFile || state.activeFile.name.startsWith("untitled")) {
@@ -93,23 +71,27 @@ const CodeEditor: React.FC = () => {
       return;
     }
 
+    if (!state.activeFile) {
+      dispatch({ 
+        type: 'SET_OUTPUT', 
+        payload: { output: 'Error: No file selected' } 
+      });
+      return;
+    }
+
     dispatch({ type: 'SET_RUNNING', payload: { isRunning: true } });
-    console.log('Run: SET_RUNNING true');
 
     try {
-      console.log('Run: calling compileCode');
       const result = await compileCode(
         state.activeFile.content,
         state.activeFile.language
       );
-      console.log('Run: compileCode result:', result);
-
+      
       dispatch({ 
         type: 'SET_OUTPUT', 
         payload: { output: result.output || result.error || 'No output' } 
       });
-      console.log('Run: SET_OUTPUT');
-
+      
       if (result.error && state.aiAssistantEnabled) {
         dispatch({
           type: 'ADD_CHAT_MESSAGE',
@@ -119,7 +101,6 @@ const CodeEditor: React.FC = () => {
           }
         });
         dispatch({ type: 'SET_ACTIVE_TAB', payload: { tab: 'ai' } });
-        console.log('Run: AI error message dispatched');
       }
 
     } catch (error) {
@@ -127,15 +108,20 @@ const CodeEditor: React.FC = () => {
         type: 'SET_OUTPUT', 
         payload: { output: 'Error: Failed to compile code' } 
       });
-      toast({
-        variant: "destructive",
-        title: "Error running code",
-        description: "An unexpected error occurred when running your code.",
-      });
-      console.error('Run: Caught error:', error);
     } finally {
       dispatch({ type: 'SET_RUNNING', payload: { isRunning: false } });
-      console.log('Run: SET_RUNNING false');
+    }
+  };
+
+  // Save also prompts to create project/file if untitled
+  const handleSave = () => {
+    if (!state.activeFile || state.activeFile.name.startsWith("untitled")) {
+      setShowCreateDialog(true);
+      return;
+    }
+
+    if (state.activeFile?.isUnsaved) {
+      dispatch({ type: 'SAVE_FILE' });
     }
   };
 
@@ -153,17 +139,17 @@ const CodeEditor: React.FC = () => {
     if (state.activeFile) {
       // Warn if selected language does not match extension
       const extLang = getLangFromFilename(state.activeFile.name);
-      if (extLang && state.activeFile.language !== extLang) {
+      if (extLang && language !== extLang) {
         toast({
           variant: "destructive",
           title: "Warning",
-          description: `File extension ".${state.activeFile.name.split('.').pop()}" usually maps to "${extLang}". You selected "${state.activeFile.language}". We recommend matching extension and language!`,
+          description: `File extension ".${state.activeFile.name.split('.').pop()}" usually maps to "${extLang}". You selected "${language}". We recommend matching extension and language!`,
         });
       }
       dispatch({
         type: 'SET_ACTIVE_FILE',
         payload: {
-          file: { ...state.activeFile, language: state.activeFile.language },
+          file: { ...state.activeFile, language },
         }
       });
     }
@@ -295,16 +281,11 @@ const CodeEditor: React.FC = () => {
             size="sm"
           >
             {state.isRunning ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Running...
-              </>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
             ) : (
-              <>
-                <Play className="w-4 h-4 mr-2" />
-                Run
-              </>
+              <Play className="w-4 h-4 mr-2" />
             )}
+            Run
           </Button>
         </div>
       </div>
