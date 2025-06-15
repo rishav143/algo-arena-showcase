@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Search, User, Code2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -11,14 +10,13 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { usePractice } from '@/contexts/PracticeContext';
 import { Link } from 'react-router-dom';
-// Use the YouTube Search API npm module
-import YoutubeSearchApi from 'youtube-search-api';
 
 interface VideoSuggestion {
   id: string;
   title: string;
   url: string;
   thumbnail: string;
+  isMyVideo?: boolean;
 }
 
 const PracticeNavigation: React.FC = () => {
@@ -28,52 +26,68 @@ const PracticeNavigation: React.FC = () => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
 
-  // Fetch YouTube video suggestions based on user input
-  useEffect(() => {
-    let cancelled = false;
-    const fetchYouTubeResults = async (query: string) => {
-      if (!query.trim() || query.trim().length < 2) {
-        setVideoSuggestions([]);
-        setShowSuggestions(false);
-        setSelectedIndex(-1);
-        return;
-      }
-      try {
-        const results = await YoutubeSearchApi.GetListByKeyword(query, false, 5);
-        if (cancelled) return;
-        const suggestions = (results.items || [])
-          .filter(item => item.type === 'video')
-          .map(item => ({
-            id: item.id,
-            title: item.title,
-            url: `https://www.youtube.com/embed/${item.id}`,
-            thumbnail: item.thumbnail?.thumbnails?.[0]?.url || ''
-          }));
-        setVideoSuggestions(suggestions);
-        setShowSuggestions(true);
-        setSelectedIndex(-1);
-      } catch (error) {
-        setVideoSuggestions([]);
-        setShowSuggestions(false);
-        setSelectedIndex(-1);
-      }
-    };
+  // Generate video suggestions based on search query
+  const generateVideoSuggestions = (query: string): VideoSuggestion[] => {
+    if (!query.trim()) return [];
 
+    // My videos come first
+    const myVideos: VideoSuggestion[] = [
+      {
+        id: 'my-1',
+        title: `${query} - Complete Tutorial by Rishav Engineering`,
+        url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+        thumbnail: '/placeholder.svg',
+        isMyVideo: true
+      },
+      {
+        id: 'my-2',
+        title: `Advanced ${query} - Rishav Engineering`,
+        url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+        thumbnail: '/placeholder.svg',
+        isMyVideo: true
+      }
+    ];
+
+    // Other YouTube videos
+    const otherVideos: VideoSuggestion[] = [
+      {
+        id: 'yt-1',
+        title: `${query} Tutorial - TechChannel`,
+        url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+        thumbnail: '/placeholder.svg'
+      },
+      {
+        id: 'yt-2',
+        title: `Learn ${query} in 10 Minutes`,
+        url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+        thumbnail: '/placeholder.svg'
+      },
+      {
+        id: 'yt-3',
+        title: `${query} Explained Simply`,
+        url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+        thumbnail: '/placeholder.svg'
+      }
+    ];
+
+    return [...myVideos, ...otherVideos];
+  };
+
+  useEffect(() => {
     if (searchQuery.trim()) {
-      fetchYouTubeResults(searchQuery.trim());
+      const suggestions = generateVideoSuggestions(searchQuery);
+      setVideoSuggestions(suggestions);
+      setShowSuggestions(true);
+      setSelectedIndex(-1);
     } else {
       setVideoSuggestions([]);
       setShowSuggestions(false);
       setSelectedIndex(-1);
     }
-
-    return () => {
-      cancelled = true;
-    };
   }, [searchQuery]);
 
   const handleVideoSelect = (video: VideoSuggestion) => {
-    // Set only YouTube search results (filtered)
+    // Set search results with selected video first
     const allResults = videoSuggestions.map(v => ({
       id: v.id,
       title: v.title,
@@ -187,7 +201,11 @@ const PracticeNavigation: React.FC = () => {
                   <div className="text-sm font-medium text-gray-900 line-clamp-2">
                     {video.title}
                   </div>
-                  {/* Only YouTube search results, no extra labels */}
+                  {video.isMyVideo && (
+                    <div className="text-xs text-indigo-600 font-medium mt-1">
+                      Rishav Engineering
+                    </div>
+                  )}
                 </div>
               </button>
             ))}
