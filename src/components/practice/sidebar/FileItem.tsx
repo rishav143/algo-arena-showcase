@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { File, MoreVertical, Circle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -45,7 +44,7 @@ const FileItem: React.FC<FileItemProps> = ({ file, projectId }) => {
     }
   };
 
-  const getFileIcon = (language: string) => {
+  const getFileIcon = (lang: string) => {
     // Return appropriate file icon based on language
     return <File className="w-4 h-4 text-gray-500" />;
   };
