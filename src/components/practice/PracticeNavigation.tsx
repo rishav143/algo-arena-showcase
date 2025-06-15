@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Search, User, Code2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -12,96 +11,140 @@ import {
 import { usePractice } from '@/contexts/PracticeContext';
 import { Link } from 'react-router-dom';
 
+interface VideoSuggestion {
+  id: string;
+  title: string;
+  url: string;
+  thumbnail: string;
+  isMyVideo?: boolean;
+}
+
 const PracticeNavigation: React.FC = () => {
   const { dispatch } = usePractice();
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchSuggestions, setSearchSuggestions] = useState<string[]>([]);
+  const [videoSuggestions, setVideoSuggestions] = useState<VideoSuggestion[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
 
-  // Mock search suggestions based on common programming topics
-  const mockSuggestions = [
-    'arrays and strings',
-    'linked lists',
-    'binary trees',
-    'dynamic programming',
-    'sorting algorithms',
-    'graph traversal',
-    'hash tables',
-    'recursion',
-    'two pointers',
-    'sliding window',
-    'depth first search',
-    'breadth first search',
-    'merge sort',
-    'quick sort',
-    'binary search',
-    'stack and queue',
-    'heap data structure',
-    'greedy algorithms'
-  ];
+  // Generate video suggestions based on search query
+  const generateVideoSuggestions = (query: string): VideoSuggestion[] => {
+    if (!query.trim()) return [];
 
-  useEffect(() => {
-    if (searchQuery.trim()) {
-      const filtered = mockSuggestions.filter(suggestion =>
-        suggestion.toLowerCase().includes(searchQuery.toLowerCase())
-      ).slice(0, 6);
-      setSearchSuggestions(filtered);
-      setShowSuggestions(true);
-    } else {
-      setSearchSuggestions([]);
-      setShowSuggestions(false);
-    }
-  }, [searchQuery]);
-
-  const handleSearch = (query: string) => {
-    if (!query.trim()) return;
-
-    // Mock video search results with Rishav Engineering video first
-    const mockResults = [
+    // My videos come first
+    const myVideos: VideoSuggestion[] = [
       {
-        id: 'rishav-1',
+        id: 'my-1',
         title: `${query} - Complete Tutorial by Rishav Engineering`,
         url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-        thumbnail: '/placeholder.svg'
+        thumbnail: '/placeholder.svg',
+        isMyVideo: true
       },
       {
-        id: 'video-2',
-        title: `${query} Tutorial - Part 1`,
+        id: 'my-2',
+        title: `Advanced ${query} - Rishav Engineering`,
+        url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+        thumbnail: '/placeholder.svg',
+        isMyVideo: true
+      }
+    ];
+
+    // Other YouTube videos
+    const otherVideos: VideoSuggestion[] = [
+      {
+        id: 'yt-1',
+        title: `${query} Tutorial - TechChannel`,
         url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
         thumbnail: '/placeholder.svg'
       },
       {
-        id: 'video-3',
-        title: `Advanced ${query} Concepts`,
+        id: 'yt-2',
+        title: `Learn ${query} in 10 Minutes`,
+        url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+        thumbnail: '/placeholder.svg'
+      },
+      {
+        id: 'yt-3',
+        title: `${query} Explained Simply`,
         url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
         thumbnail: '/placeholder.svg'
       }
     ];
 
-    dispatch({ type: 'SET_SEARCH_RESULTS', payload: { results: mockResults } });
-    dispatch({ type: 'SET_SEARCH_QUERY', payload: { query } });
-    
-    // Auto-select first video (Rishav Engineering)
-    if (mockResults.length > 0) {
-      dispatch({ type: 'SET_VIDEO_URL', payload: { url: mockResults[0].url } });
-    }
+    return [...myVideos, ...otherVideos];
+  };
 
+  useEffect(() => {
+    if (searchQuery.trim()) {
+      const suggestions = generateVideoSuggestions(searchQuery);
+      setVideoSuggestions(suggestions);
+      setShowSuggestions(true);
+      setSelectedIndex(-1);
+    } else {
+      setVideoSuggestions([]);
+      setShowSuggestions(false);
+      setSelectedIndex(-1);
+    }
+  }, [searchQuery]);
+
+  const handleVideoSelect = (video: VideoSuggestion) => {
+    // Set search results with selected video first
+    const allResults = videoSuggestions.map(v => ({
+      id: v.id,
+      title: v.title,
+      url: v.url,
+      thumbnail: v.thumbnail
+    }));
+
+    dispatch({ type: 'SET_SEARCH_RESULTS', payload: { results: allResults } });
+    dispatch({ type: 'SET_SEARCH_QUERY', payload: { query: searchQuery } });
+    dispatch({ type: 'SET_VIDEO_URL', payload: { url: video.url } });
+    
     setShowSuggestions(false);
+    setSelectedIndex(-1);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    handleSearch(searchQuery);
+    if (selectedIndex >= 0 && videoSuggestions[selectedIndex]) {
+      handleVideoSelect(videoSuggestions[selectedIndex]);
+    } else if (videoSuggestions.length > 0) {
+      handleVideoSelect(videoSuggestions[0]);
+    }
   };
 
-  const handleSuggestionClick = (suggestion: string) => {
-    setSearchQuery(suggestion);
-    handleSearch(suggestion);
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!showSuggestions || videoSuggestions.length === 0) return;
+
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        setSelectedIndex(prev => 
+          prev < videoSuggestions.length - 1 ? prev + 1 : 0
+        );
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        setSelectedIndex(prev => 
+          prev > 0 ? prev - 1 : videoSuggestions.length - 1
+        );
+        break;
+      case 'Enter':
+        e.preventDefault();
+        if (selectedIndex >= 0) {
+          handleVideoSelect(videoSuggestions[selectedIndex]);
+        }
+        break;
+      case 'Escape':
+        setShowSuggestions(false);
+        setSelectedIndex(-1);
+        break;
+    }
   };
 
   const clearSearch = () => {
     setSearchQuery('');
     setShowSuggestions(false);
+    setSelectedIndex(-1);
   };
 
   return (
@@ -120,6 +163,7 @@ const PracticeNavigation: React.FC = () => {
             <Input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={handleKeyDown}
               onFocus={() => searchQuery && setShowSuggestions(true)}
               onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
               placeholder="Search coding problems, algorithms, data structures..."
@@ -137,17 +181,32 @@ const PracticeNavigation: React.FC = () => {
           </div>
         </form>
 
-        {/* Search Suggestions Dropdown */}
-        {showSuggestions && searchSuggestions.length > 0 && (
-          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg mt-1 z-50">
-            {searchSuggestions.map((suggestion, index) => (
+        {/* Video Suggestions Dropdown */}
+        {showSuggestions && videoSuggestions.length > 0 && (
+          <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg mt-1 z-50 max-h-80 overflow-y-auto">
+            {videoSuggestions.map((video, index) => (
               <button
-                key={index}
-                onClick={() => handleSuggestionClick(suggestion)}
-                className="w-full px-4 py-2 text-left hover:bg-gray-50 first:rounded-t-lg last:rounded-b-lg flex items-center space-x-2"
+                key={video.id}
+                onClick={() => handleVideoSelect(video)}
+                className={`w-full px-4 py-3 text-left hover:bg-gray-50 first:rounded-t-lg last:rounded-b-lg flex items-center space-x-3 border-b border-gray-100 last:border-b-0 ${
+                  index === selectedIndex ? 'bg-blue-50 border-blue-200' : ''
+                }`}
               >
-                <Search className="w-4 h-4 text-gray-400" />
-                <span className="text-sm text-gray-900">{suggestion}</span>
+                <img 
+                  src={video.thumbnail} 
+                  alt="" 
+                  className="w-16 h-12 object-cover rounded bg-gray-200"
+                />
+                <div className="flex-1">
+                  <div className="text-sm font-medium text-gray-900 line-clamp-2">
+                    {video.title}
+                  </div>
+                  {video.isMyVideo && (
+                    <div className="text-xs text-indigo-600 font-medium mt-1">
+                      Rishav Engineering
+                    </div>
+                  )}
+                </div>
               </button>
             ))}
           </div>

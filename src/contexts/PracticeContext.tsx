@@ -70,7 +70,7 @@ const initialState: PracticeState = {
   isAiTyping: false,
 };
 
-function practiceReducer(state: PracticeState, action: PracticeAction): PracticeState {
+const practiceReducer = (state: PracticeState, action: PracticeAction): PracticeState => {
   switch (action.type) {
     case 'CREATE_PROJECT': {
       const newProject: Project = {
@@ -247,10 +247,10 @@ function practiceReducer(state: PracticeState, action: PracticeAction): Practice
         rightTab: 'output',
       };
     
-    case 'SET_SEARCH_RESULTS':
+    case 'SET_SEARCH_QUERY':
       return {
         ...state,
-        searchResults: action.payload.results,
+        searchQuery: action.payload.query,
       };
     
     case 'SET_VIDEO_URL':
@@ -282,7 +282,7 @@ function practiceReducer(state: PracticeState, action: PracticeAction): Practice
     default:
       return state;
   }
-}
+};
 
 interface PracticeContextType {
   state: PracticeState;
