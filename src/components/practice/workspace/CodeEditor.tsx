@@ -64,18 +64,32 @@ const CodeEditor: React.FC = () => {
     dispatch({ type: 'UPDATE_FILE_CONTENT', payload: { content } });
   };
 
-  // Handle running code, prompt for project/file if in untitled state
-  const handleRun = async () => {
+  // Save logic improvement
+  const handleSave = () => {
+    // Must have an active file and it can't be an "untitled" (force user to create real file/project)
     if (!state.activeFile || state.activeFile.name.startsWith("untitled")) {
       setShowCreateDialog(true);
       return;
     }
 
-    if (!state.activeFile) {
-      dispatch({ 
-        type: 'SET_OUTPUT', 
-        payload: { output: 'Error: No file selected' } 
+    if (state.activeFile?.isUnsaved) {
+      dispatch({ type: 'SAVE_FILE' });
+      toast({
+        title: "File saved!",
+        description: `File "${state.activeFile.name}" saved successfully.`,
       });
+    } else {
+      toast({
+        title: "No changes to save.",
+        description: "The file is already up to date.",
+      });
+    }
+  };
+
+  // Handle running code, prompt for project/file if in untitled state
+  const handleRun = async () => {
+    if (!state.activeFile || state.activeFile.name.startsWith("untitled")) {
+      setShowCreateDialog(true);
       return;
     }
 
@@ -86,12 +100,11 @@ const CodeEditor: React.FC = () => {
         state.activeFile.content,
         state.activeFile.language
       );
-      
       dispatch({ 
         type: 'SET_OUTPUT', 
         payload: { output: result.output || result.error || 'No output' } 
       });
-      
+
       if (result.error && state.aiAssistantEnabled) {
         dispatch({
           type: 'ADD_CHAT_MESSAGE',
@@ -108,20 +121,13 @@ const CodeEditor: React.FC = () => {
         type: 'SET_OUTPUT', 
         payload: { output: 'Error: Failed to compile code' } 
       });
+      toast({
+        variant: "destructive",
+        title: "Error running code",
+        description: "An unexpected error occurred when running your code.",
+      });
     } finally {
       dispatch({ type: 'SET_RUNNING', payload: { isRunning: false } });
-    }
-  };
-
-  // Save also prompts to create project/file if untitled
-  const handleSave = () => {
-    if (!state.activeFile || state.activeFile.name.startsWith("untitled")) {
-      setShowCreateDialog(true);
-      return;
-    }
-
-    if (state.activeFile?.isUnsaved) {
-      dispatch({ type: 'SAVE_FILE' });
     }
   };
 
