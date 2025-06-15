@@ -1,5 +1,7 @@
+
 import React, { useEffect, useRef } from 'react';
 import { usePractice } from '@/contexts/PracticeContext';
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import PracticeNavigation from './PracticeNavigation';
 import ProjectsSidebar from './sidebar/ProjectsSidebar';
 import MainWorkspace from './workspace/MainWorkspace';
