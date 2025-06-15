@@ -1,6 +1,7 @@
 
 import React, { useEffect } from 'react';
 import { usePractice } from '@/contexts/PracticeContext';
+import { useDebounce } from '@/hooks/useDebounce';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import PracticeNavigation from './PracticeNavigation';
 import ProjectsSidebar from './sidebar/ProjectsSidebar';
@@ -10,16 +11,19 @@ import RightPanel from './workspace/RightPanel';
 const PracticeLayout: React.FC = () => {
   const { state, dispatch } = usePractice();
 
-  // Auto-save functionality
+  // Debounce the file content for auto-save (3 seconds)
+  const debouncedContent = useDebounce(state.activeFile?.content || '', 3000);
+
+  // Auto-save functionality - triggers 3 seconds after content changes
   useEffect(() => {
-    if (!state.activeFile?.isUnsaved) return;
-
-    const autoSaveTimer = setTimeout(() => {
+    if (!state.activeFile?.isUnsaved || !debouncedContent) return;
+    
+    // Only auto-save if there's actual content and the file is marked as unsaved
+    if (state.activeFile && state.activeFile.isUnsaved && debouncedContent.trim() !== '') {
+      console.log('Auto-saving file:', state.activeFile.name);
       dispatch({ type: 'SAVE_FILE' });
-    }, 5000);
-
-    return () => clearTimeout(autoSaveTimer);
-  }, [state.activeFile?.content, state.activeFile?.isUnsaved, dispatch]);
+    }
+  }, [debouncedContent, state.activeFile?.isUnsaved, dispatch]);
 
   // Keyboard shortcuts
   useEffect(() => {

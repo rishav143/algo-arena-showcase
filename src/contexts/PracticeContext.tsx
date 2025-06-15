@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useReducer, ReactNode, useMemo } from 'react';
 
 export interface Project {
@@ -194,17 +195,49 @@ const practiceReducer = (state: PracticeState, action: PracticeAction): Practice
       };
     
     case 'UPDATE_FILE_CONTENT':
+      if (!state.activeFile) return state;
+      
       return {
         ...state,
-        activeFile: state.activeFile
-          ? { ...state.activeFile, content: action.payload.content, isUnsaved: true }
-          : null,
+        activeFile: {
+          ...state.activeFile,
+          content: action.payload.content,
+          isUnsaved: true
+        },
+        projects: state.projects.map(p =>
+          p.id === state.activeProject?.id
+            ? {
+                ...p,
+                files: p.files.map(f =>
+                  f.id === state.activeFile?.id
+                    ? { ...f, content: action.payload.content, isUnsaved: true }
+                    : f
+                ),
+              }
+            : p
+        ),
+        activeProject: state.activeProject
+          ? {
+              ...state.activeProject,
+              files: state.activeProject.files.map(f =>
+                f.id === state.activeFile?.id
+                  ? { ...f, content: action.payload.content, isUnsaved: true }
+                  : f
+              ),
+            }
+          : state.activeProject,
       };
     
     case 'SAVE_FILE': {
       if (!state.activeFile || !state.activeProject) return state;
       
-      const savedFile = { ...state.activeFile, isUnsaved: false, lastSaved: new Date() };
+      const savedFile = { 
+        ...state.activeFile, 
+        isUnsaved: false, 
+        lastSaved: new Date() 
+      };
+      
+      console.log('Saving file:', savedFile.name, 'Content length:', savedFile.content.length);
       
       return {
         ...state,
