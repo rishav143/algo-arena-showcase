@@ -43,7 +43,7 @@ const EXT_TO_LANG: Record<string, string> = {
 };
 
 // Map language to default extension
-const LANG_TO_EXT: Record<string, string> = {
+export const LANG_TO_EXT: Record<string, string> = {
   javascript: 'js',
   typescript: 'ts',
   python: 'py',
