@@ -119,7 +119,6 @@ const CodeEditor: React.FC = () => {
   const handleLanguageChange = (language: string) => {
     if (!state.activeFile) return;
 
-    // If no change, do nothing
     if (state.activeFile.language === language) return;
 
     const currentName = state.activeFile.name;
@@ -127,52 +126,52 @@ const CodeEditor: React.FC = () => {
     const baseName = parts.length > 1 ? parts.slice(0, -1).join('.') : currentName.split('.')[0];
     const newExt = LANG_TO_EXT[language] || '';
     const newName = baseName + (newExt ? `.${newExt}` : '');
-
-    // Always use the language template for the new language
     const newContent = getLanguageTemplate(language);
 
+    const updateFileStateAndSidebar = (updatedFile: typeof state.activeFile) => {
+      const latestProject = state.projects.find((p) => p.id === state.activeProject?.id);
+      const latestFile = latestProject?.files.find((f) => f.id === updatedFile?.id);
+      const fileToUse = latestFile ? { ...latestFile, ...updatedFile } : updatedFile;
+
+      dispatch({
+        type: 'SET_ACTIVE_FILE',
+        payload: { file: fileToUse },
+      });
+      dispatch({
+        type: 'UPDATE_FILE_CONTENT',
+        payload: { content: fileToUse.content },
+      });
+    };
+
     if (currentName !== newName) {
-      // First rename the file
       dispatch({
         type: 'RENAME_FILE',
         payload: {
           projectId: state.activeProject?.id ?? "",
           fileId: state.activeFile.id,
           name: newName,
-        }
+        },
       });
-      // After renaming, set the new activeFile (by searching by ID and name)
-      // and update its content and language—ensure update occurs after state is updated!
       setTimeout(() => {
-        // find the updated file in the current state (after rename)
-        const updatedProject = state.projects.find(
-          (p) => p.id === state.activeProject?.id
-        );
-        const updatedFile = updatedProject?.files.find(
-          (f) => f.id === state.activeFile?.id
-        );
-        if (updatedFile) {
-          // set active file with new name
-          dispatch({
-            type: 'SET_ACTIVE_FILE',
-            payload: { file: { ...updatedFile, language, content: newContent, isUnsaved: true } }
-          });
-          // set unsaved content
-          dispatch({
-            type: 'UPDATE_FILE_CONTENT',
-            payload: { content: newContent }
+        const updatedProject = state.projects.find((p) => p.id === state.activeProject?.id);
+        const renamedFile = updatedProject?.files.find((f) => f.id === state.activeFile?.id);
+        if (renamedFile) {
+          updateFileStateAndSidebar({
+            ...renamedFile,
+            name: newName,
+            language,
+            content: newContent,
+            isUnsaved: true,
           });
         }
       }, 0);
     } else {
-      // Only language/content change; update active file directly
-      dispatch({
-        type: 'SET_ACTIVE_FILE',
-        payload: { file: { ...state.activeFile, language, content: newContent, isUnsaved: true } }
-      });
-      dispatch({
-        type: 'UPDATE_FILE_CONTENT',
-        payload: { content: newContent }
+      updateFileStateAndSidebar({
+        ...state.activeFile,
+        name: newName,
+        language,
+        content: newContent,
+        isUnsaved: true,
       });
     }
   };
@@ -180,7 +179,6 @@ const CodeEditor: React.FC = () => {
   useEffect(() => {
     if (state.activeFile) {
       const extLang = getLangFromFilename(state.activeFile.name);
-      // Only set language if the autodetected one differs and is supported
       if (
         extLang &&
         extLang !== state.activeFile.language &&
