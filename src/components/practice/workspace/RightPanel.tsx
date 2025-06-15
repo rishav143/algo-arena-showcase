@@ -24,14 +24,14 @@ const RightPanel: React.FC = () => {
   ];
 
   return (
-    <div className="border-l border-gray-200 bg-white flex flex-col h-full">
+    <div className="border-l border-gray-200 bg-white flex flex-col h-full min-w-0">
       <Tabs 
         value={state.rightTab || 'output'} 
         onValueChange={handleTabChange}
-        className="flex-1 flex flex-col h-full"
+        className="flex-1 flex flex-col h-full min-h-0"
       >
         {/* Tab Navigation */}
-        <div className="border-b border-gray-200 bg-gray-50">
+        <div className="border-b border-gray-200 bg-gray-50 flex-shrink-0">
           <TabsList className="h-12 bg-transparent justify-start rounded-none border-none p-0 w-full">
             {visibleTabs.map((tab) => {
               const Icon = tab.icon;
@@ -50,7 +50,7 @@ const RightPanel: React.FC = () => {
         </div>
 
         {/* Tab Content */}
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1 overflow-hidden min-h-0">
           <TabsContent value="output" className="h-full m-0 border-none p-0">
             <OutputPanel />
           </TabsContent>

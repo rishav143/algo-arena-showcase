@@ -44,30 +44,32 @@ const PracticeLayout: React.FC = () => {
   }, [state.activeFile?.isUnsaved, state.aiAssistantEnabled, dispatch]);
 
   return (
-    <div className="h-screen flex flex-col bg-background overflow-hidden">
+    <div className="h-screen flex flex-col bg-background">
       {/* Fixed Navigation */}
       <PracticeNavigation />
       
       {/* Main Content Area */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex min-h-0">
         {/* Projects Sidebar */}
         <ProjectsSidebar />
         
         {/* Resizable Code Editor and Right Panel */}
-        <ResizablePanelGroup direction="horizontal" className="flex-1">
-          {/* Code Editor (Main Workspace) */}
-          <ResizablePanel defaultSize={60} minSize={30}>
-            <MainWorkspace />
-          </ResizablePanel>
-          
-          {/* Resizable Handle */}
-          <ResizableHandle withHandle />
-          
-          {/* Right Panel for Output/AI/Video */}
-          <ResizablePanel defaultSize={40} minSize={25}>
-            <RightPanel />
-          </ResizablePanel>
-        </ResizablePanelGroup>
+        <div className="flex-1 min-w-0">
+          <ResizablePanelGroup direction="horizontal" className="h-full">
+            {/* Code Editor (Main Workspace) */}
+            <ResizablePanel defaultSize={60} minSize={30} className="min-w-0">
+              <MainWorkspace />
+            </ResizablePanel>
+            
+            {/* Resizable Handle */}
+            <ResizableHandle withHandle />
+            
+            {/* Right Panel for Output/AI/Video */}
+            <ResizablePanel defaultSize={40} minSize={25} className="min-w-0">
+              <RightPanel />
+            </ResizablePanel>
+          </ResizablePanelGroup>
+        </div>
       </div>
     </div>
   );
