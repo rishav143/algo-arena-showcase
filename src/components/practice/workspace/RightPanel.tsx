@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useMemo, useCallback } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Terminal, Bot, Play } from 'lucide-react';
 import { usePractice } from '@/contexts/PracticeContext';
@@ -10,28 +10,30 @@ import VideoPanel from './VideoPanel';
 const RightPanel: React.FC = () => {
   const { state, dispatch } = usePractice();
 
-  const handleTabChange = (value: string) => {
+  const handleTabChange = useCallback((value: string) => {
     dispatch({ 
       type: 'SET_RIGHT_TAB', 
       payload: { tab: value as 'output' | 'ai' | 'video' } 
     });
-  };
+  }, [dispatch]);
 
-  const visibleTabs = [
+  const visibleTabs = useMemo(() => [
     { value: 'output', label: 'Output', icon: Terminal },
     ...(state.aiAssistantEnabled ? [{ value: 'ai', label: 'AI Assistant', icon: Bot }] : []),
     ...(state.videoUrl ? [{ value: 'video', label: 'Video', icon: Play }] : []),
-  ];
+  ], [state.aiAssistantEnabled, state.videoUrl]);
+
+  const currentTab = state.rightTab || 'output';
 
   return (
-    <div className="border-l border-gray-200 bg-white h-full flex flex-col">
+    <div className="h-full w-full flex flex-col bg-white border-l border-gray-200 overflow-hidden">
       <Tabs 
-        value={state.rightTab || 'output'} 
+        value={currentTab} 
         onValueChange={handleTabChange}
         className="h-full flex flex-col"
       >
-        {/* Tab Navigation */}
-        <div className="border-b border-gray-200 bg-gray-50 flex-shrink-0">
+        {/* Tab Navigation - Fixed height */}
+        <div className="flex-shrink-0 border-b border-gray-200 bg-gray-50">
           <TabsList className="h-12 bg-transparent justify-start rounded-none border-none p-0 w-full">
             {visibleTabs.map((tab) => {
               const Icon = tab.icon;
@@ -49,20 +51,20 @@ const RightPanel: React.FC = () => {
           </TabsList>
         </div>
 
-        {/* Tab Content */}
+        {/* Tab Content - Flexible height */}
         <div className="flex-1 overflow-hidden">
-          <TabsContent value="output" className="h-full m-0 border-none p-0">
+          <TabsContent value="output" className="h-full m-0 border-none p-0 overflow-hidden">
             <OutputPanel />
           </TabsContent>
           
           {state.aiAssistantEnabled && (
-            <TabsContent value="ai" className="h-full m-0 border-none p-0">
+            <TabsContent value="ai" className="h-full m-0 border-none p-0 overflow-hidden">
               <AIAssistant />
             </TabsContent>
           )}
           
           {state.videoUrl && (
-            <TabsContent value="video" className="h-full m-0 border-none p-0">
+            <TabsContent value="video" className="h-full m-0 border-none p-0 overflow-hidden">
               <VideoPanel />
             </TabsContent>
           )}

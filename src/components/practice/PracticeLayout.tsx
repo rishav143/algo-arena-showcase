@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { usePractice } from '@/contexts/PracticeContext';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import PracticeNavigation from './PracticeNavigation';
@@ -10,30 +10,37 @@ import RightPanel from './workspace/RightPanel';
 const PracticeLayout: React.FC = () => {
   const { state, dispatch } = usePractice();
 
-  // Auto-save functionality
+  // Memoize expensive computations
+  const memoizedState = useMemo(() => ({
+    activeFile: state.activeFile,
+    aiAssistantEnabled: state.aiAssistantEnabled,
+    rightTab: state.rightTab
+  }), [state.activeFile?.id, state.activeFile?.isUnsaved, state.aiAssistantEnabled, state.rightTab]);
+
+  // Auto-save functionality with cleanup
   useEffect(() => {
-    if (!state.activeFile?.isUnsaved) return;
+    if (!memoizedState.activeFile?.isUnsaved) return;
 
     const autoSaveTimer = setTimeout(() => {
       dispatch({ type: 'SAVE_FILE' });
     }, 5000);
 
     return () => clearTimeout(autoSaveTimer);
-  }, [state.activeFile?.content, state.activeFile?.isUnsaved, dispatch]);
+  }, [memoizedState.activeFile?.isUnsaved, dispatch]);
 
-  // Keyboard shortcuts
+  // Keyboard shortcuts with cleanup
   useEffect(() => {
     const handleKeydown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 's') {
         e.preventDefault();
-        if (state.activeFile?.isUnsaved) {
+        if (memoizedState.activeFile?.isUnsaved) {
           dispatch({ type: 'SAVE_FILE' });
         }
       }
       
       if ((e.ctrlKey || e.metaKey) && e.key === 'i') {
         e.preventDefault();
-        if (state.aiAssistantEnabled) {
+        if (memoizedState.aiAssistantEnabled) {
           dispatch({ type: 'SET_RIGHT_TAB', payload: { tab: 'ai' } });
         }
       }
@@ -41,33 +48,32 @@ const PracticeLayout: React.FC = () => {
 
     document.addEventListener('keydown', handleKeydown);
     return () => document.removeEventListener('keydown', handleKeydown);
-  }, [state.activeFile?.isUnsaved, state.aiAssistantEnabled, dispatch]);
+  }, [memoizedState.activeFile?.isUnsaved, memoizedState.aiAssistantEnabled, dispatch]);
 
   return (
-    <div className="h-full flex flex-col bg-background">
-      {/* Fixed Navigation */}
-      <PracticeNavigation />
+    <div className="h-screen w-screen flex flex-col overflow-hidden bg-background">
+      {/* Navigation - Fixed height */}
+      <div className="flex-shrink-0">
+        <PracticeNavigation />
+      </div>
       
-      {/* Main Content Area */}
-      <div className="flex-1 flex min-h-0">
+      {/* Main Content - Flexible height */}
+      <div className="flex-1 flex overflow-hidden">
         {/* Projects Sidebar - Fixed width */}
-        <div className="flex-shrink-0">
+        <div className="flex-shrink-0 w-80">
           <ProjectsSidebar />
         </div>
         
         {/* Resizable Content Area */}
-        <div className="flex-1 min-w-0">
-          <ResizablePanelGroup direction="horizontal" className="h-full">
-            {/* Code Editor (Main Workspace) */}
-            <ResizablePanel defaultSize={60} minSize={30} className="min-w-0">
+        <div className="flex-1 overflow-hidden">
+          <ResizablePanelGroup direction="horizontal" className="h-full w-full">
+            <ResizablePanel defaultSize={60} minSize={30}>
               <MainWorkspace />
             </ResizablePanel>
             
-            {/* Resizable Handle */}
             <ResizableHandle withHandle />
             
-            {/* Right Panel for Output/AI/Video */}
-            <ResizablePanel defaultSize={40} minSize={25} className="min-w-0">
+            <ResizablePanel defaultSize={40} minSize={25}>
               <RightPanel />
             </ResizablePanel>
           </ResizablePanelGroup>
