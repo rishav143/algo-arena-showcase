@@ -1,269 +1,303 @@
 
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
 
-interface File {
+export interface Project {
+  id: string;
+  name: string;
+  files: CodeFile[];
+  createdAt: Date;
+}
+
+export interface CodeFile {
   id: string;
   name: string;
   content: string;
   language: string;
-  extension: string;
-  isDirty: boolean;
-}
-
-interface Folder {
-  id: string;
-  name: string;
-  parentId?: string;
-  isExpanded: boolean;
-}
-
-interface Project {
-  id: string;
-  name: string;
-  files: File[];
-  folders: Folder[];
-  createdAt: string;
-}
-
-interface Video {
-  id: string;
-  title: string;
-  url: string;
-  thumbnailUrl: string;
-  isUserVideo: boolean;
+  isUnsaved: boolean;
+  lastSaved?: Date;
 }
 
 interface PracticeState {
   projects: Project[];
-  selectedProjectId?: string;
-  selectedFileId?: string;
-  selectedLanguage: string;
-  editorContent: string;
-  isEditorDirty: boolean;
-  aiEnabled: boolean;
-  outputContent: string;
-  aiChatHistory: Array<{ role: 'user' | 'ai'; message: string; timestamp: string }>;
-  activeTab: 'output' | 'ai' | 'video';
+  activeProject: Project | null;
+  activeFile: CodeFile | null;
+  aiAssistantEnabled: boolean;
+  activeTab: 'code' | 'output' | 'ai' | 'video';
+  rightTab: 'output' | 'ai' | 'video';
+  output: string;
+  isRunning: boolean;
   searchQuery: string;
-  searchResults: Video[];
-  activeVideo?: Video;
-  compilerOutput: {
-    success: boolean;
-    output: string;
-    error?: string;
-  } | null;
+  videoUrl: string | null;
+  searchResults: Array<{ id: string; title: string; url: string; thumbnail: string; }>;
+  chatHistory: Array<{ role: 'user' | 'assistant'; content: string; timestamp: Date }>;
+  isAiTyping: boolean;
 }
 
-type PracticeAction = 
+type PracticeAction =
   | { type: 'CREATE_PROJECT'; payload: { name: string } }
-  | { type: 'DELETE_PROJECT'; payload: { projectId: string } }
-  | { type: 'RENAME_PROJECT'; payload: { projectId: string; newName: string } }
-  | { type: 'SELECT_PROJECT'; payload: { projectId: string } }
-  | { type: 'CREATE_FILE'; payload: { projectId: string; folderId?: string; name: string; extension: string } }
+  | { type: 'DELETE_PROJECT'; payload: { id: string } }
+  | { type: 'RENAME_PROJECT'; payload: { id: string; name: string } }
+  | { type: 'SET_ACTIVE_PROJECT'; payload: { project: Project | null } }
+  | { type: 'CREATE_FILE'; payload: { projectId: string; name: string; language: string } }
   | { type: 'DELETE_FILE'; payload: { projectId: string; fileId: string } }
-  | { type: 'RENAME_FILE'; payload: { projectId: string; fileId: string; newName: string } }
-  | { type: 'SELECT_FILE'; payload: { fileId: string } }
-  | { type: 'SET_EDITOR_CONTENT'; payload: { content: string } }
-  | { type: 'SET_LANGUAGE'; payload: { language: string } }
+  | { type: 'RENAME_FILE'; payload: { projectId: string; fileId: string; name: string } }
+  | { type: 'SET_ACTIVE_FILE'; payload: { file: CodeFile | null } }
+  | { type: 'UPDATE_FILE_CONTENT'; payload: { content: string } }
   | { type: 'SAVE_FILE' }
-  | { type: 'TOGGLE_AI'; payload: { enabled: boolean } }
-  | { type: 'SET_ACTIVE_TAB'; payload: { tab: 'output' | 'ai' | 'video' } }
-  | { type: 'ADD_AI_MESSAGE'; payload: { role: 'user' | 'ai'; message: string } }
+  | { type: 'TOGGLE_AI_ASSISTANT' }
+  | { type: 'SET_ACTIVE_TAB'; payload: { tab: 'code' | 'output' | 'ai' | 'video' } }
+  | { type: 'SET_RIGHT_TAB'; payload: { tab: 'output' | 'ai' | 'video' } }
+  | { type: 'SET_OUTPUT'; payload: { output: string } }
+  | { type: 'SET_RUNNING'; payload: { isRunning: boolean } }
   | { type: 'SET_SEARCH_QUERY'; payload: { query: string } }
-  | { type: 'SET_SEARCH_RESULTS'; payload: { results: Video[] } }
-  | { type: 'SELECT_VIDEO'; payload: { video: Video } }
-  | { type: 'SET_COMPILER_OUTPUT'; payload: { success: boolean; output: string; error?: string } }
-  | { type: 'CREATE_FOLDER'; payload: { projectId: string; parentId?: string; name: string } }
-  | { type: 'TOGGLE_FOLDER'; payload: { projectId: string; folderId: string } };
+  | { type: 'SET_VIDEO_URL'; payload: { url: string | null } }
+  | { type: 'SET_SEARCH_RESULTS'; payload: { results: Array<{ id: string; title: string; url: string; thumbnail: string; }> } }
+  | { type: 'ADD_CHAT_MESSAGE'; payload: { role: 'user' | 'assistant'; content: string } }
+  | { type: 'SET_AI_TYPING'; payload: { isTyping: boolean } };
 
 const initialState: PracticeState = {
   projects: [],
-  selectedLanguage: 'java',
-  editorContent: '',
-  isEditorDirty: false,
-  aiEnabled: true,
-  outputContent: '',
-  aiChatHistory: [],
-  activeTab: 'output',
+  activeProject: null,
+  activeFile: null,
+  aiAssistantEnabled: true,
+  activeTab: 'code',
+  rightTab: 'output',
+  output: '',
+  isRunning: false,
   searchQuery: '',
+  videoUrl: null,
   searchResults: [],
-  compilerOutput: null,
+  chatHistory: [],
+  isAiTyping: false,
 };
 
 const practiceReducer = (state: PracticeState, action: PracticeAction): PracticeState => {
+  console.log('Context action:', action.type);
+  
   switch (action.type) {
-    case 'CREATE_PROJECT':
+    case 'CREATE_PROJECT': {
       const newProject: Project = {
-        id: Date.now().toString(),
+        id: `project_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         name: action.payload.name,
         files: [],
-        folders: [],
-        createdAt: new Date().toISOString(),
+        createdAt: new Date(),
       };
       return {
         ...state,
         projects: [...state.projects, newProject],
-        selectedProjectId: newProject.id,
+        activeProject: newProject,
       };
-
-    case 'DELETE_PROJECT':
-      const updatedProjects = state.projects.filter(p => p.id !== action.payload.projectId);
+    }
+    
+    case 'DELETE_PROJECT': {
+      const updatedProjects = state.projects.filter(p => p.id !== action.payload.id);
+      const wasActive = state.activeProject?.id === action.payload.id;
       return {
         ...state,
         projects: updatedProjects,
-        selectedProjectId: state.selectedProjectId === action.payload.projectId ? undefined : state.selectedProjectId,
-        selectedFileId: undefined,
-        editorContent: '',
-        isEditorDirty: false,
+        activeProject: wasActive ? null : state.activeProject,
+        activeFile: wasActive ? null : state.activeFile,
       };
-
-    case 'SELECT_FILE':
-      const selectedProject = state.projects.find(p => p.id === state.selectedProjectId);
-      const selectedFile = selectedProject?.files.find(f => f.id === action.payload.fileId);
+    }
+    
+    case 'RENAME_PROJECT': {
+      return {
+        ...state,
+        projects: state.projects.map(p =>
+          p.id === action.payload.id ? { ...p, name: action.payload.name } : p
+        ),
+        activeProject: state.activeProject?.id === action.payload.id
+          ? { ...state.activeProject, name: action.payload.name }
+          : state.activeProject,
+      };
+    }
+    
+    case 'SET_ACTIVE_PROJECT':
+      return {
+        ...state,
+        activeProject: action.payload.project,
+        activeFile: null,
+      };
+    
+    case 'CREATE_FILE': {
+      console.log('Creating file:', action.payload.name);
       
-      if (selectedFile) {
-        return {
-          ...state,
-          selectedFileId: action.payload.fileId,
-          editorContent: selectedFile.content,
-          selectedLanguage: selectedFile.language,
-          isEditorDirty: false,
-        };
+      // Prevent duplicate file creation
+      const project = state.projects.find(p => p.id === action.payload.projectId);
+      if (project?.files.some(f => f.name === action.payload.name)) {
+        console.warn('File already exists:', action.payload.name);
+        return state;
       }
-      return state;
-
-    case 'CREATE_FILE':
-      const projectIndex = state.projects.findIndex(p => p.id === action.payload.projectId);
-      if (projectIndex === -1) return state;
-
-      const newFile: File = {
-        id: Date.now().toString(),
+      
+      const newFile: CodeFile = {
+        id: `file_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         name: action.payload.name,
         content: '',
-        language: getLanguageFromExtension(action.payload.extension),
-        extension: action.payload.extension,
-        isDirty: false,
+        language: action.payload.language,
+        isUnsaved: false,
       };
-
-      const updatedProjectsWithFile = [...state.projects];
-      updatedProjectsWithFile[projectIndex] = {
-        ...updatedProjectsWithFile[projectIndex],
-        files: [...updatedProjectsWithFile[projectIndex].files, newFile],
-      };
-
+      
+      const updatedProjects = state.projects.map(p =>
+        p.id === action.payload.projectId
+          ? { ...p, files: [...p.files, newFile] }
+          : p
+      );
+      
+      const updatedActiveProject = state.activeProject?.id === action.payload.projectId
+        ? { ...state.activeProject, files: [...state.activeProject.files, newFile] }
+        : state.activeProject;
+      
       return {
         ...state,
-        projects: updatedProjectsWithFile,
-        selectedFileId: newFile.id,
-        editorContent: '',
-        selectedLanguage: newFile.language,
-        isEditorDirty: false,
+        projects: updatedProjects,
+        activeProject: updatedActiveProject,
+        activeFile: newFile,
       };
-
-    case 'SET_EDITOR_CONTENT':
+    }
+    
+    case 'DELETE_FILE': {
+      const wasActiveFile = state.activeFile?.id === action.payload.fileId;
       return {
         ...state,
-        editorContent: action.payload.content,
-        isEditorDirty: true,
-      };
-
-    case 'SET_LANGUAGE':
-      return {
-        ...state,
-        selectedLanguage: action.payload.language,
-        selectedFileId: undefined,
-        editorContent: '',
-        isEditorDirty: false,
-      };
-
-    case 'SAVE_FILE':
-      if (!state.selectedFileId || !state.selectedProjectId) return state;
-
-      const projectToUpdate = state.projects.findIndex(p => p.id === state.selectedProjectId);
-      if (projectToUpdate === -1) return state;
-
-      const fileToUpdate = state.projects[projectToUpdate].files.findIndex(f => f.id === state.selectedFileId);
-      if (fileToUpdate === -1) return state;
-
-      const updatedProjectsWithSave = [...state.projects];
-      updatedProjectsWithSave[projectToUpdate] = {
-        ...updatedProjectsWithSave[projectToUpdate],
-        files: updatedProjectsWithSave[projectToUpdate].files.map(f => 
-          f.id === state.selectedFileId 
-            ? { ...f, content: state.editorContent, isDirty: false }
-            : f
+        projects: state.projects.map(p =>
+          p.id === action.payload.projectId
+            ? { ...p, files: p.files.filter(f => f.id !== action.payload.fileId) }
+            : p
         ),
+        activeProject: state.activeProject?.id === action.payload.projectId
+          ? { ...state.activeProject, files: state.activeProject.files.filter(f => f.id !== action.payload.fileId) }
+          : state.activeProject,
+        activeFile: wasActiveFile ? null : state.activeFile,
       };
-
+    }
+    
+    case 'RENAME_FILE': {
       return {
         ...state,
-        projects: updatedProjectsWithSave,
-        isEditorDirty: false,
+        projects: state.projects.map(p =>
+          p.id === action.payload.projectId
+            ? {
+                ...p,
+                files: p.files.map(f =>
+                  f.id === action.payload.fileId ? { ...f, name: action.payload.name } : f
+                ),
+              }
+            : p
+        ),
+        activeProject: state.activeProject?.id === action.payload.projectId
+          ? {
+              ...state.activeProject,
+              files: state.activeProject.files.map(f =>
+                f.id === action.payload.fileId ? { ...f, name: action.payload.name } : f
+              ),
+            }
+          : state.activeProject,
+        activeFile: state.activeFile?.id === action.payload.fileId
+          ? { ...state.activeFile, name: action.payload.name }
+          : state.activeFile,
       };
-
-    case 'TOGGLE_AI':
+    }
+    
+    case 'SET_ACTIVE_FILE':
       return {
         ...state,
-        aiEnabled: action.payload.enabled,
-        activeTab: action.payload.enabled ? state.activeTab : 'output',
+        activeFile: action.payload.file,
+        activeTab: action.payload.file ? 'code' : state.activeTab,
       };
-
+    
+    case 'UPDATE_FILE_CONTENT':
+      return {
+        ...state,
+        activeFile: state.activeFile
+          ? { ...state.activeFile, content: action.payload.content, isUnsaved: true }
+          : null,
+      };
+    
+    case 'SAVE_FILE': {
+      if (!state.activeFile || !state.activeProject) return state;
+      
+      const savedFile = { ...state.activeFile, isUnsaved: false, lastSaved: new Date() };
+      
+      return {
+        ...state,
+        activeFile: savedFile,
+        projects: state.projects.map(p =>
+          p.id === state.activeProject?.id
+            ? {
+                ...p,
+                files: p.files.map(f => f.id === state.activeFile?.id ? savedFile : f),
+              }
+            : p
+        ),
+        activeProject: {
+          ...state.activeProject,
+          files: state.activeProject.files.map(f => f.id === state.activeFile?.id ? savedFile : f),
+        },
+      };
+    }
+    
+    case 'TOGGLE_AI_ASSISTANT':
+      return {
+        ...state,
+        aiAssistantEnabled: !state.aiAssistantEnabled,
+        activeTab: !state.aiAssistantEnabled ? state.activeTab : 
+          (state.activeTab === 'ai' ? 'code' : state.activeTab),
+      };
+    
     case 'SET_ACTIVE_TAB':
       return {
         ...state,
         activeTab: action.payload.tab,
       };
-
-    case 'ADD_AI_MESSAGE':
+    
+    case 'SET_RIGHT_TAB':
       return {
         ...state,
-        aiChatHistory: [
-          ...state.aiChatHistory,
-          {
-            role: action.payload.role,
-            message: action.payload.message,
-            timestamp: new Date().toISOString(),
-          },
-        ],
+        rightTab: action.payload.tab,
       };
-
+    
+    case 'SET_OUTPUT':
+      return {
+        ...state,
+        output: action.payload.output,
+        rightTab: 'output',
+      };
+    
     case 'SET_SEARCH_QUERY':
       return {
         ...state,
         searchQuery: action.payload.query,
       };
-
-    case 'SELECT_VIDEO':
+    
+    case 'SET_VIDEO_URL':
       return {
         ...state,
-        activeVideo: action.payload.video,
-        activeTab: 'video',
+        videoUrl: action.payload.url,
+        rightTab: action.payload.url ? 'video' : state.rightTab,
       };
-
-    case 'SET_COMPILER_OUTPUT':
+    
+    case 'ADD_CHAT_MESSAGE':
       return {
         ...state,
-        compilerOutput: action.payload,
-        activeTab: action.payload.error ? 'ai' : 'output',
+        chatHistory: [
+          ...state.chatHistory,
+          {
+            role: action.payload.role,
+            content: action.payload.content,
+            timestamp: new Date(),
+          },
+        ],
       };
-
+    
+    case 'SET_AI_TYPING':
+      return {
+        ...state,
+        isAiTyping: action.payload.isTyping,
+      };
+    
     default:
       return state;
   }
-};
-
-const getLanguageFromExtension = (extension: string): string => {
-  const langMap: Record<string, string> = {
-    '.java': 'java',
-    '.js': 'javascript',
-    '.py': 'python',
-    '.cpp': 'cpp',
-    '.c': 'c',
-    '.ts': 'typescript',
-    '.jsx': 'javascript',
-    '.tsx': 'typescript',
-  };
-  return langMap[extension] || 'plaintext';
 };
 
 interface PracticeContextType {
@@ -281,7 +315,11 @@ export const usePractice = () => {
   return context;
 };
 
-export const PracticeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+interface PracticeProviderProps {
+  children: ReactNode;
+}
+
+export const PracticeProvider: React.FC<PracticeProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(practiceReducer, initialState);
 
   return (

@@ -1,22 +1,43 @@
 
 import React from 'react';
-import PracticeHeader from './PracticeHeader';
-import ProjectSidebar from './ProjectSidebar';
-import MainWorkspace from './MainWorkspace';
+import { usePractice } from '@/contexts/PracticeContext';
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
+import PracticeNavigation from './PracticeNavigation';
+import ProjectsSidebar from './sidebar/ProjectsSidebar';
+import MainWorkspace from './workspace/MainWorkspace';
+import RightPanel from './workspace/RightPanel';
 
-const PracticeLayout = () => {
+const PracticeLayout: React.FC = () => {
+  const { state } = usePractice();
+
   return (
-    <div className="h-screen flex flex-col bg-gray-50">
-      {/* Fixed Navigation Bar */}
-      <PracticeHeader />
+    <div className="h-screen w-screen flex flex-col overflow-hidden bg-background">
+      {/* Navigation */}
+      <div className="flex-shrink-0">
+        <PracticeNavigation />
+      </div>
       
-      {/* Main Content Area */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* Project Sidebar */}
-        <ProjectSidebar />
+      {/* Main Content */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Projects Sidebar */}
+        <div className="flex-shrink-0 w-80">
+          <ProjectsSidebar />
+        </div>
         
-        {/* Main Workspace */}
-        <MainWorkspace />
+        {/* Resizable Content Area */}
+        <div className="flex-1 overflow-hidden">
+          <ResizablePanelGroup direction="horizontal" className="h-full w-full">
+            <ResizablePanel defaultSize={60} minSize={30}>
+              <MainWorkspace />
+            </ResizablePanel>
+            
+            <ResizableHandle withHandle />
+            
+            <ResizablePanel defaultSize={40} minSize={25}>
+              <RightPanel />
+            </ResizablePanel>
+          </ResizablePanelGroup>
+        </div>
       </div>
     </div>
   );
