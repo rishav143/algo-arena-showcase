@@ -124,17 +124,23 @@ const practiceReducer = (state: PracticeState, action: PracticeAction): Practice
         language: action.payload.language,
         isUnsaved: false,
       };
-      
+
+      // Defensive: flatten file arrays in case of recursion
+      const ensureFlatFiles = (files: CodeFile[]) =>
+        Array.isArray(files) ? files.filter(Boolean) : [];
+
       const updatedProjects = state.projects.map(p =>
         p.id === action.payload.projectId
-          ? { ...p, files: [...p.files, newFile] }
-          : p
+          ? { ...p, files: ensureFlatFiles([...p.files, newFile]) }
+          : { ...p, files: ensureFlatFiles(p.files) }
       );
-      
+
       const updatedActiveProject = state.activeProject?.id === action.payload.projectId
-        ? { ...state.activeProject, files: [...state.activeProject.files, newFile] }
-        : state.activeProject;
-      
+        ? { ...state.activeProject, files: ensureFlatFiles([...state.activeProject.files, newFile]) }
+        : state.activeProject
+          ? { ...state.activeProject, files: ensureFlatFiles(state.activeProject.files) }
+          : state.activeProject;
+
       return {
         ...state,
         projects: updatedProjects,

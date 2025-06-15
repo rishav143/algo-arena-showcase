@@ -72,29 +72,31 @@ const CreateFileDialog: React.FC<CreateFileDialogProps> = ({ open, onOpenChange,
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const validationError = validateFileName(name, language);
     if (validationError) {
       setError(validationError);
       return;
     }
-    
+
     const selectedLang = SUPPORTED_LANGUAGES.find(l => l.value === language)!;
     const fullName = name.endsWith(selectedLang.extension) ? name : name + selectedLang.extension;
-    
-    dispatch({ 
-      type: 'CREATE_FILE', 
-      payload: { 
-        projectId, 
-        name: fullName, 
-        language 
-      } 
+
+    dispatch({
+      type: 'CREATE_FILE',
+      payload: {
+        projectId,
+        name: fullName,
+        language
+      }
     });
-    
+
+    console.log("CREATE_FILE submitted", { projectId, fullName, language });
+
     setName('');
     setLanguage('javascript');
     setError('');
-    onOpenChange(false);
+    onOpenChange(false); // Moved here, right after dispatch
   };
 
   const handleCancel = () => {
