@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/select';
 import { Play, Save, Loader2, Code } from 'lucide-react';
 import { usePractice } from '@/contexts/PracticeContext';
-import { compileCode } from '@/services/compilerService';
+import { compileCode, getLanguageTemplate } from '@/services/compilerService';
 
 const SUPPORTED_LANGUAGES = [
   { value: 'javascript', label: 'JavaScript' },
@@ -121,17 +121,15 @@ const CodeEditor: React.FC = () => {
     if (state.activeFile && state.activeFile.language !== language) {
       const currentName = state.activeFile.name;
       const parts = currentName.split('.');
-      const baseName = parts.length > 1 ? parts.slice(0, -1).join('.') : currentName.split('.')[0];
+      const baseName =
+        parts.length > 1 ? parts.slice(0, -1).join('.') : currentName.split('.')[0];
       const newExt = LANG_TO_EXT[language] || '';
-      // Only do the rename if extension will actually change!
       let newName = baseName + (newExt ? `.${newExt}` : '');
 
-      // If already matches, don't change
-      if (currentName === newName && state.activeFile.language === language) return;
+      // Use language template automatically when switching language
+      const newContent = getLanguageTemplate(language);
 
-      // Actually update file name if extension differs
       if (currentName !== newName) {
-        // Rename in state:
         dispatch({
           type: 'RENAME_FILE',
           payload: {
@@ -140,20 +138,26 @@ const CodeEditor: React.FC = () => {
             name: newName,
           }
         });
-        // Also update active file ref:
         dispatch({
           type: 'SET_ACTIVE_FILE',
           payload: {
-            file: { ...state.activeFile, name: newName, language }
+            file: { ...state.activeFile, name: newName, language, content: newContent }
           }
         });
+        dispatch({
+          type: 'UPDATE_FILE_CONTENT',
+          payload: { content: newContent }
+        });
       } else {
-        // Extension already matches, just change language
         dispatch({
           type: 'SET_ACTIVE_FILE',
           payload: {
-            file: { ...state.activeFile, language }
+            file: { ...state.activeFile, language, content: newContent }
           }
+        });
+        dispatch({
+          type: 'UPDATE_FILE_CONTENT',
+          payload: { content: newContent }
         });
       }
     }

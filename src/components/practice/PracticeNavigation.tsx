@@ -30,7 +30,7 @@ const PracticeNavigation: React.FC = () => {
   const generateVideoSuggestions = (query: string): VideoSuggestion[] => {
     if (!query.trim()) return [];
 
-    // Suggestion titles are generic, do not use the user's input
+    // All possible videos
     const myVideos: VideoSuggestion[] = [
       {
         id: 'my-1',
@@ -48,7 +48,6 @@ const PracticeNavigation: React.FC = () => {
       }
     ];
 
-    // Generic popular programming/video titles (no direct use of query)
     const otherVideos: VideoSuggestion[] = [
       {
         id: 'yt-1',
@@ -70,7 +69,11 @@ const PracticeNavigation: React.FC = () => {
       }
     ];
 
-    return [...myVideos, ...otherVideos];
+    // Combine and filter videos by title substring match (case-insensitive)
+    const qLower = query.trim().toLowerCase();
+    return [...myVideos, ...otherVideos].filter(video =>
+      video.title.toLowerCase().includes(qLower)
+    );
   };
 
   useEffect(() => {
