@@ -30,6 +30,7 @@ const PracticeNavigation: React.FC = () => {
 
   // Fetch YouTube video suggestions based on user input
   useEffect(() => {
+    let cancelled = false;
     const fetchYouTubeResults = async (query: string) => {
       if (!query.trim() || query.trim().length < 2) {
         setVideoSuggestions([]);
@@ -39,6 +40,7 @@ const PracticeNavigation: React.FC = () => {
       }
       try {
         const results = await YoutubeSearchApi.GetListByKeyword(query, false, 5);
+        if (cancelled) return;
         const suggestions = (results.items || [])
           .filter(item => item.type === 'video')
           .map(item => ({
@@ -64,6 +66,10 @@ const PracticeNavigation: React.FC = () => {
       setShowSuggestions(false);
       setSelectedIndex(-1);
     }
+
+    return () => {
+      cancelled = true;
+    };
   }, [searchQuery]);
 
   const handleVideoSelect = (video: VideoSuggestion) => {
@@ -181,7 +187,7 @@ const PracticeNavigation: React.FC = () => {
                   <div className="text-sm font-medium text-gray-900 line-clamp-2">
                     {video.title}
                   </div>
-                  {/* No more My Video or custom labels */}
+                  {/* Only YouTube search results, no extra labels */}
                 </div>
               </button>
             ))}
@@ -214,4 +220,3 @@ const PracticeNavigation: React.FC = () => {
 };
 
 export default PracticeNavigation;
-
