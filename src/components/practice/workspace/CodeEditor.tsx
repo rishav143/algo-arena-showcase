@@ -64,20 +64,6 @@ const CodeEditor: React.FC = () => {
   const { state, dispatch } = usePractice();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Helper: update the active file with full sync, prevents async bugs
-  const updateActiveFile = (file: typeof state.activeFile) => {
-    if (!file) return;
-    // Update file in active project (so autosave triggers for correct, most recent file)
-    dispatch({
-      type: "SET_ACTIVE_FILE",
-      payload: { file }
-    });
-    dispatch({
-      type: "UPDATE_FILE_CONTENT",
-      payload: { content: file.content }
-    });
-  };
-
   const handleContentChange = (content: string) => {
     if (state.activeFile == null) return;
     dispatch({
@@ -100,20 +86,16 @@ const CodeEditor: React.FC = () => {
       });
       return;
     }
-
     dispatch({ type: 'SET_RUNNING', payload: { isRunning: true } });
-    
     try {
       const result = await compileCode(
         state.activeFile.content,
         state.activeFile.language
       );
-      
       dispatch({ 
         type: 'SET_OUTPUT', 
         payload: { output: result.output || result.error || 'No output' } 
       });
-      
       if (result.error && state.aiAssistantEnabled) {
         dispatch({
           type: 'ADD_CHAT_MESSAGE',
@@ -124,7 +106,6 @@ const CodeEditor: React.FC = () => {
         });
         dispatch({ type: 'SET_ACTIVE_TAB', payload: { tab: 'ai' } });
       }
-      
     } catch (error) {
       dispatch({ 
         type: 'SET_OUTPUT', 
@@ -150,17 +131,8 @@ const CodeEditor: React.FC = () => {
     // Always use the language template for the new language
     const newContent = getLanguageTemplate(language);
 
-    // Use atomic update so autosave (in Layout) triggers for only the right file+content
-    const updatedFile = {
-      ...state.activeFile,
-      name: newName,
-      language,
-      content: newContent,
-      isUnsaved: true
-    };
-
-    // Rename if needed, then update content/language (SET_ACTIVE_FILE keeps sync)
     if (currentName !== newName) {
+      // First rename the file
       dispatch({
         type: 'RENAME_FILE',
         payload: {
@@ -169,11 +141,42 @@ const CodeEditor: React.FC = () => {
           name: newName,
         }
       });
+      // After renaming, set the new activeFile (by searching by ID and name)
+      // and update its content and language—ensure update occurs after state is updated!
+      setTimeout(() => {
+        // find the updated file in the current state (after rename)
+        const updatedProject = state.projects.find(
+          (p) => p.id === state.activeProject?.id
+        );
+        const updatedFile = updatedProject?.files.find(
+          (f) => f.id === state.activeFile?.id
+        );
+        if (updatedFile) {
+          // set active file with new name
+          dispatch({
+            type: 'SET_ACTIVE_FILE',
+            payload: { file: { ...updatedFile, language, content: newContent, isUnsaved: true } }
+          });
+          // set unsaved content
+          dispatch({
+            type: 'UPDATE_FILE_CONTENT',
+            payload: { content: newContent }
+          });
+        }
+      }, 0);
+    } else {
+      // Only language/content change; update active file directly
+      dispatch({
+        type: 'SET_ACTIVE_FILE',
+        payload: { file: { ...state.activeFile, language, content: newContent, isUnsaved: true } }
+      });
+      dispatch({
+        type: 'UPDATE_FILE_CONTENT',
+        payload: { content: newContent }
+      });
     }
-    updateActiveFile(updatedFile);
   };
 
-  // Auto-set language when new file is selected based on extension
   useEffect(() => {
     if (state.activeFile) {
       const extLang = getLangFromFilename(state.activeFile.name);
