@@ -4,6 +4,7 @@ import { usePractice } from '@/contexts/PracticeContext';
 import PracticeNavigation from './PracticeNavigation';
 import ProjectsSidebar from './sidebar/ProjectsSidebar';
 import MainWorkspace from './workspace/MainWorkspace';
+import RightPanel from './workspace/RightPanel';
 
 const PracticeLayout: React.FC = () => {
   const { state, dispatch } = usePractice();
@@ -22,7 +23,6 @@ const PracticeLayout: React.FC = () => {
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeydown = (e: KeyboardEvent) => {
-      // Ctrl+S or Cmd+S for save
       if ((e.ctrlKey || e.metaKey) && e.key === 's') {
         e.preventDefault();
         if (state.activeFile?.isUnsaved) {
@@ -30,7 +30,6 @@ const PracticeLayout: React.FC = () => {
         }
       }
       
-      // Ctrl+I or Cmd+I for AI assistant
       if ((e.ctrlKey || e.metaKey) && e.key === 'i') {
         e.preventDefault();
         if (state.aiAssistantEnabled) {
@@ -53,8 +52,13 @@ const PracticeLayout: React.FC = () => {
         {/* Projects Sidebar */}
         <ProjectsSidebar />
         
-        {/* Main Workspace */}
-        <MainWorkspace />
+        {/* Code Editor (Main Workspace) */}
+        <div className="flex-1 flex overflow-hidden">
+          <MainWorkspace />
+          
+          {/* Right Panel for Output/AI/Video */}
+          <RightPanel />
+        </div>
       </div>
     </div>
   );

@@ -44,11 +44,11 @@ const ProjectItem: React.FC<ProjectItemProps> = ({ project, isActive }) => {
   };
 
   return (
-    <div className="select-none">
+    <div className="select-none group">
       {/* Project Header */}
       <div
         className={`flex items-center space-x-2 p-2 rounded-md cursor-pointer hover:bg-gray-200 transition-colors ${
-          isActive ? 'bg-indigo-100 text-indigo-900' : 'text-gray-700'
+          isActive ? 'bg-indigo-100 text-indigo-900 border border-indigo-300' : 'text-gray-700'
         }`}
         onClick={handleProjectClick}
       >
@@ -83,7 +83,7 @@ const ProjectItem: React.FC<ProjectItemProps> = ({ project, isActive }) => {
             <Button
               variant="ghost"
               size="sm"
-              className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 hover:bg-gray-300"
+              className="h-6 w-6 p-0 opacity-100 hover:bg-gray-300"
               onClick={(e) => e.stopPropagation()}
             >
               <MoreVertical className="w-3 h-3" />

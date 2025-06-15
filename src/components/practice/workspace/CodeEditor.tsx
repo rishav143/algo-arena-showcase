@@ -60,7 +60,6 @@ const CodeEditor: React.FC = () => {
         payload: { output: result.output || result.error || 'No output' } 
       });
       
-      // If there's an error and AI is enabled, suggest opening AI assistant
       if (result.error && state.aiAssistantEnabled) {
         dispatch({
           type: 'ADD_CHAT_MESSAGE',
@@ -84,7 +83,6 @@ const CodeEditor: React.FC = () => {
 
   const handleLanguageChange = (language: string) => {
     if (state.activeFile && state.activeFile.language !== language) {
-      // In a real implementation, you might want to prompt for unsaved changes
       dispatch({
         type: 'UPDATE_FILE_CONTENT',
         payload: { content: state.activeFile.content }
@@ -92,7 +90,6 @@ const CodeEditor: React.FC = () => {
     }
   };
 
-  // Auto-resize textarea
   useEffect(() => {
     const textarea = textareaRef.current;
     if (textarea) {
@@ -112,6 +109,8 @@ const CodeEditor: React.FC = () => {
       </div>
     );
   }
+
+  const lineCount = state.activeFile.content.split('\n').length;
 
   return (
     <div className="h-full flex flex-col">
@@ -172,25 +171,28 @@ const CodeEditor: React.FC = () => {
         </div>
       </div>
 
-      {/* Editor */}
-      <div className="flex-1 p-4 overflow-auto">
-        <div className="relative">
-          <textarea
-            ref={textareaRef}
-            value={state.activeFile.content}
-            onChange={(e) => handleContentChange(e.target.value)}
-            className="w-full min-h-96 p-4 font-mono text-sm border border-gray-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-            placeholder="Start coding..."
-            style={{ lineHeight: '1.5' }}
-          />
-          
-          {/* Line numbers (simplified) */}
-          <div className="absolute left-0 top-0 p-4 text-gray-400 font-mono text-sm pointer-events-none select-none">
-            {state.activeFile.content.split('\n').map((_, index) => (
-              <div key={index} style={{ lineHeight: '1.5' }}>
+      {/* Editor with Line Numbers */}
+      <div className="flex-1 overflow-hidden">
+        <div className="h-full flex">
+          {/* Line Numbers */}
+          <div className="bg-gray-50 border-r border-gray-200 p-4 text-gray-400 font-mono text-sm select-none min-w-[60px] overflow-hidden">
+            {Array.from({ length: lineCount }, (_, index) => (
+              <div key={index} className="leading-6 text-right pr-2">
                 {index + 1}
               </div>
             ))}
+          </div>
+          
+          {/* Code Content */}
+          <div className="flex-1 p-4 overflow-auto">
+            <textarea
+              ref={textareaRef}
+              value={state.activeFile.content}
+              onChange={(e) => handleContentChange(e.target.value)}
+              className="w-full h-full font-mono text-sm border-none resize-none focus:outline-none bg-transparent leading-6"
+              placeholder="Start coding..."
+              style={{ minHeight: '100%' }}
+            />
           </div>
         </div>
       </div>
