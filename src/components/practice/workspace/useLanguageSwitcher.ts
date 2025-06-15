@@ -1,6 +1,6 @@
 
 import { getLanguageTemplate } from "@/services/compilerService";
-import { LANG_TO_EXT } from "./CodeEditor";
+import { LANG_TO_EXT } from "./languageMaps";
 import { usePractice } from "@/contexts/PracticeContext";
 
 /**

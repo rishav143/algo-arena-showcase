@@ -1,70 +1,18 @@
-import React, { useRef, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Play, Save, Loader2, Code } from 'lucide-react';
+import React, { useRef } from 'react';
 import { usePractice } from '@/contexts/PracticeContext';
-import { compileCode, getLanguageTemplate } from '@/services/compilerService';
+import { compileCode } from '@/services/compilerService';
 import { useLanguageSwitcher } from "./useLanguageSwitcher";
-
-const SUPPORTED_LANGUAGES = [
-  { value: 'javascript', label: 'JavaScript' },
-  { value: 'typescript', label: 'TypeScript' },
-  { value: 'python', label: 'Python' },
-  { value: 'java', label: 'Java' },
-  { value: 'cpp', label: 'C++' },
-  { value: 'c', label: 'C' },
-  { value: 'csharp', label: 'C#' },
-  { value: 'go', label: 'Go' },
-  { value: 'rust', label: 'Rust' },
-];
-
-// Extension to language mapping
-const EXT_TO_LANG: Record<string, string> = {
-  js: 'javascript',
-  jsx: 'javascript',
-  ts: 'typescript',
-  tsx: 'typescript',
-  py: 'python',
-  java: 'java',
-  cpp: 'cpp',
-  cc: 'cpp',
-  cxx: 'cpp',
-  c: 'c',
-  h: 'c',
-  cs: 'csharp',
-  go: 'go',
-  rs: 'rust',
-};
-
-// Map language to default extension
-export const LANG_TO_EXT: Record<string, string> = {
-  javascript: 'js',
-  typescript: 'ts',
-  python: 'py',
-  java: 'java',
-  cpp: 'cpp',
-  c: 'c',
-  csharp: 'cs',
-  go: 'go',
-  rust: 'rs',
-};
-
-const getLangFromFilename = (filename: string): string | undefined => {
-  const ext = filename.split('.').pop()?.toLowerCase();
-  if (!ext) return undefined;
-  return EXT_TO_LANG[ext];
-};
+import EditorToolbar from "./EditorToolbar";
+import { useAutoResize } from "./useAutoResize";
+import { SUPPORTED_LANGUAGES, getLangFromFilename } from "./languageMaps";
 
 const CodeEditor: React.FC = () => {
   const { state, dispatch } = usePractice();
   const { changeFileLanguage } = useLanguageSwitcher();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Auto resize textarea height
+  useAutoResize(textareaRef, state.activeFile?.content ?? "");
 
   const handleContentChange = (content: string) => {
     if (state.activeFile == null) return;
@@ -120,37 +68,8 @@ const CodeEditor: React.FC = () => {
 
   const handleLanguageChange = (language: string) => {
     if (!state.activeFile) return;
-    // Always call universal language switcher
     changeFileLanguage(state.activeFile.id, language);
   };
-
-  useEffect(() => {
-    if (state.activeFile) {
-      const extLang = getLangFromFilename(state.activeFile.name);
-      if (
-        extLang &&
-        extLang !== state.activeFile.language &&
-        SUPPORTED_LANGUAGES.some(l => l.value === extLang)
-      ) {
-        dispatch({
-          type: 'SET_ACTIVE_FILE',
-          payload: {
-            file: { ...state.activeFile, language: extLang },
-          },
-        });
-      }
-    }
-    // Only run when activeFile changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.activeFile?.id]);
-
-  useEffect(() => {
-    const textarea = textareaRef.current;
-    if (textarea) {
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [state.activeFile?.content]);
 
   if (!state.activeFile) {
     return (
@@ -169,62 +88,15 @@ const CodeEditor: React.FC = () => {
   return (
     <div className="h-full flex flex-col">
       {/* Toolbar */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50">
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-2">
-            <span className="text-sm font-medium text-gray-700">Language:</span>
-            <Select
-              value={state.activeFile.language}
-              onValueChange={handleLanguageChange}
-            >
-              <SelectTrigger className="w-40">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="bg-white border border-gray-200">
-                {SUPPORTED_LANGUAGES.map((lang) => (
-                  <SelectItem key={lang.value} value={lang.value}>
-                    {lang.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <div className="text-sm text-gray-500">
-            {state.activeFile.name}
-            {state.activeFile.isUnsaved && (
-              <span className="text-orange-600 ml-1">• (unsaved)</span>
-            )}
-          </div>
-        </div>
-
-        <div className="flex items-center space-x-2">
-          <Button
-            onClick={handleSave}
-            disabled={!state.activeFile.isUnsaved}
-            variant="outline"
-            size="sm"
-          >
-            <Save className="w-4 h-4 mr-2" />
-            Save
-          </Button>
-          
-          <Button
-            onClick={handleRun}
-            disabled={state.isRunning}
-            className="bg-green-600 hover:bg-green-700"
-            size="sm"
-          >
-            {state.isRunning ? (
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            ) : (
-              <Play className="w-4 h-4 mr-2" />
-            )}
-            Run
-          </Button>
-        </div>
-      </div>
-
+      <EditorToolbar
+        language={state.activeFile.language}
+        onLanguageChange={handleLanguageChange}
+        fileName={state.activeFile.name}
+        isUnsaved={!!state.activeFile.isUnsaved}
+        onSave={handleSave}
+        onRun={handleRun}
+        isRunning={state.isRunning}
+      />
       {/* Editor with Line Numbers */}
       <div className="flex-1 overflow-hidden">
         <div className="h-full flex">
@@ -236,7 +108,6 @@ const CodeEditor: React.FC = () => {
               </div>
             ))}
           </div>
-          
           {/* Code Content */}
           <div className="flex-1 p-4 overflow-auto">
             <textarea
