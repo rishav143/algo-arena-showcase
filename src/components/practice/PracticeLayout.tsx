@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { usePractice } from '@/contexts/PracticeContext';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -32,13 +31,8 @@ const PracticeLayout: React.FC = () => {
         debouncedContent.slice(0, 60)
       );
       dispatch({ type: 'SAVE_FILE' });
-      toast({
-        title: 'Auto-saved!',
-        description: `File "${state.activeFile.name}" was saved automatically.`,
-        duration: 2000,
-      });
     }
-  }, [debouncedContent, state.activeFile?.isUnsaved, dispatch, toast, state.activeFile?.name]);
+  }, [debouncedContent, state.activeFile?.isUnsaved, dispatch, state.activeFile?.name]);
 
   // Keyboard shortcuts
   useEffect(() => {
