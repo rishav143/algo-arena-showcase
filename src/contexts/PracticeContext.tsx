@@ -37,6 +37,7 @@ type PracticeAction =
   | { type: 'DELETE_PROJECT'; payload: { id: string } }
   | { type: 'RENAME_PROJECT'; payload: { id: string; name: string } }
   | { type: 'SET_ACTIVE_PROJECT'; payload: { project: Project | null } }
+  | { type: 'UPDATE_PROJECTS'; payload: { projects: Project[] } }
   | { type: 'CREATE_FILE'; payload: { projectId: string; name: string; language: string } }
   | { type: 'DELETE_FILE'; payload: { projectId: string; fileId: string } }
   | { type: 'RENAME_FILE'; payload: { projectId: string; fileId: string; name: string } }
@@ -114,6 +115,12 @@ const practiceReducer = (state: PracticeState, action: PracticeAction): Practice
         ...state,
         activeProject: action.payload.project,
         activeFile: null,
+      };
+    
+    case 'UPDATE_PROJECTS':
+      return {
+        ...state,
+        projects: action.payload.projects,
       };
     
     case 'CREATE_FILE': {

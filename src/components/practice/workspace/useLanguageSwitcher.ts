@@ -42,47 +42,52 @@ export function useLanguageSwitcher() {
     const newName = baseName + (newExt ? `.${newExt}` : "");
     const newContent = getLanguageTemplate(newLanguage);
 
-    // Only rename if extension is changing
-    if (currentName !== newName) {
+    // Create the updated file
+    const updatedFile = {
+      ...foundFile,
+      name: newName,
+      language: newLanguage,
+      content: newContent,
+      isUnsaved: true,
+    };
+
+    // Update the projects array with the modified file
+    const updatedProjects = state.projects.map(project => {
+      if (project.id === foundProject.id) {
+        return {
+          ...project,
+          files: project.files.map(file => 
+            file.id === fileId ? updatedFile : file
+          )
+        };
+      }
+      return project;
+    });
+
+    // Dispatch the updated projects
+    dispatch({
+      type: 'UPDATE_PROJECTS',
+      payload: { projects: updatedProjects }
+    });
+
+    // Update active project if it's the one being modified
+    if (state.activeProject?.id === foundProject.id) {
+      const updatedActiveProject = updatedProjects.find(p => p.id === foundProject.id);
       dispatch({
-        type: "RENAME_FILE",
-        payload: {
-          projectId: foundProject.id,
-          fileId: foundFile.id,
-          name: newName,
-        },
+        type: 'SET_ACTIVE_PROJECT',
+        payload: { project: updatedActiveProject || null }
       });
     }
 
-    // No matter what, set activeFile (if open) and update content/language
-    setTimeout(() => {
-      // Find the file again (could've been renamed)
-      const updatedProject = state.projects.find(p => p.id === foundProject.id) || foundProject;
-      const updatedFile =
-        updatedProject.files.find(f => f.id === foundFile.id) ||
-        updatedProject.files.find(
-          f => f.name === newName && f.language === newLanguage
-        );
+    // If this is the currently active file, update it too
+    if (state.activeFile?.id === fileId) {
+      dispatch({
+        type: 'SET_ACTIVE_FILE',
+        payload: { file: updatedFile }
+      });
+    }
 
-      if (updatedFile) {
-        dispatch({
-          type: "SET_ACTIVE_FILE",
-          payload: {
-            file: {
-              ...updatedFile,
-              name: newName,
-              language: newLanguage,
-              content: newContent,
-              isUnsaved: true,
-            },
-          },
-        });
-        dispatch({
-          type: "UPDATE_FILE_CONTENT",
-          payload: { content: newContent },
-        });
-      }
-    }, 0);
+    console.log('[LanguageSwitcher] Updated file:', updatedFile.name, 'to language:', newLanguage);
   }
 
   return { changeFileLanguage };
