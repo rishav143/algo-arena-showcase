@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useReducer, ReactNode, useMemo, useCallback } from 'react';
+
+import React, { createContext, useContext, useReducer, ReactNode } from 'react';
 
 export interface Project {
   id: string;
@@ -71,7 +72,7 @@ const initialState: PracticeState = {
 };
 
 const practiceReducer = (state: PracticeState, action: PracticeAction): PracticeState => {
-  console.log('Context action:', action.type, action.payload);
+  console.log('Context action:', action.type);
   
   switch (action.type) {
     case 'CREATE_PROJECT': {
@@ -81,7 +82,6 @@ const practiceReducer = (state: PracticeState, action: PracticeAction): Practice
         files: [],
         createdAt: new Date(),
       };
-      console.log('Created project:', newProject.id);
       return {
         ...state,
         projects: [...state.projects, newProject],
@@ -90,7 +90,6 @@ const practiceReducer = (state: PracticeState, action: PracticeAction): Practice
     }
     
     case 'DELETE_PROJECT': {
-      console.log('Deleting project:', action.payload.id);
       const updatedProjects = state.projects.filter(p => p.id !== action.payload.id);
       const wasActive = state.activeProject?.id === action.payload.id;
       return {
@@ -102,7 +101,6 @@ const practiceReducer = (state: PracticeState, action: PracticeAction): Practice
     }
     
     case 'RENAME_PROJECT': {
-      console.log('Renaming project:', action.payload.id, 'to:', action.payload.name);
       return {
         ...state,
         projects: state.projects.map(p =>
@@ -115,7 +113,6 @@ const practiceReducer = (state: PracticeState, action: PracticeAction): Practice
     }
     
     case 'SET_ACTIVE_PROJECT':
-      console.log('Setting active project:', action.payload.project?.id);
       return {
         ...state,
         activeProject: action.payload.project,
@@ -123,7 +120,7 @@ const practiceReducer = (state: PracticeState, action: PracticeAction): Practice
       };
     
     case 'CREATE_FILE': {
-      console.log('Creating file:', action.payload.name, 'in project:', action.payload.projectId);
+      console.log('Creating file:', action.payload.name);
       
       // Prevent duplicate file creation
       const project = state.projects.find(p => p.id === action.payload.projectId);
@@ -159,7 +156,6 @@ const practiceReducer = (state: PracticeState, action: PracticeAction): Practice
     }
     
     case 'DELETE_FILE': {
-      console.log('Deleting file:', action.payload.fileId, 'from project:', action.payload.projectId);
       const wasActiveFile = state.activeFile?.id === action.payload.fileId;
       return {
         ...state,
@@ -325,20 +321,9 @@ interface PracticeProviderProps {
 
 export const PracticeProvider: React.FC<PracticeProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(practiceReducer, initialState);
-  
-  // Memoize the context value to prevent unnecessary re-renders
-  const contextValue = useMemo(() => ({
-    state,
-    dispatch: useCallback((action: PracticeAction) => {
-      // Throttle rapid successive actions
-      dispatch(action);
-    }, [])
-  }), [state]);
-
-  console.log('Context render, projects count:', state.projects.length);
 
   return (
-    <PracticeContext.Provider value={contextValue}>
+    <PracticeContext.Provider value={{ state, dispatch }}>
       {children}
     </PracticeContext.Provider>
   );

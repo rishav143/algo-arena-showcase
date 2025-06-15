@@ -1,5 +1,5 @@
 
-import React, { useMemo, useCallback } from 'react';
+import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Terminal, Bot, Play } from 'lucide-react';
 import { usePractice } from '@/contexts/PracticeContext';
@@ -10,18 +10,18 @@ import VideoPanel from './VideoPanel';
 const RightPanel: React.FC = () => {
   const { state, dispatch } = usePractice();
 
-  const handleTabChange = useCallback((value: string) => {
+  const handleTabChange = (value: string) => {
     dispatch({ 
       type: 'SET_RIGHT_TAB', 
       payload: { tab: value as 'output' | 'ai' | 'video' } 
     });
-  }, [dispatch]);
+  };
 
-  const visibleTabs = useMemo(() => [
+  const visibleTabs = [
     { value: 'output', label: 'Output', icon: Terminal },
     ...(state.aiAssistantEnabled ? [{ value: 'ai', label: 'AI Assistant', icon: Bot }] : []),
     ...(state.videoUrl ? [{ value: 'video', label: 'Video', icon: Play }] : []),
-  ], [state.aiAssistantEnabled, state.videoUrl]);
+  ];
 
   const currentTab = state.rightTab || 'output';
 
@@ -32,7 +32,7 @@ const RightPanel: React.FC = () => {
         onValueChange={handleTabChange}
         className="h-full flex flex-col"
       >
-        {/* Tab Navigation - Fixed height */}
+        {/* Tab Navigation */}
         <div className="flex-shrink-0 border-b border-gray-200 bg-gray-50">
           <TabsList className="h-12 bg-transparent justify-start rounded-none border-none p-0 w-full">
             {visibleTabs.map((tab) => {
@@ -51,7 +51,7 @@ const RightPanel: React.FC = () => {
           </TabsList>
         </div>
 
-        {/* Tab Content - Flexible height */}
+        {/* Tab Content */}
         <div className="flex-1 overflow-hidden">
           <TabsContent value="output" className="h-full m-0 border-none p-0 overflow-hidden">
             <OutputPanel />
