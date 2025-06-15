@@ -1,46 +1,63 @@
 
-import React, { memo } from 'react';
+import React, { useEffect } from 'react';
 import { usePractice } from '@/contexts/PracticeContext';
-import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import PracticeNavigation from './PracticeNavigation';
 import ProjectsSidebar from './sidebar/ProjectsSidebar';
 import MainWorkspace from './workspace/MainWorkspace';
-import RightPanel from './workspace/RightPanel';
 
-const PracticeLayout: React.FC = memo(() => {
-  return (
-    <div className="h-screen w-screen flex flex-col overflow-hidden bg-background">
-      {/* Navigation */}
-      <div className="flex-shrink-0">
-        <PracticeNavigation />
-      </div>
+const PracticeLayout: React.FC = () => {
+  const { state, dispatch } = usePractice();
+
+  // Auto-save functionality
+  useEffect(() => {
+    if (!state.activeFile?.isUnsaved) return;
+
+    const autoSaveTimer = setTimeout(() => {
+      dispatch({ type: 'SAVE_FILE' });
+    }, 5000);
+
+    return () => clearTimeout(autoSaveTimer);
+  }, [state.activeFile?.content, state.activeFile?.isUnsaved, dispatch]);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeydown = (e: KeyboardEvent) => {
+      // Ctrl+S or Cmd+S for save
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        if (state.activeFile?.isUnsaved) {
+          dispatch({ type: 'SAVE_FILE' });
+        }
+      }
       
-      {/* Main Content */}
+      // Ctrl+I or Cmd+I for AI assistant
+      if ((e.ctrlKey || e.metaKey) && e.key === 'i') {
+        e.preventDefault();
+        if (state.aiAssistantEnabled) {
+          dispatch({ type: 'SET_ACTIVE_TAB', payload: { tab: 'ai' } });
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeydown);
+    return () => document.removeEventListener('keydown', handleKeydown);
+  }, [state.activeFile?.isUnsaved, state.aiAssistantEnabled, dispatch]);
+
+  return (
+    <div className="h-screen flex flex-col bg-background overflow-hidden">
+      {/* Fixed Navigation */}
+      <PracticeNavigation />
+      
+      {/* Main Content Area */}
       <div className="flex-1 flex overflow-hidden">
         {/* Projects Sidebar */}
-        <div className="flex-shrink-0 w-80">
-          <ProjectsSidebar />
-        </div>
+        <ProjectsSidebar />
         
-        {/* Resizable Content Area */}
-        <div className="flex-1 overflow-hidden">
-          <ResizablePanelGroup direction="horizontal" className="h-full w-full">
-            <ResizablePanel defaultSize={60} minSize={30}>
-              <MainWorkspace />
-            </ResizablePanel>
-            
-            <ResizableHandle withHandle />
-            
-            <ResizablePanel defaultSize={40} minSize={25}>
-              <RightPanel />
-            </ResizablePanel>
-          </ResizablePanelGroup>
-        </div>
+        {/* Main Workspace */}
+        <MainWorkspace />
       </div>
     </div>
   );
-});
-
-PracticeLayout.displayName = 'PracticeLayout';
+};
 
 export default PracticeLayout;
