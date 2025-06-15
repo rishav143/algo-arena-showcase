@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { ChevronRight, ChevronDown, MoreVertical, Plus, FolderOpen, Folder, FileStack } from 'lucide-react';
+import { ChevronRight, ChevronDown, MoreVertical, Plus, FolderOpen, Folder } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -11,7 +11,6 @@ import {
 import { Project, usePractice } from '@/contexts/PracticeContext';
 import FileItem from './FileItem';
 import CreateFileDialog from './CreateFileDialog';
-import CreateMultipleFilesDialog from './CreateMultipleFilesDialog';
 import RenameDialog from './RenameDialog';
 
 interface ProjectItemProps {
@@ -23,7 +22,6 @@ const ProjectItem: React.FC<ProjectItemProps> = ({ project, isActive }) => {
   const { dispatch } = usePractice();
   const [isExpanded, setIsExpanded] = useState(isActive);
   const [showCreateFile, setShowCreateFile] = useState(false);
-  const [showCreateMultipleFiles, setShowCreateMultipleFiles] = useState(false);
   const [showRename, setShowRename] = useState(false);
 
   const handleProjectClick = () => {
@@ -33,10 +31,6 @@ const ProjectItem: React.FC<ProjectItemProps> = ({ project, isActive }) => {
 
   const handleCreateFile = () => {
     setShowCreateFile(true);
-  };
-
-  const handleCreateMultipleFiles = () => {
-    setShowCreateMultipleFiles(true);
   };
 
   const handleRename = () => {
@@ -100,10 +94,6 @@ const ProjectItem: React.FC<ProjectItemProps> = ({ project, isActive }) => {
               <Plus className="w-4 h-4 mr-2" />
               Create New File
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleCreateMultipleFiles} className="hover:bg-gray-50">
-              <FileStack className="w-4 h-4 mr-2" />
-              Create Multiple Files
-            </DropdownMenuItem>
             <DropdownMenuItem onClick={handleRename} className="hover:bg-gray-50">
               Rename Project
             </DropdownMenuItem>
@@ -123,26 +113,15 @@ const ProjectItem: React.FC<ProjectItemProps> = ({ project, isActive }) => {
           {project.files.length === 0 ? (
             <div className="py-2 px-2">
               <p className="text-xs text-gray-500 mb-2">No files yet</p>
-              <div className="space-y-1">
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={handleCreateFile}
-                  className="text-xs h-6 px-2 text-indigo-600 hover:bg-indigo-50 w-full justify-start"
-                >
-                  <Plus className="w-3 h-3 mr-1" />
-                  Add File
-                </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={handleCreateMultipleFiles}
-                  className="text-xs h-6 px-2 text-indigo-600 hover:bg-indigo-50 w-full justify-start"
-                >
-                  <FileStack className="w-3 h-3 mr-1" />
-                  Add Multiple Files
-                </Button>
-              </div>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={handleCreateFile}
+                className="text-xs h-6 px-2 text-indigo-600 hover:bg-indigo-50"
+              >
+                <Plus className="w-3 h-3 mr-1" />
+                Add File
+              </Button>
             </div>
           ) : (
             project.files.map((file) => (
@@ -160,12 +139,6 @@ const ProjectItem: React.FC<ProjectItemProps> = ({ project, isActive }) => {
       <CreateFileDialog
         open={showCreateFile}
         onOpenChange={setShowCreateFile}
-        projectId={project.id}
-      />
-      
-      <CreateMultipleFilesDialog
-        open={showCreateMultipleFiles}
-        onOpenChange={setShowCreateMultipleFiles}
         projectId={project.id}
       />
       

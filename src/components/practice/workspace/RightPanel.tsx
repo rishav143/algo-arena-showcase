@@ -23,17 +23,15 @@ const RightPanel: React.FC = () => {
     ...(state.videoUrl ? [{ value: 'video', label: 'Video', icon: Play }] : []),
   ];
 
-  const currentTab = state.rightTab || 'output';
-
   return (
-    <div className="h-full w-full flex flex-col bg-white border-l border-gray-200 overflow-hidden">
+    <div className="border-l border-gray-200 bg-white h-full flex flex-col">
       <Tabs 
-        value={currentTab} 
+        value={state.rightTab || 'output'} 
         onValueChange={handleTabChange}
         className="h-full flex flex-col"
       >
         {/* Tab Navigation */}
-        <div className="flex-shrink-0 border-b border-gray-200 bg-gray-50">
+        <div className="border-b border-gray-200 bg-gray-50 flex-shrink-0">
           <TabsList className="h-12 bg-transparent justify-start rounded-none border-none p-0 w-full">
             {visibleTabs.map((tab) => {
               const Icon = tab.icon;
@@ -53,18 +51,18 @@ const RightPanel: React.FC = () => {
 
         {/* Tab Content */}
         <div className="flex-1 overflow-hidden">
-          <TabsContent value="output" className="h-full m-0 border-none p-0 overflow-hidden">
+          <TabsContent value="output" className="h-full m-0 border-none p-0">
             <OutputPanel />
           </TabsContent>
           
           {state.aiAssistantEnabled && (
-            <TabsContent value="ai" className="h-full m-0 border-none p-0 overflow-hidden">
+            <TabsContent value="ai" className="h-full m-0 border-none p-0">
               <AIAssistant />
             </TabsContent>
           )}
           
           {state.videoUrl && (
-            <TabsContent value="video" className="h-full m-0 border-none p-0 overflow-hidden">
+            <TabsContent value="video" className="h-full m-0 border-none p-0">
               <VideoPanel />
             </TabsContent>
           )}

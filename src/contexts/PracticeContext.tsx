@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, ReactNode } from 'react';
+import React, { createContext, useContext, useReducer, ReactNode, useMemo } from 'react';
 
 export interface Project {
   id: string;
@@ -30,7 +30,6 @@ interface PracticeState {
   searchResults: Array<{ id: string; title: string; url: string; thumbnail: string; }>;
   chatHistory: Array<{ role: 'user' | 'assistant'; content: string; timestamp: Date }>;
   isAiTyping: boolean;
-  isCreatingFiles: boolean;
 }
 
 type PracticeAction =
@@ -39,7 +38,6 @@ type PracticeAction =
   | { type: 'RENAME_PROJECT'; payload: { id: string; name: string } }
   | { type: 'SET_ACTIVE_PROJECT'; payload: { project: Project | null } }
   | { type: 'CREATE_FILE'; payload: { projectId: string; name: string; language: string } }
-  | { type: 'CREATE_MULTIPLE_FILES'; payload: { projectId: string; files: Array<{ name: string; language: string; content?: string }> } }
   | { type: 'DELETE_FILE'; payload: { projectId: string; fileId: string } }
   | { type: 'RENAME_FILE'; payload: { projectId: string; fileId: string; name: string } }
   | { type: 'SET_ACTIVE_FILE'; payload: { file: CodeFile | null } }
@@ -54,8 +52,7 @@ type PracticeAction =
   | { type: 'SET_VIDEO_URL'; payload: { url: string | null } }
   | { type: 'SET_SEARCH_RESULTS'; payload: { results: Array<{ id: string; title: string; url: string; thumbnail: string; }> } }
   | { type: 'ADD_CHAT_MESSAGE'; payload: { role: 'user' | 'assistant'; content: string } }
-  | { type: 'SET_AI_TYPING'; payload: { isTyping: boolean } }
-  | { type: 'SET_CREATING_FILES'; payload: { isCreating: boolean } };
+  | { type: 'SET_AI_TYPING'; payload: { isTyping: boolean } };
 
 const initialState: PracticeState = {
   projects: [],
@@ -71,12 +68,9 @@ const initialState: PracticeState = {
   searchResults: [],
   chatHistory: [],
   isAiTyping: false,
-  isCreatingFiles: false,
 };
 
 const practiceReducer = (state: PracticeState, action: PracticeAction): PracticeState => {
-  console.log('Context action:', action.type);
-  
   switch (action.type) {
     case 'CREATE_PROJECT': {
       const newProject: Project = {
@@ -123,15 +117,6 @@ const practiceReducer = (state: PracticeState, action: PracticeAction): Practice
       };
     
     case 'CREATE_FILE': {
-      console.log('Creating file:', action.payload.name);
-      
-      // Prevent duplicate file creation
-      const project = state.projects.find(p => p.id === action.payload.projectId);
-      if (project?.files.some(f => f.name === action.payload.name)) {
-        console.warn('File already exists:', action.payload.name);
-        return state;
-      }
-      
       const newFile: CodeFile = {
         id: `file_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         name: action.payload.name,
@@ -157,61 +142,6 @@ const practiceReducer = (state: PracticeState, action: PracticeAction): Practice
         activeFile: newFile,
       };
     }
-    
-    case 'CREATE_MULTIPLE_FILES': {
-      console.log('Creating multiple files:', action.payload.files.length);
-      
-      const project = state.projects.find(p => p.id === action.payload.projectId);
-      if (!project) {
-        console.warn('Project not found:', action.payload.projectId);
-        return state;
-      }
-
-      // Filter out files that already exist to prevent duplicates
-      const existingFileNames = new Set(project.files.map(f => f.name));
-      const filesToCreate = action.payload.files.filter(file => !existingFileNames.has(file.name));
-      
-      if (filesToCreate.length === 0) {
-        console.warn('All files already exist');
-        return { ...state, isCreatingFiles: false };
-      }
-
-      // Create new files in batch
-      const newFiles: CodeFile[] = filesToCreate.map(fileData => ({
-        id: `file_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        name: fileData.name,
-        content: fileData.content || '',
-        language: fileData.language,
-        isUnsaved: false,
-      }));
-
-      const updatedProjects = state.projects.map(p =>
-        p.id === action.payload.projectId
-          ? { ...p, files: [...p.files, ...newFiles] }
-          : p
-      );
-
-      const updatedActiveProject = state.activeProject?.id === action.payload.projectId
-        ? { ...state.activeProject, files: [...state.activeProject.files, ...newFiles] }
-        : state.activeProject;
-
-      // Set the first created file as active
-      const firstNewFile = newFiles[0] || state.activeFile;
-
-      return {
-        ...state,
-        projects: updatedProjects,
-        activeProject: updatedActiveProject,
-        activeFile: firstNewFile,
-        isCreatingFiles: false,
-      };
-    }
-    
-    case 'SET_CREATING_FILES':
-      return {
-        ...state,
-        isCreatingFiles: action.payload.isCreating,
-      };
     
     case 'DELETE_FILE': {
       const wasActiveFile = state.activeFile?.id === action.payload.fileId;
@@ -379,9 +309,14 @@ interface PracticeProviderProps {
 
 export const PracticeProvider: React.FC<PracticeProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(practiceReducer, initialState);
+  
+  const contextValue = useMemo(() => ({
+    state,
+    dispatch
+  }), [state, dispatch]);
 
   return (
-    <PracticeContext.Provider value={{ state, dispatch }}>
+    <PracticeContext.Provider value={contextValue}>
       {children}
     </PracticeContext.Provider>
   );
