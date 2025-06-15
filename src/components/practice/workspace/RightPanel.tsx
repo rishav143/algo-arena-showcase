@@ -24,7 +24,7 @@ const RightPanel: React.FC = () => {
   ];
 
   return (
-    <div className="w-96 border-l border-gray-200 bg-white flex flex-col">
+    <div className="border-l border-gray-200 bg-white flex flex-col h-full">
       <Tabs 
         value={state.rightTab || 'output'} 
         onValueChange={handleTabChange}

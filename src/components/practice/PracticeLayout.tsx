@@ -1,6 +1,7 @@
 
 import React, { useEffect } from 'react';
 import { usePractice } from '@/contexts/PracticeContext';
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import PracticeNavigation from './PracticeNavigation';
 import ProjectsSidebar from './sidebar/ProjectsSidebar';
 import MainWorkspace from './workspace/MainWorkspace';
@@ -52,13 +53,21 @@ const PracticeLayout: React.FC = () => {
         {/* Projects Sidebar */}
         <ProjectsSidebar />
         
-        {/* Code Editor (Main Workspace) */}
-        <div className="flex-1 flex overflow-hidden">
-          <MainWorkspace />
+        {/* Resizable Code Editor and Right Panel */}
+        <ResizablePanelGroup direction="horizontal" className="flex-1">
+          {/* Code Editor (Main Workspace) */}
+          <ResizablePanel defaultSize={60} minSize={30}>
+            <MainWorkspace />
+          </ResizablePanel>
+          
+          {/* Resizable Handle */}
+          <ResizableHandle withHandle />
           
           {/* Right Panel for Output/AI/Video */}
-          <RightPanel />
-        </div>
+          <ResizablePanel defaultSize={40} minSize={25}>
+            <RightPanel />
+          </ResizablePanel>
+        </ResizablePanelGroup>
       </div>
     </div>
   );
