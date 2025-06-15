@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
 
 export interface Project {
@@ -22,12 +23,10 @@ interface PracticeState {
   activeFile: CodeFile | null;
   aiAssistantEnabled: boolean;
   activeTab: 'code' | 'output' | 'ai' | 'video';
-  rightTab: 'output' | 'ai' | 'video';
   output: string;
   isRunning: boolean;
   searchQuery: string;
   videoUrl: string | null;
-  searchResults: Array<{ id: string; title: string; url: string; thumbnail: string; }>;
   chatHistory: Array<{ role: 'user' | 'assistant'; content: string; timestamp: Date }>;
   isAiTyping: boolean;
 }
@@ -45,12 +44,10 @@ type PracticeAction =
   | { type: 'SAVE_FILE' }
   | { type: 'TOGGLE_AI_ASSISTANT' }
   | { type: 'SET_ACTIVE_TAB'; payload: { tab: 'code' | 'output' | 'ai' | 'video' } }
-  | { type: 'SET_RIGHT_TAB'; payload: { tab: 'output' | 'ai' | 'video' } }
   | { type: 'SET_OUTPUT'; payload: { output: string } }
   | { type: 'SET_RUNNING'; payload: { isRunning: boolean } }
   | { type: 'SET_SEARCH_QUERY'; payload: { query: string } }
   | { type: 'SET_VIDEO_URL'; payload: { url: string | null } }
-  | { type: 'SET_SEARCH_RESULTS'; payload: { results: Array<{ id: string; title: string; url: string; thumbnail: string; }> } }
   | { type: 'ADD_CHAT_MESSAGE'; payload: { role: 'user' | 'assistant'; content: string } }
   | { type: 'SET_AI_TYPING'; payload: { isTyping: boolean } };
 
@@ -60,17 +57,15 @@ const initialState: PracticeState = {
   activeFile: null,
   aiAssistantEnabled: true,
   activeTab: 'code',
-  rightTab: 'output',
   output: '',
   isRunning: false,
   searchQuery: '',
   videoUrl: null,
-  searchResults: [],
   chatHistory: [],
   isAiTyping: false,
 };
 
-const practiceReducer = (state: PracticeState, action: PracticeAction): PracticeState => {
+function practiceReducer(state: PracticeState, action: PracticeAction): PracticeState {
   switch (action.type) {
     case 'CREATE_PROJECT': {
       const newProject: Project = {
@@ -234,17 +229,17 @@ const practiceReducer = (state: PracticeState, action: PracticeAction): Practice
         activeTab: action.payload.tab,
       };
     
-    case 'SET_RIGHT_TAB':
-      return {
-        ...state,
-        rightTab: action.payload.tab,
-      };
-    
     case 'SET_OUTPUT':
       return {
         ...state,
         output: action.payload.output,
-        rightTab: 'output',
+        activeTab: 'output',
+      };
+    
+    case 'SET_RUNNING':
+      return {
+        ...state,
+        isRunning: action.payload.isRunning,
       };
     
     case 'SET_SEARCH_QUERY':
@@ -257,7 +252,7 @@ const practiceReducer = (state: PracticeState, action: PracticeAction): Practice
       return {
         ...state,
         videoUrl: action.payload.url,
-        rightTab: action.payload.url ? 'video' : state.rightTab,
+        activeTab: action.payload.url ? 'video' : state.activeTab,
       };
     
     case 'ADD_CHAT_MESSAGE':
@@ -282,7 +277,7 @@ const practiceReducer = (state: PracticeState, action: PracticeAction): Practice
     default:
       return state;
   }
-};
+}
 
 interface PracticeContextType {
   state: PracticeState;
