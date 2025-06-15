@@ -44,7 +44,8 @@ const DialogContent = React.forwardRef<
         e.preventDefault();
         // Focus the first input manually after a short delay
         setTimeout(() => {
-          const firstInput = e.currentTarget.querySelector('input');
+          const target = e.currentTarget as HTMLElement;
+          const firstInput = target.querySelector('input');
           if (firstInput) {
             firstInput.focus();
           }
