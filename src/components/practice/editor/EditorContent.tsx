@@ -47,25 +47,27 @@ export const EditorContent: React.FC<EditorContentProps> = ({
   };
 
   const lines = content.split('\n');
-  const lineCount = lines.length;
+  const lineCount = Math.max(lines.length, 20); // Minimum 20 lines for better UX
 
   return (
-    <div className="flex-1 flex">
-      {/* Line Numbers */}
-      <div className={`w-12 p-4 pr-2 font-mono text-sm text-right select-none border-r ${getLineNumberStyles(theme)}`}>
-        {Array.from({ length: Math.max(lineCount, 1) }, (_, i) => (
-          <div key={i + 1} className="leading-6">
-            {i + 1}
-          </div>
-        ))}
+    <div className="flex h-full overflow-hidden">
+      {/* Fixed Line Numbers */}
+      <div className={`w-12 flex-shrink-0 border-r overflow-hidden ${getLineNumberStyles(theme)}`}>
+        <div className="p-4 pr-2 font-mono text-sm text-right select-none">
+          {Array.from({ length: lineCount }, (_, i) => (
+            <div key={i + 1} className="leading-6 h-6">
+              {i + 1}
+            </div>
+          ))}
+        </div>
       </div>
       
-      {/* Code Content */}
-      <div className="flex-1 flex flex-col">
+      {/* Scrollable Code Content */}
+      <div className="flex-1 relative overflow-hidden">
         <textarea
           value={content}
           onChange={(e) => onChange(e.target.value)}
-          className={`flex-1 p-4 pl-4 font-mono text-sm resize-none outline-none border-0 leading-6 ${getThemeStyles(theme)}`}
+          className={`w-full h-full p-4 pl-4 font-mono text-sm resize-none outline-none border-0 leading-6 overflow-auto ${getThemeStyles(theme)}`}
           placeholder="Start coding here..."
           spellCheck={false}
           style={{
