@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
@@ -19,6 +18,10 @@ interface RenameDialogProps {
   currentName: string;
   onRename: (name: string) => void;
 }
+
+const VALID_EXTENSIONS = [
+  "js", "jsx", "ts", "tsx", "py", "java", "cpp", "cc", "cxx", "c", "h", "cs", "go", "rs"
+];
 
 const RenameDialog: React.FC<RenameDialogProps> = ({ 
   open, 
@@ -41,11 +44,9 @@ const RenameDialog: React.FC<RenameDialogProps> = ({
     if (!name.trim()) {
       return `${type === 'project' ? 'Project' : 'File'} name is required`;
     }
-    
     if (name.length < 2) {
       return `${type === 'project' ? 'Project' : 'File'} name must be at least 2 characters`;
     }
-    
     if (type === 'project') {
       if (!/^[a-zA-Z0-9_\-\s]+$/.test(name)) {
         return 'Project name can only contain letters, numbers, spaces, hyphens, and underscores';
@@ -54,8 +55,12 @@ const RenameDialog: React.FC<RenameDialogProps> = ({
       if (!/^[a-zA-Z0-9_\-\.]+$/.test(name)) {
         return 'File name can only contain letters, numbers, hyphens, underscores, and dots';
       }
+      // Extension validation for file renaming
+      const ext = name.split(".").pop()?.toLowerCase() || "";
+      if (!VALID_EXTENSIONS.includes(ext)) {
+        return `File extension ".${ext}" is not supported. Allowed: ${VALID_EXTENSIONS.join(", ")}`;
+      }
     }
-    
     return null;
   };
 
