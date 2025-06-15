@@ -48,28 +48,30 @@ const PracticeLayout: React.FC = () => {
       {/* Fixed Navigation */}
       <PracticeNavigation />
       
-      {/* Main Content Area */}
-      <div className="flex-1 flex min-h-0">
+      {/* Main Content Area with Resizable Panels */}
+      <div className="flex-1 flex overflow-hidden">
         {/* Projects Sidebar */}
         <ProjectsSidebar />
         
-        {/* Resizable Code Editor and Right Panel */}
-        <div className="flex-1 min-w-0">
-          <ResizablePanelGroup direction="horizontal" className="h-full">
-            {/* Code Editor (Main Workspace) */}
-            <ResizablePanel defaultSize={60} minSize={30} className="min-w-0">
+        {/* Resizable Main Content Area */}
+        <ResizablePanelGroup direction="horizontal" className="flex-1">
+          {/* Code Editor (Main Workspace) */}
+          <ResizablePanel defaultSize={60} minSize={30}>
+            <div className="h-full overflow-hidden">
               <MainWorkspace />
-            </ResizablePanel>
-            
-            {/* Resizable Handle */}
-            <ResizableHandle withHandle />
-            
-            {/* Right Panel for Output/AI/Video */}
-            <ResizablePanel defaultSize={40} minSize={25} className="min-w-0">
+            </div>
+          </ResizablePanel>
+          
+          {/* Resizable Handle */}
+          <ResizableHandle withHandle />
+          
+          {/* Right Panel for Output/AI/Video */}
+          <ResizablePanel defaultSize={40} minSize={25}>
+            <div className="h-full overflow-hidden">
               <RightPanel />
-            </ResizablePanel>
-          </ResizablePanelGroup>
-        </div>
+            </div>
+          </ResizablePanel>
+        </ResizablePanelGroup>
       </div>
     </div>
   );
