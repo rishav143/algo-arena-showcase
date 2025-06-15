@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, ReactNode } from 'react';
+import React, { createContext, useContext, useReducer, ReactNode, useMemo } from 'react';
 
 export interface Project {
   id: string;
@@ -74,7 +74,7 @@ const practiceReducer = (state: PracticeState, action: PracticeAction): Practice
   switch (action.type) {
     case 'CREATE_PROJECT': {
       const newProject: Project = {
-        id: Date.now().toString(),
+        id: `project_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         name: action.payload.name,
         files: [],
         createdAt: new Date(),
@@ -118,23 +118,27 @@ const practiceReducer = (state: PracticeState, action: PracticeAction): Practice
     
     case 'CREATE_FILE': {
       const newFile: CodeFile = {
-        id: Date.now().toString(),
+        id: `file_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         name: action.payload.name,
         content: '',
         language: action.payload.language,
         isUnsaved: false,
       };
       
+      const updatedProjects = state.projects.map(p =>
+        p.id === action.payload.projectId
+          ? { ...p, files: [...p.files, newFile] }
+          : p
+      );
+      
+      const updatedActiveProject = state.activeProject?.id === action.payload.projectId
+        ? { ...state.activeProject, files: [...state.activeProject.files, newFile] }
+        : state.activeProject;
+      
       return {
         ...state,
-        projects: state.projects.map(p =>
-          p.id === action.payload.projectId
-            ? { ...p, files: [...p.files, newFile] }
-            : p
-        ),
-        activeProject: state.activeProject?.id === action.payload.projectId
-          ? { ...state.activeProject, files: [...state.activeProject.files, newFile] }
-          : state.activeProject,
+        projects: updatedProjects,
+        activeProject: updatedActiveProject,
         activeFile: newFile,
       };
     }
@@ -305,9 +309,14 @@ interface PracticeProviderProps {
 
 export const PracticeProvider: React.FC<PracticeProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(practiceReducer, initialState);
+  
+  const contextValue = useMemo(() => ({
+    state,
+    dispatch
+  }), [state, dispatch]);
 
   return (
-    <PracticeContext.Provider value={{ state, dispatch }}>
+    <PracticeContext.Provider value={contextValue}>
       {children}
     </PracticeContext.Provider>
   );

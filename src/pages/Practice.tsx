@@ -6,7 +6,9 @@ import PracticeLayout from '@/components/practice/PracticeLayout';
 const Practice: React.FC = () => {
   return (
     <PracticeProvider>
-      <PracticeLayout />
+      <div className="h-screen w-screen overflow-hidden">
+        <PracticeLayout />
+      </div>
     </PracticeProvider>
   );
 };
