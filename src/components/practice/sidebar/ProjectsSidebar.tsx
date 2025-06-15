@@ -8,10 +8,15 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { usePractice } from '@/contexts/PracticeContext';
 import ProjectItem from './ProjectItem';
 import CreateProjectDialog from './CreateProjectDialog';
+import CreateFileDialog from './CreateFileDialog';
 
 const ProjectsSidebar: React.FC = () => {
   const { state, dispatch } = usePractice();
   const [showCreateProject, setShowCreateProject] = useState(false);
+
+  // CENTRALIZED "Create File" modal state:
+  const [showCreateFile, setShowCreateFile] = useState(false);
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
 
   const handleCreateProject = () => {
     setShowCreateProject(true);
@@ -19,6 +24,18 @@ const ProjectsSidebar: React.FC = () => {
 
   const handleToggleAI = (enabled: boolean) => {
     dispatch({ type: 'TOGGLE_AI_ASSISTANT' });
+  };
+
+  // Called from ProjectItem with projectId
+  const handleShowCreateFile = (projectId: string) => {
+    setSelectedProjectId(projectId);
+    setShowCreateFile(true);
+  };
+
+  // When modal closes, clear selected projectId
+  const handleCloseCreateFile = (open: boolean) => {
+    setShowCreateFile(open);
+    if (!open) setSelectedProjectId(null);
   };
 
   return (
@@ -78,6 +95,8 @@ const ProjectsSidebar: React.FC = () => {
                   key={project.id}
                   project={project}
                   isActive={state.activeProject?.id === project.id}
+                  // <-- Pass callback for opening central file dialog:
+                  onCreateFile={() => handleShowCreateFile(project.id)}
                 />
               ))}
             </div>
@@ -89,6 +108,13 @@ const ProjectsSidebar: React.FC = () => {
       <CreateProjectDialog
         open={showCreateProject}
         onOpenChange={setShowCreateProject}
+      />
+
+      {/* CENTRALIZED Create File Dialog - Only one rendered */}
+      <CreateFileDialog
+        open={!!showCreateFile && !!selectedProjectId}
+        onOpenChange={handleCloseCreateFile}
+        projectId={selectedProjectId || ""}
       />
     </div>
   );

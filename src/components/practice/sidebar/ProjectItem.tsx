@@ -10,27 +10,23 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Project, usePractice } from '@/contexts/PracticeContext';
 import FileItem from './FileItem';
-import CreateFileDialog from './CreateFileDialog';
 import RenameDialog from './RenameDialog';
 
 interface ProjectItemProps {
   project: Project;
   isActive: boolean;
+  // new prop for centralized dialog handling
+  onCreateFile: () => void;
 }
 
-const ProjectItem: React.FC<ProjectItemProps> = ({ project, isActive }) => {
+const ProjectItem: React.FC<ProjectItemProps> = ({ project, isActive, onCreateFile }) => {
   const { dispatch } = usePractice();
   const [isExpanded, setIsExpanded] = useState(isActive);
-  const [showCreateFile, setShowCreateFile] = useState(false);
   const [showRename, setShowRename] = useState(false);
 
   const handleProjectClick = () => {
     dispatch({ type: 'SET_ACTIVE_PROJECT', payload: { project } });
     setIsExpanded(!isExpanded);
-  };
-
-  const handleCreateFile = () => {
-    setShowCreateFile(true);
   };
 
   const handleRename = () => {
@@ -90,7 +86,7 @@ const ProjectItem: React.FC<ProjectItemProps> = ({ project, isActive }) => {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-48 bg-white border border-gray-200 shadow-lg">
-            <DropdownMenuItem onClick={handleCreateFile} className="hover:bg-gray-50">
+            <DropdownMenuItem onClick={onCreateFile} className="hover:bg-gray-50">
               <Plus className="w-4 h-4 mr-2" />
               Create New File
             </DropdownMenuItem>
@@ -116,7 +112,7 @@ const ProjectItem: React.FC<ProjectItemProps> = ({ project, isActive }) => {
               <Button
                 size="sm"
                 variant="ghost"
-                onClick={handleCreateFile}
+                onClick={onCreateFile}
                 className="text-xs h-6 px-2 text-indigo-600 hover:bg-indigo-50"
               >
                 <Plus className="w-3 h-3 mr-1" />
@@ -136,12 +132,7 @@ const ProjectItem: React.FC<ProjectItemProps> = ({ project, isActive }) => {
       )}
 
       {/* Dialogs */}
-      <CreateFileDialog
-        open={showCreateFile}
-        onOpenChange={setShowCreateFile}
-        projectId={project.id}
-      />
-      
+      {/* Remove per-project CreateFileDialog: now rendered only ONCE at sidebar level */}
       <RenameDialog
         open={showRename}
         onOpenChange={setShowRename}
