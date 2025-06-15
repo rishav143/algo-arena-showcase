@@ -94,16 +94,21 @@ const CodeEditor: React.FC = () => {
     }
 
     dispatch({ type: 'SET_RUNNING', payload: { isRunning: true } });
+    console.log('Run: SET_RUNNING true');
 
     try {
+      console.log('Run: calling compileCode');
       const result = await compileCode(
         state.activeFile.content,
         state.activeFile.language
       );
+      console.log('Run: compileCode result:', result);
+
       dispatch({ 
         type: 'SET_OUTPUT', 
         payload: { output: result.output || result.error || 'No output' } 
       });
+      console.log('Run: SET_OUTPUT');
 
       if (result.error && state.aiAssistantEnabled) {
         dispatch({
@@ -114,6 +119,7 @@ const CodeEditor: React.FC = () => {
           }
         });
         dispatch({ type: 'SET_ACTIVE_TAB', payload: { tab: 'ai' } });
+        console.log('Run: AI error message dispatched');
       }
 
     } catch (error) {
@@ -126,8 +132,10 @@ const CodeEditor: React.FC = () => {
         title: "Error running code",
         description: "An unexpected error occurred when running your code.",
       });
+      console.error('Run: Caught error:', error);
     } finally {
       dispatch({ type: 'SET_RUNNING', payload: { isRunning: false } });
+      console.log('Run: SET_RUNNING false');
     }
   };
 
@@ -287,11 +295,16 @@ const CodeEditor: React.FC = () => {
             size="sm"
           >
             {state.isRunning ? (
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Running...
+              </>
             ) : (
-              <Play className="w-4 h-4 mr-2" />
+              <>
+                <Play className="w-4 h-4 mr-2" />
+                Run
+              </>
             )}
-            Run
           </Button>
         </div>
       </div>
