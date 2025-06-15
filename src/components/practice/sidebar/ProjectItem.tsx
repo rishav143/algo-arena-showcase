@@ -15,7 +15,6 @@ import RenameDialog from './RenameDialog';
 interface ProjectItemProps {
   project: Project;
   isActive: boolean;
-  // new prop for centralized dialog handling
   onCreateFile: () => void;
 }
 
@@ -132,7 +131,7 @@ const ProjectItem: React.FC<ProjectItemProps> = ({ project, isActive, onCreateFi
       )}
 
       {/* Dialogs */}
-      {/* Remove per-project CreateFileDialog: now rendered only ONCE at sidebar level */}
+      {/* Remove per-project CreateFileDialog: now rendered only ONCE in context provider */}
       <RenameDialog
         open={showRename}
         onOpenChange={setShowRename}

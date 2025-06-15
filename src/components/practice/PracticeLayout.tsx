@@ -7,6 +7,7 @@ import ProjectsSidebar from './sidebar/ProjectsSidebar';
 import MainWorkspace from './workspace/MainWorkspace';
 import RightPanel from './workspace/RightPanel';
 import { useToast } from '@/components/ui/use-toast'; // import shadcn/ui toast
+import { CreateFileDialogProvider } from './sidebar/CreateFileDialogContext';
 
 const PracticeLayout: React.FC = () => {
   const { state, dispatch } = usePractice();
@@ -57,36 +58,36 @@ const PracticeLayout: React.FC = () => {
   }, [state.activeFile?.isUnsaved, state.aiAssistantEnabled, dispatch]);
 
   return (
-    <div className="h-full flex flex-col bg-background">
-      {/* Fixed Navigation */}
-      <PracticeNavigation />
+    <CreateFileDialogProvider>
+      <div className="h-full flex flex-col bg-background">
+        {/* Fixed Navigation */}
+        <PracticeNavigation />
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex min-h-0">
-        {/* Projects Sidebar - Fixed width */}
-        <div className="flex-shrink-0">
-          <ProjectsSidebar />
-        </div>
+        {/* Main Content Area */}
+        <div className="flex-1 flex min-h-0">
+          {/* Projects Sidebar - Fixed width */}
+          <div className="flex-shrink-0">
+            <ProjectsSidebar />
+          </div>
 
-        {/* Resizable Content Area */}
-        <div className="flex-1 min-w-0">
-          <ResizablePanelGroup direction="horizontal" className="h-full">
-            {/* Code Editor (Main Workspace) */}
-            <ResizablePanel defaultSize={60} minSize={30} className="min-w-0">
-              <MainWorkspace />
-            </ResizablePanel>
-
-            {/* Resizable Handle */}
-            <ResizableHandle withHandle />
-
-            {/* Right Panel for Output/AI/Video */}
-            <ResizablePanel defaultSize={40} minSize={25} className="min-w-0">
-              <RightPanel />
-            </ResizablePanel>
-          </ResizablePanelGroup>
+          {/* Resizable Content Area */}
+          <div className="flex-1 min-w-0">
+            <ResizablePanelGroup direction="horizontal" className="h-full">
+              {/* Code Editor (Main Workspace) */}
+              <ResizablePanel defaultSize={60} minSize={30} className="min-w-0">
+                <MainWorkspace />
+              </ResizablePanel>
+              {/* Resizable Handle */}
+              <ResizableHandle withHandle />
+              {/* Right Panel for Output/AI/Video */}
+              <ResizablePanel defaultSize={40} minSize={25} className="min-w-0">
+                <RightPanel />
+              </ResizablePanel>
+            </ResizablePanelGroup>
+          </div>
         </div>
       </div>
-    </div>
+    </CreateFileDialogProvider>
   );
 };
 
