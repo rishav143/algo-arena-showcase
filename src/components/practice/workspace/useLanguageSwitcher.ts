@@ -11,6 +11,7 @@ import { usePractice } from "@/contexts/PracticeContext";
  * - Looks up file by unique file.id
  * - Renames with new extension if needed
  * - Sets language and content to template
+ * - Does NOT save current data before switching (data is lost)
  */
 export function useLanguageSwitcher() {
   const { state, dispatch } = usePractice();
@@ -18,8 +19,9 @@ export function useLanguageSwitcher() {
   /**
    * Change the language of any file (active or not). Will:
    *   1. Rename extension if needed
-   *   2. Update file language/content in all projects
-   *   3. Guarantee sidebar, tabs, and editor are synced
+   *   2. Replace current content with new language template (data is lost)
+   *   3. Update file language/content in all projects
+   *   4. Guarantee sidebar, tabs, and editor are synced
    */
   function changeFileLanguage(fileId: string, newLanguage: string) {
     // Find the file in all projects (not just active)
@@ -42,13 +44,13 @@ export function useLanguageSwitcher() {
     const newName = baseName + (newExt ? `.${newExt}` : "");
     const newContent = getLanguageTemplate(newLanguage);
 
-    // Create the updated file
+    // Create the updated file - current data is lost, replaced with template
     const updatedFile = {
       ...foundFile,
       name: newName,
       language: newLanguage,
       content: newContent,
-      isUnsaved: true,
+      isUnsaved: false, // Start fresh, not unsaved yet
     };
 
     // Update the projects array with the modified file
@@ -87,7 +89,7 @@ export function useLanguageSwitcher() {
       });
     }
 
-    console.log('[LanguageSwitcher] Updated file:', updatedFile.name, 'to language:', newLanguage);
+    console.log('[LanguageSwitcher] Language switched - data lost, new template loaded:', updatedFile.name, 'to language:', newLanguage);
   }
 
   return { changeFileLanguage };
