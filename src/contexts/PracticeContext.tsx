@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useReducer, ReactNode, useMemo } from 'react';
 
 export interface Project {
@@ -194,66 +193,76 @@ const practiceReducer = (state: PracticeState, action: PracticeAction): Practice
         activeTab: action.payload.file ? 'code' : state.activeTab,
       };
     
-    case 'UPDATE_FILE_CONTENT':
-      if (!state.activeFile) return state;
-      
+    case 'UPDATE_FILE_CONTENT': {
+      if (!state.activeFile || !state.activeProject) return state;
+
+      // Update activeFile, activeProject.files, and the right file in projects array
+      const updatedFile: CodeFile = {
+        ...state.activeFile,
+        content: action.payload.content,
+        isUnsaved: true
+      };
+
+      // Update files array in activeProject
+      const updatedProjectFiles = state.activeProject.files.map(f =>
+        f.id === updatedFile.id ? updatedFile : f
+      );
+
+      // Update activeProject
+      const updatedActiveProject = {
+        ...state.activeProject,
+        files: updatedProjectFiles
+      };
+
+      // Update projects array
+      const updatedProjects = state.projects.map(p =>
+        p.id === state.activeProject?.id
+          ? { ...p, files: updatedProjectFiles }
+          : p
+      );
+
       return {
         ...state,
-        activeFile: {
-          ...state.activeFile,
-          content: action.payload.content,
-          isUnsaved: true
-        },
-        projects: state.projects.map(p =>
-          p.id === state.activeProject?.id
-            ? {
-                ...p,
-                files: p.files.map(f =>
-                  f.id === state.activeFile?.id
-                    ? { ...f, content: action.payload.content, isUnsaved: true }
-                    : f
-                ),
-              }
-            : p
-        ),
-        activeProject: state.activeProject
-          ? {
-              ...state.activeProject,
-              files: state.activeProject.files.map(f =>
-                f.id === state.activeFile?.id
-                  ? { ...f, content: action.payload.content, isUnsaved: true }
-                  : f
-              ),
-            }
-          : state.activeProject,
+        activeFile: updatedFile,
+        activeProject: updatedActiveProject,
+        projects: updatedProjects,
       };
+    }
     
     case 'SAVE_FILE': {
       if (!state.activeFile || !state.activeProject) return state;
-      
+
       const savedFile = { 
         ...state.activeFile, 
         isUnsaved: false, 
         lastSaved: new Date() 
       };
-      
+
+      // Update files array in activeProject
+      const savedProjectFiles = state.activeProject.files.map(f =>
+        f.id === savedFile.id ? savedFile : f
+      );
+
+      // Update activeProject
+      const savedActiveProject = {
+        ...state.activeProject,
+        files: savedProjectFiles
+      };
+
+      // Update projects array
+      const savedProjects = state.projects.map(p =>
+        p.id === state.activeProject?.id
+          ? { ...p, files: savedProjectFiles }
+          : p
+      );
+
       console.log('Saving file:', savedFile.name, 'Content length:', savedFile.content.length);
-      
+
       return {
         ...state,
         activeFile: savedFile,
-        projects: state.projects.map(p =>
-          p.id === state.activeProject?.id
-            ? {
-                ...p,
-                files: p.files.map(f => f.id === state.activeFile?.id ? savedFile : f),
-              }
-            : p
-        ),
-        activeProject: {
-          ...state.activeProject,
-          files: state.activeProject.files.map(f => f.id === state.activeFile?.id ? savedFile : f),
-        },
+        activeProject: savedActiveProject,
+        projects: savedProjects,
       };
     }
     
