@@ -18,6 +18,7 @@ interface ProjectItemProps {
   onCreateFile: () => void;
 }
 
+// Only uses the onCreateFile callback provided via props, never renders its own dialog!
 const ProjectItem: React.FC<ProjectItemProps> = ({ project, isActive, onCreateFile }) => {
   const { dispatch } = usePractice();
   const [isExpanded, setIsExpanded] = useState(isActive);

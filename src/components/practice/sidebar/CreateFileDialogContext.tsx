@@ -6,7 +6,8 @@ interface CreateFileDialogContextValue {
   openDialog: (projectId: string) => void;
 }
 
-const CreateFileDialogContext = createContext<CreateFileDialogContextValue | undefined>(undefined);
+const CreateFileDialogContext =
+  createContext<CreateFileDialogContextValue | undefined>(undefined);
 
 export function useCreateFileDialog() {
   const ctx = useContext(CreateFileDialogContext);
@@ -16,7 +17,9 @@ export function useCreateFileDialog() {
   return ctx;
 }
 
-export const CreateFileDialogProvider: React.FC<{children: ReactNode}> = ({ children }) => {
+export const CreateFileDialogProvider: React.FC<{ children: ReactNode }> = ({
+  children
+}) => {
   const [open, setOpen] = useState(false);
   const [projectId, setProjectId] = useState<string | null>(null);
 
@@ -25,14 +28,19 @@ export const CreateFileDialogProvider: React.FC<{children: ReactNode}> = ({ chil
     setOpen(true);
   };
 
+  // Only reset projectId after dialog fully closed, to avoid orphan overlays.
   const handleClose = (nextOpen: boolean) => {
     setOpen(nextOpen);
-    if (!nextOpen) setTimeout(() => setProjectId(null), 200); // Wait for dialog to close
+    if (!nextOpen) {
+      // NOTE: Wait for animation to finish, then reset project id & dialog
+      setTimeout(() => setProjectId(null), 200);
+    }
   };
 
   return (
     <CreateFileDialogContext.Provider value={{ openDialog }}>
       {children}
+      {/* Unconditionally rendered at top – never inside a part of the layout that can disappear */}
       <CreateFileDialog
         open={open}
         onOpenChange={handleClose}
