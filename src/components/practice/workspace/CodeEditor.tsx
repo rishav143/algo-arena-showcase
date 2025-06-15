@@ -10,6 +10,7 @@ import {
 import { Play, Save, Loader2, Code } from 'lucide-react';
 import { usePractice } from '@/contexts/PracticeContext';
 import { compileCode, getLanguageTemplate } from '@/services/compilerService';
+import { useLanguageSwitcher } from "./useLanguageSwitcher";
 
 const SUPPORTED_LANGUAGES = [
   { value: 'javascript', label: 'JavaScript' },
@@ -62,6 +63,7 @@ const getLangFromFilename = (filename: string): string | undefined => {
 
 const CodeEditor: React.FC = () => {
   const { state, dispatch } = usePractice();
+  const { changeFileLanguage } = useLanguageSwitcher();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleContentChange = (content: string) => {
@@ -118,63 +120,8 @@ const CodeEditor: React.FC = () => {
 
   const handleLanguageChange = (language: string) => {
     if (!state.activeFile) return;
-    if (state.activeFile.language === language) return;
-
-    const currentName = state.activeFile.name;
-    const parts = currentName.split('.');
-    const baseName = parts.length > 1 ? parts.slice(0, -1).join('.') : currentName;
-    const newExt = LANG_TO_EXT[language] || '';
-    const newName = baseName + (newExt ? `.${newExt}` : '');
-    const newContent = getLanguageTemplate(language);
-
-    // Helper to update the active file cleanly after a potential rename action
-    const setActiveFileWithLatest = (name: string, lang: string, content: string) => {
-      const latestProject = state.projects.find((p) => p.id === state.activeProject?.id);
-      const updatedFile = latestProject?.files.find((f) =>
-        f.id === state.activeFile?.id ||
-        (f.name === name && f.language === lang)
-      );
-      if (updatedFile) {
-        // Always update name (since it may have been updated via rename),
-        // and content/language together, isUnsaved true so UI sees it
-        dispatch({
-          type: 'SET_ACTIVE_FILE',
-          payload: {
-            file: {
-              ...updatedFile,
-              name,
-              language: lang,
-              content,
-              isUnsaved: true,
-            }
-          }
-        });
-        // Also update the file content for the rest of the system
-        dispatch({
-          type: 'UPDATE_FILE_CONTENT',
-          payload: { content },
-        });
-      }
-    };
-
-    if (currentName !== newName) {
-      // 1. Rename, then in next tick update language/content using FRESH NAME
-      dispatch({
-        type: 'RENAME_FILE',
-        payload: {
-          projectId: state.activeProject?.id ?? "",
-          fileId: state.activeFile.id,
-          name: newName,
-        },
-      });
-
-      setTimeout(() => {
-        setActiveFileWithLatest(newName, language, newContent);
-      }, 0);
-    } else {
-      // No rename, but still need to update both language/content
-      setActiveFileWithLatest(newName, language, newContent);
-    }
+    // Always call universal language switcher
+    changeFileLanguage(state.activeFile.id, language);
   };
 
   useEffect(() => {
