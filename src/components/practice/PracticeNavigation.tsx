@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Search, User, Code2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -10,13 +11,14 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { usePractice } from '@/contexts/PracticeContext';
 import { Link } from 'react-router-dom';
+// Use the YouTube Search API npm module
+import YoutubeSearchApi from 'youtube-search-api';
 
 interface VideoSuggestion {
   id: string;
   title: string;
   url: string;
   thumbnail: string;
-  isMyVideo?: boolean;
 }
 
 const PracticeNavigation: React.FC = () => {
@@ -26,59 +28,37 @@ const PracticeNavigation: React.FC = () => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
 
-  // Generate video suggestions based on search query
-  const generateVideoSuggestions = (query: string): VideoSuggestion[] => {
-    if (!query.trim()) return [];
-
-    // My videos come first
-    const myVideos: VideoSuggestion[] = [
-      {
-        id: 'my-1',
-        title: `${query} - Complete Tutorial by Rishav Engineering`,
-        url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-        thumbnail: '/placeholder.svg',
-        isMyVideo: true
-      },
-      {
-        id: 'my-2',
-        title: `Advanced ${query} - Rishav Engineering`,
-        url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-        thumbnail: '/placeholder.svg',
-        isMyVideo: true
-      }
-    ];
-
-    // Other YouTube videos
-    const otherVideos: VideoSuggestion[] = [
-      {
-        id: 'yt-1',
-        title: `${query} Tutorial - TechChannel`,
-        url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-        thumbnail: '/placeholder.svg'
-      },
-      {
-        id: 'yt-2',
-        title: `Learn ${query} in 10 Minutes`,
-        url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-        thumbnail: '/placeholder.svg'
-      },
-      {
-        id: 'yt-3',
-        title: `${query} Explained Simply`,
-        url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-        thumbnail: '/placeholder.svg'
-      }
-    ];
-
-    return [...myVideos, ...otherVideos];
-  };
-
+  // Fetch YouTube video suggestions based on user input
   useEffect(() => {
+    const fetchYouTubeResults = async (query: string) => {
+      if (!query.trim() || query.trim().length < 2) {
+        setVideoSuggestions([]);
+        setShowSuggestions(false);
+        setSelectedIndex(-1);
+        return;
+      }
+      try {
+        const results = await YoutubeSearchApi.GetListByKeyword(query, false, 5);
+        const suggestions = (results.items || [])
+          .filter(item => item.type === 'video')
+          .map(item => ({
+            id: item.id,
+            title: item.title,
+            url: `https://www.youtube.com/embed/${item.id}`,
+            thumbnail: item.thumbnail?.thumbnails?.[0]?.url || ''
+          }));
+        setVideoSuggestions(suggestions);
+        setShowSuggestions(true);
+        setSelectedIndex(-1);
+      } catch (error) {
+        setVideoSuggestions([]);
+        setShowSuggestions(false);
+        setSelectedIndex(-1);
+      }
+    };
+
     if (searchQuery.trim()) {
-      const suggestions = generateVideoSuggestions(searchQuery);
-      setVideoSuggestions(suggestions);
-      setShowSuggestions(true);
-      setSelectedIndex(-1);
+      fetchYouTubeResults(searchQuery.trim());
     } else {
       setVideoSuggestions([]);
       setShowSuggestions(false);
@@ -87,7 +67,7 @@ const PracticeNavigation: React.FC = () => {
   }, [searchQuery]);
 
   const handleVideoSelect = (video: VideoSuggestion) => {
-    // Set search results with selected video first
+    // Set only YouTube search results (filtered)
     const allResults = videoSuggestions.map(v => ({
       id: v.id,
       title: v.title,
@@ -201,11 +181,7 @@ const PracticeNavigation: React.FC = () => {
                   <div className="text-sm font-medium text-gray-900 line-clamp-2">
                     {video.title}
                   </div>
-                  {video.isMyVideo && (
-                    <div className="text-xs text-indigo-600 font-medium mt-1">
-                      Rishav Engineering
-                    </div>
-                  )}
+                  {/* No more My Video or custom labels */}
                 </div>
               </button>
             ))}
@@ -238,3 +214,4 @@ const PracticeNavigation: React.FC = () => {
 };
 
 export default PracticeNavigation;
+
