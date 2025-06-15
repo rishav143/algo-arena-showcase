@@ -139,17 +139,17 @@ const CodeEditor: React.FC = () => {
     if (state.activeFile) {
       // Warn if selected language does not match extension
       const extLang = getLangFromFilename(state.activeFile.name);
-      if (extLang && language !== extLang) {
+      if (extLang && state.activeFile.language !== extLang) {
         toast({
           variant: "destructive",
           title: "Warning",
-          description: `File extension ".${state.activeFile.name.split('.').pop()}" usually maps to "${extLang}". You selected "${language}". We recommend matching extension and language!`,
+          description: `File extension ".${state.activeFile.name.split('.').pop()}" usually maps to "${extLang}". You selected "${state.activeFile.language}". We recommend matching extension and language!`,
         });
       }
       dispatch({
         type: 'SET_ACTIVE_FILE',
         payload: {
-          file: { ...state.activeFile, language },
+          file: { ...state.activeFile, language: state.activeFile.language },
         }
       });
     }
