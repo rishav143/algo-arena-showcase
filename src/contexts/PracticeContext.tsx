@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useReducer, ReactNode } from 'react';
+import React, { createContext, useContext, useReducer, ReactNode, useMemo, useCallback } from 'react';
 
 export interface Project {
   id: string;
@@ -71,9 +71,10 @@ const initialState: PracticeState = {
   isAiTyping: false,
 };
 
+// Debounce function to prevent rapid state updates
+let updateTimeout: NodeJS.Timeout | null = null;
+
 const practiceReducer = (state: PracticeState, action: PracticeAction): PracticeState => {
-  console.log('Context action:', action.type);
-  
   switch (action.type) {
     case 'CREATE_PROJECT': {
       const newProject: Project = {
@@ -101,11 +102,12 @@ const practiceReducer = (state: PracticeState, action: PracticeAction): Practice
     }
     
     case 'RENAME_PROJECT': {
+      const updatedProjects = state.projects.map(p =>
+        p.id === action.payload.id ? { ...p, name: action.payload.name } : p
+      );
       return {
         ...state,
-        projects: state.projects.map(p =>
-          p.id === action.payload.id ? { ...p, name: action.payload.name } : p
-        ),
+        projects: updatedProjects,
         activeProject: state.activeProject?.id === action.payload.id
           ? { ...state.activeProject, name: action.payload.name }
           : state.activeProject,
@@ -120,13 +122,10 @@ const practiceReducer = (state: PracticeState, action: PracticeAction): Practice
       };
     
     case 'CREATE_FILE': {
-      console.log('Creating file:', action.payload.name);
-      
-      // Prevent duplicate file creation
+      // Prevent duplicate file creation - critical fix
       const project = state.projects.find(p => p.id === action.payload.projectId);
-      if (project?.files.some(f => f.name === action.payload.name)) {
-        console.warn('File already exists:', action.payload.name);
-        return state;
+      if (!project || project.files.some(f => f.name === action.payload.name)) {
+        return state; // Return unchanged state to prevent re-render
       }
       
       const newFile: CodeFile = {
@@ -157,13 +156,15 @@ const practiceReducer = (state: PracticeState, action: PracticeAction): Practice
     
     case 'DELETE_FILE': {
       const wasActiveFile = state.activeFile?.id === action.payload.fileId;
+      const updatedProjects = state.projects.map(p =>
+        p.id === action.payload.projectId
+          ? { ...p, files: p.files.filter(f => f.id !== action.payload.fileId) }
+          : p
+      );
+      
       return {
         ...state,
-        projects: state.projects.map(p =>
-          p.id === action.payload.projectId
-            ? { ...p, files: p.files.filter(f => f.id !== action.payload.fileId) }
-            : p
-        ),
+        projects: updatedProjects,
         activeProject: state.activeProject?.id === action.payload.projectId
           ? { ...state.activeProject, files: state.activeProject.files.filter(f => f.id !== action.payload.fileId) }
           : state.activeProject,
@@ -172,18 +173,20 @@ const practiceReducer = (state: PracticeState, action: PracticeAction): Practice
     }
     
     case 'RENAME_FILE': {
+      const updatedProjects = state.projects.map(p =>
+        p.id === action.payload.projectId
+          ? {
+              ...p,
+              files: p.files.map(f =>
+                f.id === action.payload.fileId ? { ...f, name: action.payload.name } : f
+              ),
+            }
+          : p
+      );
+      
       return {
         ...state,
-        projects: state.projects.map(p =>
-          p.id === action.payload.projectId
-            ? {
-                ...p,
-                files: p.files.map(f =>
-                  f.id === action.payload.fileId ? { ...f, name: action.payload.name } : f
-                ),
-              }
-            : p
-        ),
+        projects: updatedProjects,
         activeProject: state.activeProject?.id === action.payload.projectId
           ? {
               ...state.activeProject,
@@ -206,11 +209,10 @@ const practiceReducer = (state: PracticeState, action: PracticeAction): Practice
       };
     
     case 'UPDATE_FILE_CONTENT':
+      if (!state.activeFile) return state;
       return {
         ...state,
-        activeFile: state.activeFile
-          ? { ...state.activeFile, content: action.payload.content, isUnsaved: true }
-          : null,
+        activeFile: { ...state.activeFile, content: action.payload.content, isUnsaved: true },
       };
     
     case 'SAVE_FILE': {
@@ -322,8 +324,14 @@ interface PracticeProviderProps {
 export const PracticeProvider: React.FC<PracticeProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(practiceReducer, initialState);
 
+  // Memoize the context value to prevent unnecessary re-renders
+  const contextValue = useMemo(() => ({
+    state,
+    dispatch,
+  }), [state]);
+
   return (
-    <PracticeContext.Provider value={{ state, dispatch }}>
+    <PracticeContext.Provider value={contextValue}>
       {children}
     </PracticeContext.Provider>
   );

@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { memo } from 'react';
 import { usePractice } from '@/contexts/PracticeContext';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import PracticeNavigation from './PracticeNavigation';
@@ -7,9 +7,7 @@ import ProjectsSidebar from './sidebar/ProjectsSidebar';
 import MainWorkspace from './workspace/MainWorkspace';
 import RightPanel from './workspace/RightPanel';
 
-const PracticeLayout: React.FC = () => {
-  const { state } = usePractice();
-
+const PracticeLayout: React.FC = memo(() => {
   return (
     <div className="h-screen w-screen flex flex-col overflow-hidden bg-background">
       {/* Navigation */}
@@ -41,6 +39,8 @@ const PracticeLayout: React.FC = () => {
       </div>
     </div>
   );
-};
+});
+
+PracticeLayout.displayName = 'PracticeLayout';
 
 export default PracticeLayout;

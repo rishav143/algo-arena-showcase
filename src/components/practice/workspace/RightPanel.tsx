@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { memo, useMemo } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Terminal, Bot, Play } from 'lucide-react';
 import { usePractice } from '@/contexts/PracticeContext';
@@ -7,7 +7,7 @@ import OutputPanel from './OutputPanel';
 import AIAssistant from './AIAssistant';
 import VideoPanel from './VideoPanel';
 
-const RightPanel: React.FC = () => {
+const RightPanel: React.FC = memo(() => {
   const { state, dispatch } = usePractice();
 
   const handleTabChange = (value: string) => {
@@ -17,11 +17,11 @@ const RightPanel: React.FC = () => {
     });
   };
 
-  const visibleTabs = [
+  const visibleTabs = useMemo(() => [
     { value: 'output', label: 'Output', icon: Terminal },
     ...(state.aiAssistantEnabled ? [{ value: 'ai', label: 'AI Assistant', icon: Bot }] : []),
     ...(state.videoUrl ? [{ value: 'video', label: 'Video', icon: Play }] : []),
-  ];
+  ], [state.aiAssistantEnabled, state.videoUrl]);
 
   const currentTab = state.rightTab || 'output';
 
@@ -72,6 +72,8 @@ const RightPanel: React.FC = () => {
       </Tabs>
     </div>
   );
-};
+});
+
+RightPanel.displayName = 'RightPanel';
 
 export default RightPanel;
