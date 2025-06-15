@@ -1,5 +1,5 @@
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -8,9 +8,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Play, Save, Loader2, Code } from 'lucide-react';
+import { Play, Save, Loader2, Code, Plus } from 'lucide-react';
 import { usePractice } from '@/contexts/PracticeContext';
 import { compileCode } from '@/services/compilerService';
+import { useCreateFileDialog } from '../sidebar/CreateFileDialogContext';
 
 const SUPPORTED_LANGUAGES = [
   { value: 'javascript', label: 'JavaScript' },
@@ -26,23 +27,47 @@ const SUPPORTED_LANGUAGES = [
 
 const CodeEditor: React.FC = () => {
   const { state, dispatch } = usePractice();
+  const { openDialog } = useCreateFileDialog();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  
+  // Temporary content for when no file is active
+  const [tempContent, setTempContent] = useState('// Start coding here...\n');
+  const [tempLanguage, setTempLanguage] = useState('javascript');
+
+  const currentContent = state.activeFile?.content ?? tempContent;
+  const currentLanguage = state.activeFile?.language ?? tempLanguage;
+  const isUnsaved = state.activeFile?.isUnsaved ?? (tempContent !== '// Start coding here...\n');
 
   const handleContentChange = (content: string) => {
-    dispatch({ type: 'UPDATE_FILE_CONTENT', payload: { content } });
+    if (state.activeFile) {
+      dispatch({ type: 'UPDATE_FILE_CONTENT', payload: { content } });
+    } else {
+      setTempContent(content);
+    }
   };
 
   const handleSave = () => {
     if (state.activeFile?.isUnsaved) {
       dispatch({ type: 'SAVE_FILE' });
+    } else if (!state.activeFile && tempContent.trim() !== '' && tempContent !== '// Start coding here...\n') {
+      // Prompt user to create project and file to save their work
+      if (state.projects.length === 0) {
+        alert('Please create a project first to save your code. Click on "New Project" in the sidebar.');
+      } else {
+        // If there are projects, open create file dialog for the first project
+        openDialog(state.projects[0].id);
+      }
     }
   };
 
   const handleRun = async () => {
-    if (!state.activeFile) {
+    const codeToRun = currentContent;
+    const languageToUse = currentLanguage;
+
+    if (!codeToRun.trim()) {
       dispatch({ 
         type: 'SET_OUTPUT', 
-        payload: { output: 'Error: No file selected' } 
+        payload: { output: 'Error: No code to run' } 
       });
       return;
     }
@@ -50,10 +75,7 @@ const CodeEditor: React.FC = () => {
     dispatch({ type: 'SET_RUNNING', payload: { isRunning: true } });
     
     try {
-      const result = await compileCode(
-        state.activeFile.content,
-        state.activeFile.language
-      );
+      const result = await compileCode(codeToRun, languageToUse);
       
       dispatch({ 
         type: 'SET_OUTPUT', 
@@ -68,7 +90,7 @@ const CodeEditor: React.FC = () => {
             content: `I noticed there's a compilation error: ${result.error}. Would you like help fixing it?`
           }
         });
-        dispatch({ type: 'SET_ACTIVE_TAB', payload: { tab: 'ai' } });
+        dispatch({ type: 'SET_RIGHT_TAB', payload: { tab: 'ai' } });
       }
       
     } catch (error) {
@@ -82,12 +104,17 @@ const CodeEditor: React.FC = () => {
   };
 
   const handleLanguageChange = (language: string) => {
-    if (state.activeFile && state.activeFile.language !== language) {
-      dispatch({
-        type: 'UPDATE_FILE_CONTENT',
-        payload: { content: state.activeFile.content }
-      });
+    if (state.activeFile) {
+      // For active files, we don't change language directly - this would need file recreation
+      // For now, just update temp language
+    } else {
+      setTempLanguage(language);
     }
+  };
+
+  const handleCreateProject = () => {
+    // This would trigger project creation dialog - for now just show alert
+    alert('Click on "New Project" in the sidebar to create a project and save your code.');
   };
 
   useEffect(() => {
@@ -96,21 +123,10 @@ const CodeEditor: React.FC = () => {
       textarea.style.height = 'auto';
       textarea.style.height = textarea.scrollHeight + 'px';
     }
-  }, [state.activeFile?.content]);
+  }, [currentContent]);
 
-  if (!state.activeFile) {
-    return (
-      <div className="h-full flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <Code className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No file selected</h3>
-          <p className="text-gray-500">Create a new project and file to start coding</p>
-        </div>
-      </div>
-    );
-  }
-
-  const lineCount = state.activeFile.content.split('\n').length;
+  const lineCount = currentContent.split('\n').length;
+  const fileName = state.activeFile?.name || 'Untitled';
 
   return (
     <div className="h-full flex flex-col">
@@ -120,7 +136,7 @@ const CodeEditor: React.FC = () => {
           <div className="flex items-center space-x-2">
             <span className="text-sm font-medium text-gray-700">Language:</span>
             <Select
-              value={state.activeFile.language}
+              value={currentLanguage}
               onValueChange={handleLanguageChange}
             >
               <SelectTrigger className="w-40">
@@ -137,17 +153,28 @@ const CodeEditor: React.FC = () => {
           </div>
           
           <div className="text-sm text-gray-500">
-            {state.activeFile.name}
-            {state.activeFile.isUnsaved && (
+            {fileName}
+            {isUnsaved && (
               <span className="text-orange-600 ml-1">• (unsaved)</span>
             )}
           </div>
         </div>
 
         <div className="flex items-center space-x-2">
+          {!state.activeFile && tempContent.trim() !== '' && tempContent !== '// Start coding here...\n' && (
+            <Button
+              onClick={handleCreateProject}
+              variant="outline"
+              size="sm"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Save to Project
+            </Button>
+          )}
+          
           <Button
             onClick={handleSave}
-            disabled={!state.activeFile.isUnsaved}
+            disabled={!isUnsaved}
             variant="outline"
             size="sm"
           >
@@ -187,7 +214,7 @@ const CodeEditor: React.FC = () => {
           <div className="flex-1 p-4 overflow-auto">
             <textarea
               ref={textareaRef}
-              value={state.activeFile.content}
+              value={currentContent}
               onChange={(e) => handleContentChange(e.target.value)}
               className="w-full h-full font-mono text-sm border-none resize-none focus:outline-none bg-transparent leading-6"
               placeholder="Start coding..."
