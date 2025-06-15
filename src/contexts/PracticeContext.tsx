@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, ReactNode, useMemo } from 'react';
+import React, { createContext, useContext, useReducer, ReactNode, useMemo, useEffect } from 'react';
 
 export interface Project {
   id: string;
@@ -52,7 +52,9 @@ type PracticeAction =
   | { type: 'SET_VIDEO_URL'; payload: { url: string | null } }
   | { type: 'SET_SEARCH_RESULTS'; payload: { results: Array<{ id: string; title: string; url: string; thumbnail: string; }> } }
   | { type: 'ADD_CHAT_MESSAGE'; payload: { role: 'user' | 'assistant'; content: string } }
-  | { type: 'SET_AI_TYPING'; payload: { isTyping: boolean } };
+  | { type: 'SET_AI_TYPING'; payload: { isTyping: boolean } }
+  | { type: 'INIT_DEFAULT_PROJECT' }
+  | { type: 'SET_FILE_LANGUAGE'; payload: { language: string } };
 
 const initialState: PracticeState = {
   projects: [],
@@ -92,6 +94,33 @@ const getLangFromFilename = (filename: string): string | undefined => {
   if (!ext) return undefined;
   return EXT_TO_LANG[ext];
 };
+
+function getDefaultProject(): Project {
+  return {
+    id: `project_default`,
+    name: 'Default Project',
+    files: [
+      {
+        id: `file_untitled`,
+        name: 'untitled.js',
+        content: '',
+        language: 'javascript',
+        isUnsaved: true,
+      },
+    ],
+    createdAt: new Date(),
+  };
+}
+
+function getUntitledFile(language = 'javascript'): CodeFile {
+  return {
+    id: `file_untitled`,
+    name: `untitled.${Object.keys(EXT_TO_LANG).find(k => EXT_TO_LANG[k] === language) || 'js'}`,
+    content: '',
+    language,
+    isUnsaved: true,
+  };
+}
 
 const practiceReducer = (state: PracticeState, action: PracticeAction): PracticeState => {
   switch (action.type) {
@@ -360,6 +389,31 @@ const practiceReducer = (state: PracticeState, action: PracticeAction): Practice
         isAiTyping: action.payload.isTyping,
       };
     
+    case 'INIT_DEFAULT_PROJECT': {
+      if (state.projects.length === 0) {
+        const project = getDefaultProject();
+        return {
+          ...state,
+          projects: [project],
+          activeProject: project,
+          activeFile: project.files[0],
+        };
+      }
+      return state;
+    }
+    
+    case 'SET_FILE_LANGUAGE': {
+      // If language changed, set untitled state
+      if (!state.activeFile) return state;
+      const newLang = action.payload.language;
+      const untitledFile = getUntitledFile(newLang);
+      return {
+        ...state,
+        activeFile: untitledFile,
+        activeProject: state.activeProject,
+      };
+    }
+    
     default:
       return state;
   }
@@ -386,8 +440,16 @@ interface PracticeProviderProps {
 
 export const PracticeProvider: React.FC<PracticeProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(practiceReducer, initialState);
-  
-  const contextValue = useMemo(() => ({
+
+  // On first mount, create a default project and untitled file if none exist
+  React.useEffect(() => {
+    if (state.projects.length === 0) {
+      dispatch({ type: 'INIT_DEFAULT_PROJECT' } as any);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const contextValue = React.useMemo(() => ({
     state,
     dispatch
   }), [state, dispatch]);

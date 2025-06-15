@@ -1,5 +1,4 @@
-
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -12,6 +11,9 @@ import { Play, Save, Loader2, Code } from 'lucide-react';
 import { usePractice } from '@/contexts/PracticeContext';
 import { compileCode } from '@/services/compilerService';
 import { useToast } from "@/components/ui/use-toast";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 const SUPPORTED_LANGUAGES = [
   { value: 'javascript', label: 'JavaScript' },
@@ -42,6 +44,8 @@ const EXT_TO_LANG: Record<string, string> = {
   rs: 'rust',
 };
 
+const SUPPORTED_EXTENSIONS = Object.keys(EXT_TO_LANG);
+
 const getLangFromFilename = (filename: string): string | undefined => {
   const ext = filename.split('.').pop()?.toLowerCase();
   if (!ext) return undefined;
@@ -53,17 +57,20 @@ const CodeEditor: React.FC = () => {
   const { toast } = useToast();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  // Dialog state for create project/file
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+
   const handleContentChange = (content: string) => {
     dispatch({ type: 'UPDATE_FILE_CONTENT', payload: { content } });
   };
 
-  const handleSave = () => {
-    if (state.activeFile?.isUnsaved) {
-      dispatch({ type: 'SAVE_FILE' });
-    }
-  };
-
+  // Handle running code, prompt for project/file if in untitled state
   const handleRun = async () => {
+    if (!state.activeFile || state.activeFile.name.startsWith("untitled")) {
+      setShowCreateDialog(true);
+      return;
+    }
+
     if (!state.activeFile) {
       dispatch({ 
         type: 'SET_OUTPUT', 
@@ -106,8 +113,29 @@ const CodeEditor: React.FC = () => {
     }
   };
 
-  // Ensure dropdown language selection matches the file extension and give a warning if conflicting
+  // Save also prompts to create project/file if untitled
+  const handleSave = () => {
+    if (!state.activeFile || state.activeFile.name.startsWith("untitled")) {
+      setShowCreateDialog(true);
+      return;
+    }
+
+    if (state.activeFile?.isUnsaved) {
+      dispatch({ type: 'SAVE_FILE' });
+    }
+  };
+
+  // Handle language dropdown change: goes to untitled state
   const handleLanguageChange = (language: string) => {
+    dispatch({ type: 'SET_FILE_LANGUAGE', payload: { language } });
+    toast({
+      title: "New language selected",
+      description: "Editor is now in untitled mode for this language. Please save as a file.",
+    });
+  };
+
+  // Ensure dropdown language selection matches the file extension and give a warning if conflicting
+  useEffect(() => {
     if (state.activeFile) {
       // Warn if selected language does not match extension
       const extLang = getLangFromFilename(state.activeFile.name);
@@ -125,7 +153,7 @@ const CodeEditor: React.FC = () => {
         }
       });
     }
-  };
+  }, [state.activeFile, dispatch, toast]);
 
   // Auto-set language when new file is selected/renamed (always in sync with extension)
   useEffect(() => {
@@ -165,6 +193,29 @@ const CodeEditor: React.FC = () => {
       textarea.style.height = textarea.scrollHeight + 'px';
     }
   }, [state.activeFile?.content]);
+
+  // Handle the create dialog (simple version -- just shows info)
+  const CreateDialog = () => (
+    <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>No file or project</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-2">
+          <p>
+            You must create a Project and File to save or run your code.
+          </p>
+          <Button className="w-full bg-indigo-600 hover:bg-indigo-700" onClick={() => {
+            setShowCreateDialog(false);
+            // Open actual project creation in sidebar (not handled from here)
+            // You may trigger a custom event or global state if desired
+          }}>
+            Create Project & File
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
 
   if (!state.activeFile) {
     return (
@@ -264,6 +315,7 @@ const CodeEditor: React.FC = () => {
           </div>
         </div>
       </div>
+      <CreateDialog />
     </div>
   );
 };
