@@ -7,9 +7,11 @@ import PracticeNavigation from './PracticeNavigation';
 import ProjectsSidebar from './sidebar/ProjectsSidebar';
 import MainWorkspace from './workspace/MainWorkspace';
 import RightPanel from './workspace/RightPanel';
+import { useToast } from '@/components/ui/use-toast'; // import shadcn/ui toast
 
 const PracticeLayout: React.FC = () => {
   const { state, dispatch } = usePractice();
+  const { toast } = useToast();
 
   // Debounce the file content for auto-save (3 seconds)
   const debouncedContent = useDebounce(state.activeFile?.content || '', 3000);
@@ -17,13 +19,26 @@ const PracticeLayout: React.FC = () => {
   // Auto-save functionality - triggers 3 seconds after content changes
   useEffect(() => {
     if (!state.activeFile?.isUnsaved || !debouncedContent) return;
-    
-    // Only auto-save if there's actual content and the file is marked as unsaved
-    if (state.activeFile && state.activeFile.isUnsaved && debouncedContent.trim() !== '') {
-      console.log('Auto-saving file:', state.activeFile.name);
+
+    if (
+      state.activeFile &&
+      state.activeFile.isUnsaved &&
+      debouncedContent.trim() !== ''
+    ) {
+      console.log(
+        'Auto-saving file:',
+        state.activeFile.name,
+        '| Content snapshot:',
+        debouncedContent.slice(0, 60)
+      );
       dispatch({ type: 'SAVE_FILE' });
+      toast({
+        title: 'Auto-saved!',
+        description: `File "${state.activeFile.name}" was saved automatically.`,
+        duration: 2000,
+      });
     }
-  }, [debouncedContent, state.activeFile?.isUnsaved, dispatch]);
+  }, [debouncedContent, state.activeFile?.isUnsaved, dispatch, toast, state.activeFile?.name]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -34,7 +49,7 @@ const PracticeLayout: React.FC = () => {
           dispatch({ type: 'SAVE_FILE' });
         }
       }
-      
+
       if ((e.ctrlKey || e.metaKey) && e.key === 'i') {
         e.preventDefault();
         if (state.aiAssistantEnabled) {
@@ -51,14 +66,14 @@ const PracticeLayout: React.FC = () => {
     <div className="h-full flex flex-col bg-background">
       {/* Fixed Navigation */}
       <PracticeNavigation />
-      
+
       {/* Main Content Area */}
       <div className="flex-1 flex min-h-0">
         {/* Projects Sidebar - Fixed width */}
         <div className="flex-shrink-0">
           <ProjectsSidebar />
         </div>
-        
+
         {/* Resizable Content Area */}
         <div className="flex-1 min-w-0">
           <ResizablePanelGroup direction="horizontal" className="h-full">
@@ -66,10 +81,10 @@ const PracticeLayout: React.FC = () => {
             <ResizablePanel defaultSize={60} minSize={30} className="min-w-0">
               <MainWorkspace />
             </ResizablePanel>
-            
+
             {/* Resizable Handle */}
             <ResizableHandle withHandle />
-            
+
             {/* Right Panel for Output/AI/Video */}
             <ResizablePanel defaultSize={40} minSize={25} className="min-w-0">
               <RightPanel />
