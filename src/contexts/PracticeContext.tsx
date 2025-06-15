@@ -125,21 +125,18 @@ const practiceReducer = (state: PracticeState, action: PracticeAction): Practice
         isUnsaved: false,
       };
 
-      // Defensive: flatten file arrays in case of recursion
-      const ensureFlatFiles = (files: CodeFile[]) =>
-        Array.isArray(files) ? files.filter(Boolean) : [];
+      // Only update the files for the matching project
+      const updatedProjects = state.projects.map(p => {
+        if (p.id === action.payload.projectId) {
+          const updatedFiles = [...p.files, newFile];
+          return { ...p, files: updatedFiles };
+        }
+        return p;
+      });
 
-      const updatedProjects = state.projects.map(p =>
-        p.id === action.payload.projectId
-          ? { ...p, files: ensureFlatFiles([...p.files, newFile]) }
-          : { ...p, files: ensureFlatFiles(p.files) }
-      );
-
-      const updatedActiveProject = state.activeProject?.id === action.payload.projectId
-        ? { ...state.activeProject, files: ensureFlatFiles([...state.activeProject.files, newFile]) }
-        : state.activeProject
-          ? { ...state.activeProject, files: ensureFlatFiles(state.activeProject.files) }
-          : state.activeProject;
+      // Set updatedActiveProject to the actual object from the updatedProjects array (maintain referential integrity)
+      const updatedActiveProject =
+        updatedProjects.find(p => p.id === action.payload.projectId) || state.activeProject;
 
       return {
         ...state,
@@ -202,30 +199,25 @@ const practiceReducer = (state: PracticeState, action: PracticeAction): Practice
     case 'UPDATE_FILE_CONTENT': {
       if (!state.activeFile || !state.activeProject) return state;
 
-      // Update activeFile, activeProject.files, and the right file in projects array
       const updatedFile: CodeFile = {
         ...state.activeFile,
         content: action.payload.content,
         isUnsaved: true
       };
 
-      // Update files array in activeProject
       const updatedProjectFiles = state.activeProject.files.map(f =>
         f.id === updatedFile.id ? updatedFile : f
       );
 
-      // Update activeProject
-      const updatedActiveProject = {
-        ...state.activeProject,
-        files: updatedProjectFiles
-      };
-
-      // Update projects array
       const updatedProjects = state.projects.map(p =>
         p.id === state.activeProject?.id
           ? { ...p, files: updatedProjectFiles }
           : p
       );
+
+      // Use updated activeProject from updatedProjects for referential integrity
+      const updatedActiveProject =
+        updatedProjects.find(p => p.id === state.activeProject?.id) || state.activeProject;
 
       return {
         ...state,
@@ -244,23 +236,19 @@ const practiceReducer = (state: PracticeState, action: PracticeAction): Practice
         lastSaved: new Date() 
       };
 
-      // Update files array in activeProject
       const savedProjectFiles = state.activeProject.files.map(f =>
         f.id === savedFile.id ? savedFile : f
       );
 
-      // Update activeProject
-      const savedActiveProject = {
-        ...state.activeProject,
-        files: savedProjectFiles
-      };
-
-      // Update projects array
       const savedProjects = state.projects.map(p =>
         p.id === state.activeProject?.id
           ? { ...p, files: savedProjectFiles }
           : p
       );
+
+      // Use updated activeProject from savedProjects for referential integrity
+      const savedActiveProject =
+        savedProjects.find(p => p.id === state.activeProject?.id) || state.activeProject;
 
       console.log('Saving file:', savedFile.name, 'Content length:', savedFile.content.length);
 
