@@ -41,6 +41,19 @@ const EXT_TO_LANG: Record<string, string> = {
   rs: 'rust',
 };
 
+// Map language to default extension
+const LANG_TO_EXT: Record<string, string> = {
+  javascript: 'js',
+  typescript: 'ts',
+  python: 'py',
+  java: 'java',
+  cpp: 'cpp',
+  c: 'c',
+  csharp: 'cs',
+  go: 'go',
+  rust: 'rs',
+};
+
 const getLangFromFilename = (filename: string): string | undefined => {
   const ext = filename.split('.').pop()?.toLowerCase();
   if (!ext) return undefined;
@@ -106,27 +119,43 @@ const CodeEditor: React.FC = () => {
 
   const handleLanguageChange = (language: string) => {
     if (state.activeFile && state.activeFile.language !== language) {
-      // Just change the language, keep content the same
-      dispatch({
-        type: 'UPDATE_FILE_CONTENT',
-        payload: { content: state.activeFile.content }
-      });
-      // Actually update the language in the file object:
-      dispatch({
-        type: 'RENAME_FILE',
-        payload: {
-          projectId: state.activeProject?.id ?? "",
-          fileId: state.activeFile.id,
-          name: state.activeFile.name
-        }
-      });
-      // Now update the language property (must extend the reducer/action to support this in real project)
-      dispatch({
-        type: 'SET_ACTIVE_FILE',
-        payload: {
-          file: { ...state.activeFile, language }
-        }
-      });
+      const currentName = state.activeFile.name;
+      const parts = currentName.split('.');
+      const baseName = parts.length > 1 ? parts.slice(0, -1).join('.') : currentName.split('.')[0];
+      const newExt = LANG_TO_EXT[language] || '';
+      // Only do the rename if extension will actually change!
+      let newName = baseName + (newExt ? `.${newExt}` : '');
+
+      // If already matches, don't change
+      if (currentName === newName && state.activeFile.language === language) return;
+
+      // Actually update file name if extension differs
+      if (currentName !== newName) {
+        // Rename in state:
+        dispatch({
+          type: 'RENAME_FILE',
+          payload: {
+            projectId: state.activeProject?.id ?? "",
+            fileId: state.activeFile.id,
+            name: newName,
+          }
+        });
+        // Also update active file ref:
+        dispatch({
+          type: 'SET_ACTIVE_FILE',
+          payload: {
+            file: { ...state.activeFile, name: newName, language }
+          }
+        });
+      } else {
+        // Extension already matches, just change language
+        dispatch({
+          type: 'SET_ACTIVE_FILE',
+          payload: {
+            file: { ...state.activeFile, language }
+          }
+        });
+      }
     }
   };
 

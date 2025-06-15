@@ -12,20 +12,35 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
+// Mapping between languages and extensions
+const LANGUAGE_EXTENSIONS: Record<string, string[]> = {
+  javascript: ['js', 'jsx'],
+  typescript: ['ts', 'tsx'],
+  python: ['py'],
+  java: ['java'],
+  cpp: ['cpp', 'cc', 'cxx'],
+  c: ['c', 'h'],
+  csharp: ['cs'],
+  go: ['go'],
+  rust: ['rs'],
+};
+
 interface RenameDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   type: 'project' | 'file';
   currentName: string;
   onRename: (name: string) => void;
+  currentLanguage?: string;
 }
 
-const RenameDialog: React.FC<RenameDialogProps> = ({ 
-  open, 
-  onOpenChange, 
-  type, 
-  currentName, 
-  onRename 
+const RenameDialog: React.FC<RenameDialogProps> = ({
+  open,
+  onOpenChange,
+  type,
+  currentName,
+  onRename,
+  currentLanguage,
 }) => {
   const [name, setName] = useState('');
   const [error, setError] = useState('');
@@ -37,15 +52,21 @@ const RenameDialog: React.FC<RenameDialogProps> = ({
     }
   }, [open, currentName]);
 
+  const getExt = (fileName: string) => {
+    const segs = fileName.split('.');
+    if (segs.length <= 1) return '';
+    return segs.pop()?.toLowerCase() || '';
+  };
+
   const validateName = (name: string): string | null => {
     if (!name.trim()) {
       return `${type === 'project' ? 'Project' : 'File'} name is required`;
     }
-    
+
     if (name.length < 2) {
       return `${type === 'project' ? 'Project' : 'File'} name must be at least 2 characters`;
     }
-    
+
     if (type === 'project') {
       if (!/^[a-zA-Z0-9_\-\s]+$/.test(name)) {
         return 'Project name can only contain letters, numbers, spaces, hyphens, and underscores';
@@ -54,20 +75,30 @@ const RenameDialog: React.FC<RenameDialogProps> = ({
       if (!/^[a-zA-Z0-9_\-\.]+$/.test(name)) {
         return 'File name can only contain letters, numbers, hyphens, underscores, and dots';
       }
+      if (currentLanguage) {
+        const ext = getExt(name);
+        const validExts = LANGUAGE_EXTENSIONS[currentLanguage];
+        if (!validExts || validExts.length === 0) {
+          return `Invalid language for file extension validation`;
+        }
+        if (!validExts.includes(ext)) {
+          return `File extension must match the current language (${currentLanguage}: ${validExts.join(', ')})`;
+        }
+      }
     }
-    
+
     return null;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const validationError = validateName(name);
     if (validationError) {
       setError(validationError);
       return;
     }
-    
+
     onRename(name.trim());
     onOpenChange(false);
   };
@@ -88,7 +119,7 @@ const RenameDialog: React.FC<RenameDialogProps> = ({
               Enter a new name for your {type}.
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
               <Label htmlFor="name">Name</Label>
@@ -108,7 +139,7 @@ const RenameDialog: React.FC<RenameDialogProps> = ({
               )}
             </div>
           </div>
-          
+
           <DialogFooter>
             <Button type="button" variant="outline" onClick={handleCancel}>
               Cancel
@@ -124,3 +155,4 @@ const RenameDialog: React.FC<RenameDialogProps> = ({
 };
 
 export default RenameDialog;
+

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { File, MoreVertical, Circle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -16,10 +15,9 @@ interface FileItemProps {
   projectId: string;
 }
 
-const FileItem: React.FC<FileItemProps> = ({ file, projectId }) => {
+const FileItem: React.FC<{ file: CodeFile; projectId: string }> = ({ file, projectId }) => {
   const { state, dispatch } = usePractice();
   const [showRename, setShowRename] = useState(false);
-  const [isRenaming, setIsRenaming] = useState(false);
 
   const isActive = state.activeFile?.id === file.id;
 
@@ -110,9 +108,10 @@ const FileItem: React.FC<FileItemProps> = ({ file, projectId }) => {
         onOpenChange={setShowRename}
         type="file"
         currentName={file.name}
-        onRename={(name) => dispatch({ 
-          type: 'RENAME_FILE', 
-          payload: { projectId, fileId: file.id, name } 
+        currentLanguage={file.language}
+        onRename={(name) => dispatch({
+          type: 'RENAME_FILE',
+          payload: { projectId, fileId: file.id, name }
         })}
       />
     </div>
@@ -120,4 +119,3 @@ const FileItem: React.FC<FileItemProps> = ({ file, projectId }) => {
 };
 
 export default FileItem;
-
