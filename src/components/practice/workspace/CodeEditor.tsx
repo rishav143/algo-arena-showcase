@@ -122,41 +122,43 @@ const CodeEditor: React.FC = () => {
 
     const currentName = state.activeFile.name;
     const parts = currentName.split('.');
-    const baseName = parts.length > 1 ? parts.slice(0, -1).join('.') : currentName.split('.')[0];
+    const baseName = parts.length > 1 ? parts.slice(0, -1).join('.') : currentName;
     const newExt = LANG_TO_EXT[language] || '';
     const newName = baseName + (newExt ? `.${newExt}` : '');
     const newContent = getLanguageTemplate(language);
 
-    // This function now always fetches the latest file by id from state before updating, ensuring a new ref
-    const updateActiveFileAndContent = () => {
+    // Helper to update the active file cleanly after a potential rename action
+    const setActiveFileWithLatest = (name: string, lang: string, content: string) => {
       const latestProject = state.projects.find((p) => p.id === state.activeProject?.id);
-      // Find by *name* AND *id* for extra safety after multiple rapid language changes
-      const latestFile = latestProject?.files.find((f) =>
+      const updatedFile = latestProject?.files.find((f) =>
         f.id === state.activeFile?.id ||
-        (f.name === newName && f.language === language)
+        (f.name === name && f.language === lang)
       );
-      if (latestFile) {
-        // Always dispatch with a whole new file reference (including new name, language, content)
+      if (updatedFile) {
+        // Always update name (since it may have been updated via rename),
+        // and content/language together, isUnsaved true so UI sees it
         dispatch({
           type: 'SET_ACTIVE_FILE',
           payload: {
             file: {
-              ...latestFile,
-              name: newName,
-              language,
-              content: newContent,
+              ...updatedFile,
+              name,
+              language: lang,
+              content,
               isUnsaved: true,
-            },
-          },
+            }
+          }
         });
+        // Also update the file content for the rest of the system
         dispatch({
           type: 'UPDATE_FILE_CONTENT',
-          payload: { content: newContent },
+          payload: { content },
         });
       }
     };
 
     if (currentName !== newName) {
+      // 1. Rename, then in next tick update language/content using FRESH NAME
       dispatch({
         type: 'RENAME_FILE',
         payload: {
@@ -165,10 +167,13 @@ const CodeEditor: React.FC = () => {
           name: newName,
         },
       });
-      // Rely on next state update—setTimeout will batch behind reducer, just a tick is enough
-      setTimeout(updateActiveFileAndContent, 0);
+
+      setTimeout(() => {
+        setActiveFileWithLatest(newName, language, newContent);
+      }, 0);
     } else {
-      updateActiveFileAndContent();
+      // No rename, but still need to update both language/content
+      setActiveFileWithLatest(newName, language, newContent);
     }
   };
 
