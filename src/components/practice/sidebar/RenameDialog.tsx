@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
@@ -11,6 +10,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { EXT_TO_LANG } from '../workspace/languageMaps';
 
 // Mapping between languages and extensions
 const LANGUAGE_EXTENSIONS: Record<string, string[]> = {
@@ -75,14 +75,24 @@ const RenameDialog: React.FC<RenameDialogProps> = ({
       if (!/^[a-zA-Z0-9_\-\.]+$/.test(name)) {
         return 'File name can only contain letters, numbers, hyphens, underscores, and dots';
       }
+      
+      // Validate extension matches current language
       if (currentLanguage) {
         const ext = getExt(name);
-        const validExts = LANGUAGE_EXTENSIONS[currentLanguage];
-        if (!validExts || validExts.length === 0) {
-          return `Invalid language for file extension validation`;
+        if (!ext) {
+          return 'File must have an extension';
         }
-        if (!validExts.includes(ext)) {
-          return `File extension must match the current language (${currentLanguage}: ${validExts.join(', ')})`;
+        
+        // Check if extension is valid for any language
+        const detectedLanguage = EXT_TO_LANG[ext];
+        if (!detectedLanguage) {
+          return `Invalid file extension: .${ext}`;
+        }
+        
+        // Check if extension matches current language
+        const validExts = LANGUAGE_EXTENSIONS[currentLanguage];
+        if (!validExts || !validExts.includes(ext)) {
+          return `File extension must match the current language (${currentLanguage}: ${validExts ? validExts.join(', ') : 'unknown'})`;
         }
       }
     }
@@ -155,4 +165,3 @@ const RenameDialog: React.FC<RenameDialogProps> = ({
 };
 
 export default RenameDialog;
-

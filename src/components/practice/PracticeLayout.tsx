@@ -15,6 +15,11 @@ const PracticeLayout: React.FC = () => {
   const { state, dispatch } = usePractice();
   const { toast } = useToast();
 
+  // Initialize default project on first load
+  useEffect(() => {
+    dispatch({ type: 'INITIALIZE_DEFAULT_PROJECT' });
+  }, [dispatch]);
+
   // === INTERVAL-BASED AUTO-SAVE ===
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 

@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useReducer, ReactNode, useMemo } from 'react';
+import { getLanguageTemplate } from '@/services/compilerService';
 
 export interface Project {
   id: string;
@@ -53,7 +54,26 @@ type PracticeAction =
   | { type: 'SET_VIDEO_URL'; payload: { url: string | null } }
   | { type: 'SET_SEARCH_RESULTS'; payload: { results: Array<{ id: string; title: string; url: string; thumbnail: string; }> } }
   | { type: 'ADD_CHAT_MESSAGE'; payload: { role: 'user' | 'assistant'; content: string } }
-  | { type: 'SET_AI_TYPING'; payload: { isTyping: boolean } };
+  | { type: 'SET_AI_TYPING'; payload: { isTyping: boolean } }
+  | { type: 'INITIALIZE_DEFAULT_PROJECT' };
+
+// Create default project with main.java file
+const createDefaultProject = (): Project => {
+  const defaultFile: CodeFile = {
+    id: `file_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    name: 'main.java',
+    content: getLanguageTemplate('java'),
+    language: 'java',
+    isUnsaved: false,
+  };
+
+  return {
+    id: `project_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    name: 'My First Project',
+    files: [defaultFile],
+    createdAt: new Date(),
+  };
+};
 
 const initialState: PracticeState = {
   projects: [],
@@ -73,6 +93,18 @@ const initialState: PracticeState = {
 
 const practiceReducer = (state: PracticeState, action: PracticeAction): PracticeState => {
   switch (action.type) {
+    case 'INITIALIZE_DEFAULT_PROJECT': {
+      if (state.projects.length > 0) return state;
+      
+      const defaultProject = createDefaultProject();
+      return {
+        ...state,
+        projects: [defaultProject],
+        activeProject: defaultProject,
+        activeFile: defaultProject.files[0],
+      };
+    }
+
     case 'CREATE_PROJECT': {
       const newProject: Project = {
         id: `project_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -127,7 +159,7 @@ const practiceReducer = (state: PracticeState, action: PracticeAction): Practice
       const newFile: CodeFile = {
         id: `file_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         name: action.payload.name,
-        content: '',
+        content: getLanguageTemplate(action.payload.language),
         language: action.payload.language,
         isUnsaved: false,
       };
