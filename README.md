@@ -1,16 +1,8 @@
-# Welcome to your Lovable project
+# Welcome to CodeRoom
 
 ## Project info
 
 **URL**: https://lovable.dev/projects/5ec30818-a824-43a7-8356-0cc03a363b4f
-
-## How can I edit this code?
-
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/5ec30818-a824-43a7-8356-0cc03a363b4f) and start prompting.
 
 Changes made via Lovable will be committed automatically to this repo.
 
